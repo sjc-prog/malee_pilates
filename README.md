@@ -6,6 +6,7 @@ The dedicated website repository for MÀLEE Pilates.
 
 - `site/` — the production static website and its images
 - `wrangler.jsonc` — Cloudflare Workers static-assets deployment configuration
+- `src/worker.js` — the public/preview routing and preview password gate
 
 ## Local preview
 
@@ -20,6 +21,10 @@ npx wrangler deploy
 ```
 
 The custom domain should be attached in the Cloudflare project after the first deployment. DNS is already managed in Cloudflare.
+
+### Private preview
+
+The public root path serves the Coming Soon page. The complete site is available at `/preview/` after entering the `PREVIEW_PASSWORD` Cloudflare Worker secret. Set this secret with Wrangler before deploying; never add it to this repository.
 
 ## Source history
 

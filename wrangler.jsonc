@@ -2,6 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "malee-pilates",
   "compatibility_date": "2026-10-07",
+  "main": "src/worker.js",
   "assets": {
     "directory": "./site",
     "not_found_handling": "404-page"
