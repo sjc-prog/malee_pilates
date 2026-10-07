@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9edf0">
+  <meta name="description" content="MÀLEE Pilates is coming soon to Samui.">
+  <title>MÀLEE Pilates · Coming Soon Samui</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#403a35;--muted:#81776d;--cream:#fffaf7;--blush:#f8dadd;--pink:#cd7e91;--pink-dark:#9e5267;--sage:#bfcab6;--line:#eadeda}
+    *{box-sizing:border-box} body{margin:0;min-width:320px;background:radial-gradient(circle at 16% 16%,#fff 0 6%,transparent 26%),radial-gradient(circle at 86% 78%,#f3dce1 0,transparent 24%),var(--cream);color:var(--ink);font:400 15px/1.5 "DM Sans",sans-serif}
+    button,input{font:inherit} button{cursor:pointer}.page{min-height:100svh;display:flex;flex-direction:column;overflow:hidden}
+    .hero{min-height:57svh;display:grid;place-items:center;text-align:center;padding:34px 22px 18px;position:relative}.hero:after{content:"";width:min(600px,92vw);height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);position:absolute;bottom:0}
+    .logo-wrap{width:min(260px,66vw);margin:0 auto 23px;animation:arrive 1.4s cubic-bezier(.2,.8,.2,1) both}.logo-wrap img{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 20px #9d62731a)}
+    .eyebrow{margin:0 0 17px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--pink-dark)}
+    .coming{margin:0;font:500 clamp(19px,4.25vw,32px)/1.08 "Playfair Display",Georgia,serif;letter-spacing:-.035em;background:linear-gradient(100deg,#a95870 0%,#e7a8b6 20%,#9cad91 43%,#ead28e 59%,#89a6a6 76%,#b56078 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 6s ease-in-out infinite}
+    .services{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;max-width:430px;margin:22px auto 0}.service{width:70px;display:grid;justify-items:center;gap:6px;font-size:8px;font-weight:600;letter-spacing:.035em;line-height:1.1;text-transform:uppercase;color:#655c54}.service svg{width:34px;height:34px;padding:7px;border-radius:10px;stroke:var(--pink-dark);stroke-width:1.45;fill:#fffafa;box-shadow:inset 0 0 0 1px #e8d6d5,0 5px 12px #6d54510c;stroke-linecap:round;stroke-linejoin:round}.service:nth-child(2) svg{stroke:#77866e;fill:#f1f5eb;box-shadow:inset 0 0 0 1px #dce7d5,0 5px 12px #6d54510c}.service:nth-child(3) svg{stroke:#aa7a44;fill:#faf2df;box-shadow:inset 0 0 0 1px #eddfc4,0 5px 12px #6d54510c}.service:nth-child(4) svg{stroke:#6c9492;fill:#eaf5f3;box-shadow:inset 0 0 0 1px #d4e7e4,0 5px 12px #6d54510c}
+    .offer{padding:28px 22px 43px;text-align:center}.offer-copy{max-width:500px;margin:auto}.available{display:block;margin:0 0 10px;color:var(--pink-dark);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}.available strong{font-size:17px;letter-spacing:0}.available small{display:block;margin-top:2px;color:#9b8d84;font-size:9px;font-weight:500;letter-spacing:.08em}.offer h1{margin:0;font:500 clamp(29px,6vw,45px)/1.1 "Playfair Display",Georgia,serif;letter-spacing:-.035em}.offer p{max-width:400px;margin:11px auto 18px;color:var(--muted);font-size:13px}.cta{appearance:none;border:0;border-radius:999px;padding:15px 24px;background:linear-gradient(135deg,#c67589,#a94f66);box-shadow:0 12px 26px #a94f6630;color:white;font-size:14px;font-weight:600;transition:transform .25s ease,box-shadow .25s ease}.cta:hover{transform:translateY(-2px);box-shadow:0 16px 31px #a94f6640}.micro{display:block;margin-top:11px;color:#988d84;font-size:10px}.place{margin-top:auto;padding:14px 18px;text-align:center;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#998b81}
+    dialog{width:min(92vw,470px);max-height:92svh;padding:0;border:0;border-radius:26px;background:#fffaf8;box-shadow:0 28px 90px #4d293838;color:var(--ink)}dialog::backdrop{background:#4f384855;backdrop-filter:blur(5px)}.modal{position:relative;padding:40px 28px 28px}.close{position:absolute;right:14px;top:14px;width:35px;height:35px;border:0;border-radius:50%;background:#f3e6e5;color:#9d6572;font-size:22px;font-weight:300;line-height:1}.modal-kicker{margin:0 0 10px;color:var(--pink-dark);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}.modal h2{margin:0;font:500 33px/1.08 "Playfair Display",Georgia,serif;letter-spacing:-.035em}.modal .intro{margin:14px 0 20px;color:#6f635c;font-size:14px}.gift{padding:15px 16px;margin:0 0 20px;border-radius:16px;background:linear-gradient(120deg,#fae6ea,#f6d9df);color:#7b4051;font-size:13px;line-height:1.45}.gift strong{color:#8f4056}.fields{display:grid;gap:11px}.fields label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6e625a}.fields input{width:100%;margin-top:5px;padding:13px 14px;border:1px solid #dfcbc8;border-radius:12px;background:white;color:var(--ink);outline:none}.fields input:focus{border-color:#be6c80;box-shadow:0 0 0 3px #f4d9df}.submit{width:100%;border:0;border-radius:999px;padding:14px;margin-top:19px;background:#bd6c80;color:white;font-weight:600}.modal-note{margin:13px 0 0;text-align:center;color:#988b83;font-size:11px}.status{min-height:20px;margin:13px 0 0;color:#a0485f;text-align:center;font-size:12px}.hidden{display:none!important}.code-field{letter-spacing:.45em;text-align:center;font-size:20px}.success{padding-top:13px;text-align:center}.success .tick{display:grid;place-items:center;width:60px;height:60px;margin:0 auto 17px;border-radius:50%;background:#efc8d2;color:#9d5367;font-size:28px}.success p{color:#6f635c}.success small{display:block;margin-top:16px;color:#988b83;font-size:11px}
+    @keyframes arrive{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}@keyframes shimmer{0%,100%{background-position:100% 50%}50%{background-position:0 50%}}
+    @media(max-width:699px){.offer{padding-bottom:94px}.cta{position:fixed;z-index:10;right:20px;bottom:16px;left:20px;width:calc(100% - 40px);box-shadow:0 10px 28px #913f5660}.micro{display:none}.place{padding-bottom:88px}}
+    @media(min-width:700px){.hero{min-height:59svh;padding-top:44px}.offer{padding-top:36px}.modal{padding:44px 38px 34px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="coming-soon">
+      <div>
+        <div class="logo-wrap"><img src="/img/logo.webp" alt="MÀLEE Pilates"></div>
+        <p class="eyebrow">Fisherman's Village</p>
+        <h1 class="coming" id="coming-soon">Coming Soon Samui</h1>
+        <div class="services" aria-label="Studio services">
+          <span class="service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16M6 18V9m12 9V9M4 9h16M8 9V6m8 3V6M10 6h4"/></svg>Reformer</span>
+          <span class="service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16M7 18c1-4 2-7 5-7s4 3 5 7M8 8c1-1 2-2 4-2s3 1 4 2"/></svg>Mat Pilates</span>
+          <span class="service"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="2.5"/><path d="M7 19c1-4 2-7 5-7s4 3 5 7M5 19h14"/></svg>Private sessions</span>
+          <span class="service"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6" r="2"/><path d="M12 8v6m0-3-4 3m4-3 4 3m-7 5 3-5 3 5"/></svg>Mat Yoga</span>
+        </div>
+      </div>
+    </section>
+    <section class="offer" aria-labelledby="offer-heading">
+      <div class="offer-copy">
+        <p class="available"><strong data-remaining>23</strong> opening gifts remaining <small>from 50 opening gifts</small></p>
+        <h2 id="offer-heading">A little something for your first move.</h2>
+        <p>Join our opening list and unlock a matching credit on your first MÀLEE purchase.</p>
+        <button class="cta" id="claimButton" type="button">Claim pre-opening offer</button>
+        <span class="micro">For the first 50 MÀLEE members</span>
+      </div>
+    </section>
+    <p class="place">MÀLEE Pilates · Fisherman's Village</p>
+  </main>
+
+  <dialog id="offerModal" aria-labelledby="modalTitle">
+    <div class="modal">
+      <button class="close" type="button" id="closeModal" aria-label="Close offer">×</button>
+      <section id="detailsStep">
+        <p class="modal-kicker">MÀLEE opening gift</p>
+        <h2 id="modalTitle">Make your first move count.</h2>
+        <p class="intro">As a welcome gift, we’ll match the value of your first MÀLEE purchase with credit to use on a future product or service.</p>
+        <p class="gift"><strong>For example:</strong> make an ฿800 first purchase and receive ฿800 credit in your MÀLEE account. Your credit is added after your first booking or purchase.</p>
+        <form id="offerForm" novalidate>
+          <div class="fields">
+            <label>Your name<input id="name" name="name" autocomplete="name" required maxlength="100" placeholder="Your name"></label>
+            <label>Email address<input id="email" name="email" autocomplete="email" inputmode="email" required placeholder="you@example.com"></label>
+          </div>
+          <button class="submit" id="sendCode" type="submit">Send my verification code</button>
+        </form>
+        <p class="modal-note">We’ll use this to confirm your opening gift.</p>
+        <p class="status" id="detailsStatus" role="status"></p>
+      </section>
+      <section id="verifyStep" class="hidden">
+        <p class="modal-kicker">Almost there</p>
+        <h2>Check your email.</h2>
+        <p class="intro">We’ve sent a six-digit verification code to <strong id="sentTo"></strong>.</p>
+        <form id="verifyForm" novalidate>
+          <div class="fields"><label>Verification code<input class="code-field" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="000000"></label></div>
+          <button class="submit" id="verifyCode" type="submit">Confirm my opening gift</button>
+        </form>
+        <p class="status" id="verifyStatus" role="status"></p>
+      </section>
+      <section id="successStep" class="success hidden">
+        <div class="tick">✓</div>
+        <p class="modal-kicker">You’re confirmed</p>
+        <h2>Your opening gift is waiting.</h2>
+        <p>Once you make your first booking or purchase, your matching credit will be added to your MÀLEE account.</p>
+        <small>We’ve also sent this confirmation to your email.</small>
+      </section>
+    </div>
+  </dialog>
+  <script>
+    const modal=document.getElementById('offerModal'), claim=document.getElementById('claimButton'), close=document.getElementById('closeModal');
+    const details=document.getElementById('detailsStep'),verify=document.getElementById('verifyStep'),success=document.getElementById('successStep');
+    const emailInput=document.getElementById('email'),nameInput=document.getElementById('name'),detailsStatus=document.getElementById('detailsStatus'),verifyStatus=document.getElementById('verifyStatus');
+    let email='';
+    function show(step){details.classList.toggle('hidden',step!=='details');verify.classList.toggle('hidden',step!=='verify');success.classList.toggle('hidden',step!=='success');}
+    function setStatus(element,message){element.textContent=message||'';}
+    function updateRemaining(value){document.querySelectorAll('[data-remaining]').forEach(el=>el.textContent=value);}
+    claim.addEventListener('click',()=>{show('details');setStatus(detailsStatus,'');modal.showModal();setTimeout(()=>nameInput.focus(),100);});
+    close.addEventListener('click',()=>modal.close());
+    modal.addEventListener('click',event=>{if(event.target===modal)modal.close();});
+    fetch('/offer/status').then(r=>r.ok?r.json():null).then(data=>{if(data&&Number.isFinite(data.remaining))updateRemaining(data.remaining);}).catch(()=>{});
+    document.getElementById('offerForm').addEventListener('submit',async event=>{event.preventDefault();const name=nameInput.value.trim();email=emailInput.value.trim().toLowerCase();if(!name||!email){setStatus(detailsStatus,'Please enter your name and email address.');return;}const button=document.getElementById('sendCode');button.disabled=true;button.textContent='Sending…';setStatus(detailsStatus,'');try{const response=await fetch('/offer/start',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,email})});const data=await response.json();if(!response.ok)throw new Error(data.error||'We could not send your code. Please try again.');if(data.verified){if(Number.isFinite(data.remaining))updateRemaining(data.remaining);show('success');return;}document.getElementById('sentTo').textContent=email;show('verify');document.getElementById('code').focus();}catch(error){setStatus(detailsStatus,error.message);}finally{button.disabled=false;button.textContent='Send my verification code';}});
+    document.getElementById('verifyForm').addEventListener('submit',async event=>{event.preventDefault();const code=document.getElementById('code').value.replace(/\D/g,'');if(code.length!==6){setStatus(verifyStatus,'Enter the six-digit code from your email.');return;}const button=document.getElementById('verifyCode');button.disabled=true;button.textContent='Confirming…';setStatus(verifyStatus,'');try{const response=await fetch('/offer/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,code})});const data=await response.json();if(!response.ok)throw new Error(data.error||'We could not confirm that code.');if(Number.isFinite(data.remaining))updateRemaining(data.remaining);show('success');}catch(error){setStatus(verifyStatus,error.message);}finally{button.disabled=false;button.textContent='Confirm my opening gift';}});
+  </script>
+</body>
+</html>
