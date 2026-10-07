@@ -2,6 +2,10 @@ const encoder = new TextEncoder();
 const COOKIE_NAME = "malee_preview";
 const SESSION_VALUE = "malee-preview-v1";
 
+function waitlistResponse(title, message, status = 200) {
+  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${title} · MÀLEE Pilates</title><style>body{min-height:100svh;margin:0;display:grid;place-items:center;background:#f6f1ea;color:#3b352c;font:16px/1.5 system-ui,sans-serif}.card{width:min(90vw,390px);padding:38px 30px;border-radius:28px;background:#fff;text-align:center;box-shadow:0 24px 70px #3b352c1c}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8b7b64}.card h1{font:600 36px/1.05 Georgia,serif;margin:8px 0 14px}.card p{color:#675d51;margin:0}.card a{display:inline-block;margin-top:24px;padding:12px 17px;border-radius:999px;background:#59624f;color:#fff;text-decoration:none;font-weight:600;font-size:14px}</style></head><body><main class="card"><p class="eyebrow">MÀLEE Pilates · Fisherman's Village</p><h1>${title}</h1><p>${message}</p><a href="/">Back to MÀLEE</a></main></body></html>`, { status, headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
+}
+
 function bytesToHex(bytes) {
   return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, "0")).join("");
 }
@@ -47,6 +51,15 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const password = env.PREVIEW_PASSWORD;
+
+    if (url.pathname === "/waitlist" && request.method === "POST") {
+      const body = await request.formData();
+      const email = String(body.get("email") || "").trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return waitlistResponse("Please enter a valid email", "Use an email address so we can send you MÀLEE opening news.", 400);
+      if (!env.WAITLIST_DB) return waitlistResponse("The opening list is being prepared", "Please check back in a moment while we finish connecting the studio’s sign-up list.", 503);
+      await env.WAITLIST_DB.prepare("INSERT INTO waitlist_subscribers (email) VALUES (?1) ON CONFLICT(email) DO NOTHING").bind(email).run();
+      return waitlistResponse("You’re on the list.", "We’ll keep you close to the opening, with first access to MÀLEE classes and launch offers.");
+    }
 
     if (url.pathname === "/preview") return Response.redirect(new URL("/preview/", url), 302);
 
