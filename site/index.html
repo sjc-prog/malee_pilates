@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Màlee Pilates Studio · Opening 20 October 2026</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Màlee Pilates Studio opens 20 October 2026 in Bo Phut, Koh Samui. Explore Reformer classes, private Pilates and soft-opening offers.">
+<meta name="theme-color" content="#F6F1EA">
+<link rel="icon" type="image/webp" href="img/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@400;500;600&display=swap">
+<style>
+/* Màlee launch website. Adapted from the original approved design. One page, no build step. Motion is driven by scroll
+   progress (smoothed), and is switched off for people who ask for reduced motion. */
+:root{
+  --ink:#3B352C;--taupe:#8B7B64;--sand:#DCCDB6;--linen:#F6F1EA;--paper:#FBF9F5;--white:#fff;--mute:#7a7063;
+  --yellow:#E8C547;--green:#7FA36B;--blue:#6C8FB3;--red:#C0614F;
+  --serif:"Cormorant Garamond",Georgia,serif;--sans:Poppins,system-ui,sans-serif;
+  --g:max(20px,env(safe-area-inset-left));--ease:cubic-bezier(.22,.61,.36,1);--max:1180px
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:136px}
+body{margin:0;background:var(--linen);color:var(--ink);font:400 16px/1.65 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{display:block;max-width:100%;height:auto}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.015em;line-height:1.05;margin:0}
+p{margin:0}a{color:inherit}
+button{font:inherit;color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--g)}
+.kick{font:500 11px var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--taupe)}
+.btn{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:14px 26px;font:500 14px var(--sans);cursor:pointer;text-decoration:none;transition:transform .4s var(--ease),background .3s,color .3s}
+.btn:hover{transform:translateY(-2px)}
+.btn-ink{background:var(--ink);color:var(--linen)}
+.btn-line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(59,53,44,.35)}
+.btn-sm{padding:9px 16px;font-size:12.5px}
+
+
+/* header */
+.hdr{position:fixed;top:46px;left:0;right:0;z-index:50;transition:background .4s,box-shadow .4s}
+.hdr.is-solid{background:rgba(246,241,234,.9);backdrop-filter:blur(10px);box-shadow:0 1px 0 rgba(59,53,44,.08)}
+.hdr-in{max-width:var(--max);margin:0 auto;padding:14px var(--g);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hdr img{width:120px}
+.hdr nav{display:flex;gap:26px;font:500 13px var(--sans)}
+.hdr nav a{text-decoration:none;opacity:.8}
+.hdr nav a:hover{opacity:1}
+@media(max-width:860px){.hdr nav{display:none}}
+
+/* ---- scene 1: the studio opens up ---- */
+.open{height:230vh;position:relative}
+.open-stick{--bw:min(1240px,94vw,calc((100svh - 400px) * 3.52));--bh:calc(var(--bw) * 353 / 1244);position:sticky;top:46px;height:calc(100vh - 46px);height:calc(100svh - 46px);overflow:hidden;display:grid;place-items:center}
+/* the studio photo is a wide panorama: it opens from a sliver into a band */
+.open-photo{position:absolute;left:50%;top:50%;width:var(--bw);aspect-ratio:1244/353;transform:translate(-50%,-62%);border-radius:26px;overflow:hidden;will-change:clip-path,transform;box-shadow:0 40px 80px rgba(59,53,44,.18)}
+.open-photo img{width:100%;height:100%;object-fit:cover;will-change:transform}
+.open-mark{position:relative;z-index:2;text-align:center;will-change:transform,opacity}
+.open-mark img{width:min(560px,78vw);margin:0 auto}
+.open-mark p{margin-top:18px;font:italic 500 clamp(20px,2.4vw,30px) var(--serif);color:var(--ink)}
+.open-copy{position:absolute;z-index:2;left:0;right:0;top:calc(50% + var(--bh) * .38 + 22px);text-align:center;opacity:0;will-change:opacity,transform}
+.open-copy h1{font-size:clamp(34px,min(6vw,8svh),84px);padding:0 var(--g)}
+.open-copy .btn{margin-top:18px}
+/* on a phone the panorama is cropped to a taller frame, still at full resolution */
+@media(max-width:700px){.open-stick{--bw:92vw;--bh:calc(92vw * .8)}.open-photo{aspect-ratio:5/4}.open-photo img{object-position:42% 50%}}
+.open-kick{position:absolute;z-index:2;left:0;right:0;bottom:calc(50% + var(--bh) * .62 + 18px);text-align:center;opacity:0}
+.open-copy .btn{margin-top:26px}
+
+/* reveal */
+.motion [data-r]{opacity:0;transform:translateY(34px);transition:opacity 1s var(--ease),transform 1.1s var(--ease)}
+.motion [data-r].in{opacity:1;transform:none}
+.motion [data-r="2"]{transition-delay:.12s}.motion [data-r="3"]{transition-delay:.24s}.motion [data-r="4"]{transition-delay:.36s}
+
+/* ---- intro ---- */
+.intro{padding:clamp(90px,12vw,170px) 0}
+.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,90px);align-items:center}
+.intro h2{font-size:clamp(38px,5vw,68px)}
+.intro p{margin-top:22px;font-size:17px;color:#554c40;max-width:48ch}
+.intro-photo{position:relative;border-radius:28px;overflow:hidden;aspect-ratio:4/5}
+.intro-photo img{position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;object-position:50% 30%;will-change:transform}
+.intro-facts{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
+.intro-facts b{display:block;font:600 34px/1 var(--serif)}
+.intro-facts span{font-size:12.5px;color:var(--mute)}
+@media(max-width:860px){.intro-grid{grid-template-columns:1fr}.intro-photo{aspect-ratio:4/4.4}}
+
+/* ---- classes: a rail that moves sideways as you scroll ---- */
+.classes{height:300vh;position:relative;background:var(--paper)}
+.classes-stick{position:sticky;top:46px;height:calc(100vh - 46px);height:calc(100svh - 46px);overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.classes-head{max-width:var(--max);margin:0 auto 34px;padding:0 var(--g);width:100%;display:flex;justify-content:space-between;align-items:end;gap:20px}
+.classes-head h2{font-size:clamp(36px,4.6vw,60px)}
+.classes-head p{max-width:34ch;color:var(--mute);font-size:14.5px}
+.rail{display:flex;gap:18px;padding:0 var(--g);will-change:transform}
+.card{flex:0 0 clamp(270px,26vw,340px);background:var(--white);border-radius:26px;padding:26px;display:flex;flex-direction:column;min-height:360px;box-shadow:0 20px 50px rgba(59,53,44,.07);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;right:-50px;top:-50px;width:160px;height:160px;border-radius:50%;background:var(--c);opacity:.16}
+.lvl{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.lvl i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.card h3{font-size:34px;margin-top:40px}
+.card p{margin-top:10px;font-size:14.5px;color:#554c40}
+.card .btn{margin-top:auto;align-self:flex-start}
+.card-private{background:var(--ink);color:var(--linen)}
+.card-private p,.card-private .lvl{color:rgba(246,241,234,.75)}
+.card-private .btn{background:var(--linen);color:var(--ink)}
+@media(max-width:860px){
+  .classes{height:auto}.classes-stick{position:static;height:auto;padding:90px 0}
+  .rail{overflow-x:auto;scroll-snap-type:x mandatory;transform:none!important;padding-bottom:10px}
+  .card{scroll-snap-align:start;flex-basis:78vw}
+  .classes-head{flex-direction:column;align-items:start}
+}
+
+/* ---- offer ---- */
+.offer{padding:clamp(90px,12vw,160px) 0;position:relative;overflow:hidden}
+.offer-in{text-align:center}
+.offer h2{font-size:clamp(40px,6vw,84px);margin-top:14px}
+.offer .price{font:600 clamp(56px,9vw,120px)/1 var(--serif);margin-top:10px;letter-spacing:-.02em}
+.offer .sub{color:var(--mute);margin-top:8px}
+.opts{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:left}
+.opt{background:var(--white);border-radius:26px;overflow:hidden;box-shadow:0 20px 50px rgba(59,53,44,.07)}
+.opt-h{background:var(--taupe);color:var(--linen);padding:18px 26px;font:500 12px var(--sans);letter-spacing:.2em;text-transform:uppercase}
+.opt-b{padding:24px 26px 28px}
+.opt-b h3{font-size:30px}
+.opt ul{list-style:none;margin:16px 0 22px;padding:0;display:grid;gap:10px}
+.opt li{display:flex;gap:12px;font-size:15px}
+.opt li::before{content:"";flex:none;width:20px;height:20px;border-radius:50%;background:var(--sand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6 10.5l2.6 2.6L14 7.6' fill='none' stroke='%233B352C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100%}
+.opt .or{font:italic 500 18px var(--serif);color:var(--taupe);padding-left:32px}
+.fine{margin-top:22px;font-size:12.5px;color:var(--mute)}
+@media(max-width:760px){.opts{grid-template-columns:1fr}}
+
+/* ---- timetable ---- */
+.tt{padding:clamp(90px,12vw,150px) 0;background:var(--white)}
+.tt-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+.tt h2{font-size:clamp(36px,4.6vw,60px)}
+.days{display:flex;gap:6px;margin-top:30px;overflow-x:auto;padding-bottom:4px}
+.days button{flex:none;border:0;background:var(--linen);border-radius:999px;padding:10px 18px;font:500 13px var(--sans);cursor:pointer;transition:background .3s,color .3s}
+.days button[aria-selected="true"]{background:var(--ink);color:var(--linen)}
+.slots{margin-top:22px;display:grid;gap:10px}
+.slot{display:grid;grid-template-columns:110px 1fr auto;gap:18px;align-items:center;background:var(--linen);border-radius:18px;padding:16px 18px 16px 22px;animation:slot .6s var(--ease) both}
+@keyframes slot{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.slot time{font:600 15px var(--sans)}
+.slot time small{display:block;font-weight:400;font-size:12px;color:var(--mute)}
+.slot h3{font-size:24px}
+.slot .lvl{margin-top:2px}
+.slot-private{background:var(--ink);color:var(--linen)}
+.slot-private .lvl,.slot-private time small{color:rgba(246,241,234,.7)}
+.slot-private .btn{background:var(--linen);color:var(--ink)}
+.spots{font-size:12px;color:var(--mute);margin-right:10px}
+@media(max-width:620px){.slot{grid-template-columns:1fr auto}.slot time{grid-column:1/-1}}
+
+/* ---- first visit ---- */
+.visit{padding:clamp(90px,12vw,150px) 0}
+.visit h2{font-size:clamp(36px,4.6vw,60px);max-width:14ch}
+.steps{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+.step{background:var(--white);border-radius:22px;padding:24px;counter-increment:s}
+.step::before{content:counter(s,decimal-leading-zero);font:600 40px/1 var(--serif);color:var(--sand)}
+.step h3{font-size:22px;margin-top:14px}
+.step p{margin-top:6px;font-size:14px;color:#554c40}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.steps{grid-template-columns:1fr}}
+
+/* ---- find us ---- */
+.find{padding:0 0 clamp(90px,12vw,150px)}
+.find-in{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.find-card{background:var(--ink);color:var(--linen);border-radius:28px;padding:clamp(26px,4vw,48px)}
+.find-card h2{font-size:clamp(34px,4vw,54px)}
+.find-card p{margin-top:14px;color:rgba(246,241,234,.8)}
+.find-card .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.find-card .btn-line{color:var(--linen);box-shadow:inset 0 0 0 1px rgba(246,241,234,.4)}
+.find-map{border-radius:28px;overflow:hidden;min-height:320px;background:var(--sand);position:relative}
+.find-map svg{position:absolute;inset:0;width:100%;height:100%}
+@media(max-width:860px){.find-in{grid-template-columns:1fr}}
+
+footer{padding:50px 0 40px;text-align:center;color:var(--mute);font-size:12.5px}
+footer img{width:160px;margin:0 auto 14px}
+
+@media(prefers-reduced-motion:reduce){
+  .open{height:auto}.open-stick{position:relative;height:auto;padding:120px 0 60px;display:block}.open-photo,.open-copy,.open-kick,.open-mark{position:relative;left:auto;top:auto;bottom:auto;transform:none;opacity:1;margin:0 auto 24px}
+  .classes{height:auto}.classes-stick{position:static;height:auto;padding:90px 0}.rail{overflow-x:auto;transform:none!important}
+  .slot{animation:none}
+}
+
+/* Launch additions inherit the approved typography, spacing and palette. */
+.launch-bar{position:fixed;inset:0 0 auto;height:46px;z-index:60;background:var(--ink);color:var(--linen);display:flex;align-items:center;justify-content:center;gap:14px;padding:0 14px;font-size:12px;letter-spacing:.035em;text-decoration:none;text-align:center}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;font:500 10px var(--sans);letter-spacing:.2em;text-transform:uppercase;text-decoration:none;color:var(--taupe);display:flex;gap:10px;align-items:center}
+.launch-bar strong{font-weight:500}.launch-bar span{color:var(--sand)}
+.open-mark .launch-date{display:inline-block;margin-top:22px;border:1px solid var(--sand);border-radius:999px;padding:9px 20px;font:500 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;background:rgba(246,241,234,.94)}
+.open-mark .launch-note{margin-top:10px;font:400 12px var(--sans);color:var(--mute)}
+.team,.packages{padding:clamp(80px,10vw,140px) 0;background:var(--paper)}
+.team h2,.packages h2{font-size:clamp(36px,4.6vw,60px);margin-top:12px}
+.team-lead,.packages-lead{max-width:58ch;margin-top:18px;color:var(--mute)}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:38px}
+.trainer{margin:0;background:var(--white);border-radius:26px;overflow:hidden;box-shadow:0 20px 50px rgba(59,53,44,.06)}
+.trainer-photo{aspect-ratio:4/5;overflow:hidden}.trainer-photo img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.trainer:hover img{transform:scale(1.025)}.trainer figcaption{padding:24px}.trainer h3{font-size:30px}.trainer p{font-size:14px;color:var(--mute);margin-top:10px}
+.package-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;text-align:left}
+.package{background:var(--white);padding:26px 23px;border-radius:24px;display:flex;flex-direction:column;align-items:start}
+.package h3{font-size:28px;margin-top:14px}.package-price{font:600 36px/1.2 var(--serif);margin-top:18px}.package small{color:var(--mute);font-size:12px}.package p{font-size:14px;margin-top:16px}.package .btn{margin-top:24px}.package.featured{background:var(--ink);color:var(--linen)}.package.featured small,.package.featured .kick{color:var(--sand)}.package.featured .btn{background:var(--linen);color:var(--ink)}
+.private-packs{margin-top:54px}.private-packs h3{font-size:32px}.private-packs .package-grid{grid-template-columns:repeat(3,1fr)}
+.booking-note{max-width:64ch;margin:22px auto 0;color:var(--mute);font-size:12.5px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--taupe);outline-offset:5px}
+@media(max-width:1000px){.hdr nav{gap:15px;font-size:12px}.package-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.team-grid{grid-template-columns:1fr}.trainer{display:grid;grid-template-columns:44% 1fr}.trainer-photo{aspect-ratio:3/4;min-height:250px}.trainer figcaption{align-self:center;padding:20px}.private-packs .package-grid{grid-template-columns:1fr}.launch-bar{font-size:11px;gap:8px}.launch-bar .bar-location{display:none}}
+@media(max-width:440px){.package-grid{grid-template-columns:1fr}.trainer{display:block}.trainer-photo{aspect-ratio:4/4.3}.open-mark .launch-date{font-size:11px;padding:8px 14px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.motion [data-r]{opacity:1;transform:none}}
+
+
+/* Colour study: a separate, independently deployed variation. */
+:root{--ink:#334D40;--taupe:#806258;--sand:#E9CED5;--linen:#FFF7F5;--paper:#F5F9F2;--mute:#66675C;--blush:#F1D7DE;--rose:#A04969;--sage:#DFE9D8;--butter:#F4ECC7}
+.hdr.is-solid{background:rgba(255,247,245,.94)}
+.launch-bar{background:#365442;color:#fff8f5}.launch-bar span{color:#ECD6DD}
+.open-stick{background:radial-gradient(ellipse at 16% 70%,#e6efdf 0,transparent 47%),radial-gradient(ellipse at 85% 35%,#f1d4df 0,transparent 50%),#fff8f5}
+.open-photo{opacity:0;clip-path:inset(50%);transform:translate(-50%,-62%)}
+.logo-assembly{position:relative;width:min(560px,78vw);aspect-ratio:2182/884;margin:0 auto}
+.logo-assembly img{position:absolute;inset:0;width:100%;height:100%;will-change:transform;object-fit:contain}
+.logo-assembly img:first-child{position:relative}
+.open-mark .launch-date{background:#F4D9E1;border:0;color:#754057;box-shadow:0 8px 26px #9a486714}
+.open-mark .launch-note{color:#4B6656}.open-mark .hero-offer{display:block;width:fit-content;margin:18px auto 0;font-size:12px;color:#754057;text-underline-offset:5px}
+.scroll-hint{color:#5c705d}.intro{background:#FFF9F7}.intro-facts{gap:10px;flex-wrap:nowrap}.intro-facts>div{flex:1;padding:23px 12px;border-radius:65px 65px 20px 20px;text-align:center;background:var(--blush)}.intro-facts>div:nth-child(2){background:var(--sage)}.intro-facts>div:nth-child(3){background:var(--butter)}.intro-facts b{font-size:44px;margin-bottom:10px}.intro-facts span{font-size:11px;color:#52594C}
+.intro-photo{border-radius:180px 180px 28px 28px}.photo-note{position:absolute;bottom:16px;left:16px;right:16px;text-align:center;background:#fff9f1ed;border-radius:20px;padding:6px 10px;font-size:10px;color:#666054}
+.classes{background:#E5ECDD}.classes-head .kick{color:#52684d}.card{padding:20px;min-height:480px;background:#fffaf7}.card::before{display:none}.class-photo{height:170px;border-radius:15px;margin:-6px -6px 18px;overflow:hidden;flex-shrink:0}.class-photo img{height:100%;width:100%;object-fit:cover;object-position:50% 47%;transition:transform .7s}.card:hover .class-photo img{transform:scale(1.05)}.card h3{margin-top:18px;font-size:32px}.card p{margin-bottom:23px}.card:nth-child(2),.card:nth-child(5){background:#F7E4E9}.card:nth-child(3){background:#F3EFCF}.card:nth-child(4){background:#E4ECF1}.card-private{background:#365442}.card-private p,.card-private .lvl{color:#f5f2e7}
+.team{background:#FFFAF7}.trainer figcaption{background:#F4E4E7}.trainer:nth-child(2) figcaption{background:#E8EEDF}.trainer:nth-child(3) figcaption{background:#F5EDDA}
+.offer{background:#F1D7DF}.offer .kick{color:#864960}.offer .price{color:#85445E;font-size:clamp(60px,8vw,100px)}.offer h2{font-size:clamp(40px,5vw,66px)}.opt{box-shadow:none}.opt-h{background:#58715C;color:white}.opt:nth-child(2) .opt-h{background:#9D5A71}.opt-b{background:#fffaf8}.opt .or{color:#88506A}.opt li::before{background-color:#dfe9d8}.offer .fine{max-width:83ch;margin:25px auto 0;color:#68555D}
+.launch-preview{background:#365442;color:#fff8f1;padding:32px 0}.launch-preview .wrap{display:flex;gap:30px;align-items:center;justify-content:space-between}.launch-preview .kick{color:#E9BFCE}.launch-preview h2{font-size:32px;margin-top:8px}.launch-preview p{font-size:13px;margin-top:8px;color:#e0e8db}.launch-preview .btn{background:#F2D6DE;color:#533E47;flex-shrink:0}
+.packages{background:#FBF5F1}.package-grid{gap:18px}.package{position:relative;padding:30px 24px;background:#F0D7DF;border:1px solid #eac9d3;box-shadow:0 12px 30px #344c4005}.package:nth-child(2){background:#E2ECD9;border-color:#d2dfc8}.package:nth-child(3){background:#F4EBC7;border-color:#e8ddb3}.package.featured{background:#3E5C49;border-color:#3E5C49}.package h3{font-size:34px}.package-price{font-size:40px;border-top:1px solid #334d401f;padding-top:20px;width:100%}.package small{color:#585D50}.package p{font-size:13px;line-height:1.7}.package .gift{padding:12px 0;border-top:1px solid #334d401c;font-weight:500}.package .btn{margin-top:auto;min-height:42px;justify-content:center;font-size:11px;width:100%}.package .gift{margin-bottom:25px}.package.featured small,.package.featured .kick{color:#f1e7cd}.package.featured .gift{border-color:#ffffff30}.private-packs .package{background:#fffaf8;border-color:#e4d8d2}.package.featured .btn{background:#F2D6DE}.packages-lead{max-width:65ch}.package-ribbon{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}.package-ribbon span{font-size:11px;padding:7px 13px;border-radius:20px;background:#E6EDDF;color:#4f6249}.package-ribbon span:nth-child(2){background:#F1D7DF;color:#814862}
+.visit{background:#E7EEDF}.step{background:#fffbf7}.step:nth-child(even){background:#F2DEE5}.step::before{color:#976077}.find{padding-top:70px;background:#E7EEDF}.days button{background:#F4E3E8}.slot{background:#F5ECEF}.slot-private{background:var(--ink)}footer{background:#F6E7EB}
+@media(max-width:760px){.launch-preview .wrap{align-items:start;flex-direction:column;gap:18px}.intro-facts b{font-size:38px}.intro-facts>div{padding:22px 7px}.card{min-height:460px}.class-photo{height:185px}.open-mark .hero-offer{font-size:11px}.open-mark p{margin-top:12px}.open-mark .launch-date{margin-top:16px}.packages .package-grid{gap:14px}}
+@media(max-height:750px) and (min-width:861px){.class-photo{height:120px}.card{min-height:405px}.classes-head{margin-bottom:20px}.card h3{margin-top:10px}.card p{font-size:13px}.open-mark .hero-offer{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){.open-photo{opacity:1;clip-path:none}.logo-assembly img{transform:none!important}.scroll-hint{display:none}.open-stick{padding-top:130px}.class-photo img{transform:none}}
+
+
+/* Gentle launch shimmer, readable throughout; one short cycle rather than constant motion. */
+.launch-bar{background:linear-gradient(110deg,#7D3C56 0%,#A96680 30%,#82405D 62%,#994F6D 100%);isolation:isolate;overflow:hidden;color:#fffafc;border-bottom:1px solid #F2C1D3}
+.launch-bar span{color:#fff3f7}.launch-bar strong{font-weight:600}.launch-bar::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(110deg,transparent 25%,#ffeff820 42%,#fff6fc80 49%,#fff6fc25 55%,transparent 72%);transform:translateX(-120%);animation:launch-shimmer 4.8s ease-in-out .8s 1 both}.launch-bar::after{content:"✦";font-size:14px;color:#FFE1EC;animation:launch-glint 4.8s ease-in-out .8s 1 both}
+@keyframes launch-shimmer{0%,15%{transform:translateX(-120%)}75%,100%{transform:translateX(120%)}}
+@keyframes launch-glint{0%,100%{opacity:.7;transform:scale(.85)}50%{opacity:1;transform:scale(1.2)}}
+.launch-bar:hover::before{animation:none;transform:translateX(0);opacity:.4}
+.level-icon{width:22px;height:22px;flex:none}.level-badge{font-size:10px;letter-spacing:.07em;text-transform:none;font-weight:500;gap:9px;color:#485147;line-height:1.4}.level-badge .level-icon{width:31px;height:31px;padding:5px;border-radius:50%;background:color-mix(in srgb,var(--c) 23%,white);color:#3b4c3c}.card-private .level-badge{color:#fff7ec}.level-key{display:flex;gap:12px 18px;flex-wrap:wrap;margin-top:18px}.level-key>span{display:flex;align-items:center;gap:6px;font-size:11px;color:#475641}.level-key .level-icon{border-radius:50%;padding:4px;width:29px;height:29px;background:color-mix(in srgb,var(--c) 30%,white)}.slot .lvl{letter-spacing:.08em;flex-wrap:wrap}.slot .level-icon{width:18px;height:18px}.classes-head{margin-bottom:24px}
+.logo-assembly .figure-motion,.logo-assembly .figure-lines{position:absolute;inset:0;width:100%;height:100%}.figure-body{clip-path:polygon(51.3% 58%,65.5% 58%,65.5% 80%,43.5% 80%,43.5% 70%,51.3% 70%)}.logo-assembly .figure-final{opacity:1}.figure-motion{opacity:0}.motion .figure-motion{opacity:1}.motion .figure-final{opacity:0}
+@media(max-width:760px){.launch-bar{font-size:10px;gap:7px}.launch-bar::after{display:none}.level-key{gap:10px 14px}.classes-head p{margin-top:4px}}
+@media(prefers-reduced-motion:reduce){.figure-motion{display:none!important}.logo-assembly .figure-final{opacity:1!important}.launch-bar::before{display:none}.launch-bar::after{animation:none!important}}
+
+
+@media(min-width:861px){.classes-stick{top:122px;height:calc(100svh - 122px)}}
+@media(min-width:861px) and (max-height:850px){.card{min-height:390px;padding:18px}.class-photo{height:130px;margin-bottom:14px}.card h3{font-size:30px;margin-top:14px}.card p{font-size:13px;margin-bottom:16px}.classes-head h2{font-size:46px}.classes-head{margin-bottom:20px}.level-key{margin-top:12px}.classes-head p{font-size:13px}}
+
+/* A slower, three-part opening: movement, composed logo hold, landscape reveal. */
+@media(prefers-reduced-motion:no-preference){.open{height:460svh;min-height:2600px}}
+.open-stick{--bw:min(1240px,92vw,calc((100svh - 380px) * 3));--bh:calc(var(--bw) / 3)}
+.open-photo{aspect-ratio:3/1}.open-photo img{object-position:center 55%}
+@media(max-width:700px){.open-stick{--bw:92vw;--bh:calc(92vw * .72)}.open-photo{aspect-ratio:1/.72}.open-photo img{object-position:55% center}}
+.opening-photo-note{position:absolute;bottom:12px;right:14px;padding:4px 10px;background:#fff8f2d9;border-radius:20px;color:#5b5e51;font:10px var(--sans);z-index:1}
+
+.logo-assembly .figure-film{position:absolute;left:42.67%;top:12%;width:24.75%;height:68%;opacity:0;pointer-events:none}.motion .logo-assembly .figure-final{opacity:1}
+@media(prefers-reduced-motion:reduce){.figure-film{display:none!important}}
+
+@media(prefers-reduced-motion:reduce){.open-photo{position:relative;left:auto;top:auto;transform:none;opacity:1;clip-path:none}.open-copy,.open-kick,.open-mark{transform:none}.classes-stick{position:static;height:auto}.logo-assembly .figure-final{opacity:1!important}.figure-film{display:none!important}}
+</style>
+<script>(d=>{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('motion')})(document.documentElement)</script>
+</head>
+<body>
+<a class="launch-bar" href="#offer"><strong>Koh Samui · Opening 20 October</strong><span class="bar-location">Your new chapter of movement</span><span>Explore launch offers ↗</span></a>
+
+<header class="hdr" data-hdr>
+  <div class="hdr-in">
+    <a href="#top" aria-label="Màlee Pilates Studio, home"><img src="img/logo.webp" alt="Màlee Pilates Studio" width="2182" height="884"></a>
+    <nav aria-label="Main">
+      <a href="#studio">The studio</a><a href="#classes">Classes</a><a href="#team">Our team</a><a href="#offer">Offers</a><a href="#timetable">Timetable</a><a href="#packages">Packages</a><a href="#find">Find us</a>
+    </nav>
+    <a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book a class</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- 1 · the studio opens up as you scroll -->
+  <section class="open" data-open aria-label="Welcome">
+    <div class="open-stick"><a class="scroll-hint" href="#studio">Scroll to discover <span aria-hidden="true">↓</span></a>
+      <div class="open-photo" data-open-photo><img src="img/opening-landscape.png" alt="Illustrative studio interior: oak Reformers, blush arches and a sunlit tropical garden" width="2172" height="724" fetchpriority="high"><span class="opening-photo-note">Studio mood · illustrative placeholder</span></div>
+      <div class="open-mark" data-open-mark>
+        <div class="logo-assembly" role="img" aria-label="Màlee Pilates Studio"><img src="img/logo.webp" alt="" width="2182" height="884" style="clip-path:inset(0 77% 20% 0%)" data-logo-piece><img src="img/logo.webp" alt="" width="2182" height="884" style="clip-path:inset(0 56.5% 20% 23%)" data-logo-piece><canvas class="figure-film" width="384" height="384" aria-hidden="true"></canvas><img class="figure-final" src="img/logo.webp" alt="" width="2182" height="884" style="clip-path:inset(0 34.5% 20% 43.5%)"><img src="img/logo.webp" alt="" width="2182" height="884" style="clip-path:inset(0 17% 20% 65.5%)" data-logo-piece><img src="img/logo.webp" alt="" width="2182" height="884" style="clip-path:inset(0 0% 20% 83%)" data-logo-piece><img src="img/logo.webp" alt="" width="2182" height="884" style="clip-path:inset(80% 0 0)"></div>
+        <p>Move better. Feel better.</p><div class="launch-date">Our doors open 20 October 2026</div><div class="launch-note" data-launch-countdown>A new chapter of movement in Koh Samui</div><a class="hero-offer" href="#offer">Launch privileges from ฿1,800 · Explore the offers ↗</a>
+      </div>
+      <p class="open-kick kick" data-open-kick>Màlee Pilates Studio · Bo Phut, Koh Samui</p>
+      <div class="open-copy" data-open-copy>
+        <h1>Reformer Pilates, made personal</h1>
+        <a class="btn btn-ink" href="https://wba.exsportia.com/90305524/">Book your first class</a>
+      </div>
+    </div>
+  </section>
+
+<section class="launch-preview" aria-label="Opening celebrations"><div class="wrap"><div><p class="kick">Hello, Koh Samui · 20 October 2026</p><h2>A new place to move. A little gift to begin.</h2><p>First-time clients: discover our ฿1,800 pre-opening privileges for the first 100 members.</p></div><a class="btn" href="#offer">Discover launch offers ↗</a></div></section>
+  <!-- 2 · the studio -->
+  <section class="intro" id="studio" data-cue-label="The studio">
+    <div class="wrap intro-grid">
+      <div>
+        <p class="kick" data-r>The studio</p>
+        <h2 data-r="2">A calm, bright room made for moving well</h2>
+        <p data-r="3">Reformer classes for every level, from your very first session to Jumpboard cardio. Thoughtful guidance from Yui, Nex and Leaw, with space to focus on your own practice. Private 1:1 sessions are available by appointment.</p>
+        <div class="intro-facts" data-r="4">
+          <div><b>6</b><span>class types</span></div>
+          <div><b>55</b><span>minutes a class</span></div>
+          <div><b>1:1</b><span>private apparatus</span></div>
+        </div>
+      </div>
+      <div class="intro-photo" data-r="2"><img src="img/studio-mood.png" alt="Illustrative studio mood: sunlit Reformer with sage upholstery and a blush wall" width="1122" height="1402" data-parallax loading="lazy"><span class="photo-note">Studio mood · illustrative placeholder</span></div>
+    </div>
+  </section>
+
+  <!-- 3 · classes, a rail that slides with the scroll -->
+  <section class="classes" id="classes" data-classes data-cue-label="Classes">
+    <div class="classes-stick">
+      <div class="classes-head">
+        <div><p class="kick">Classes</p><h2>Find your flow</h2><div class="level-key" aria-label="Class guide"><span style="--c:var(--green)"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-8M12 14C5 14 4 8 4 5c5 0 8 3 8 7M12 11c0-5 4-7 8-7 0 5-3 8-8 8"/></svg>Beginner</span><span style="--c:var(--yellow)"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></svg>All levels</span><span style="--c:var(--blue)"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8c3-5 6 5 9 0s6 5 9 0M3 15c3-5 6 5 9 0s6 5 9 0"/></svg>Tone & flow</span><span style="--c:var(--red)"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 5 14h6l-1 8 9-13h-6l1-7Z"/></svg>Jumpboard</span></div></div>
+        <p>Find your starting point. Green is beginner-friendly; yellow and blue welcome all levels. Red identifies Jumpboard cardio.</p>
+      </div>
+      <div class="rail" data-rail>
+        <article class="card" style="--c:var(--yellow)"><div class="class-photo"><img src="img/nex.jpg" alt="Nex practising Pilates on the mat" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></svg>All levels</span><h3>Morning Glow</h3><p>First light, core alive and refreshing energy to start the day.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book</a></article>
+        <article class="card" style="--c:var(--yellow)"><div class="class-photo"><img src="img/nex-practice.jpg" alt="Nex practising a controlled mat movement" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></svg>All levels</span><h3>Full Body Flow</h3><p>Total-body toning and endurance, every muscle, one flowing class.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book</a></article>
+        <article class="card" style="--c:var(--green)"><div class="class-photo"><img src="img/yui.jpg" alt="Yui at the Pilates apparatus" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-8M12 14C5 14 4 8 4 5c5 0 8 3 8 7M12 11c0-5 4-7 8-7 0 5-3 8-8 8"/></svg>Beginner friendly</span><h3>Beginner</h3><p>First-timer friendly. Foundations, safe form and posture you’ll feel all day.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book</a></article>
+        <article class="card" style="--c:var(--blue)"><div class="class-photo"><img src="img/nex-practice.jpg" alt="Pilates practice with Nex" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8c3-5 6 5 9 0s6 5 9 0M3 15c3-5 6 5 9 0s6 5 9 0"/></svg>All levels · tone & flow</span><h3>Booty &amp; Core</h3><p>Focused movement for your glutes, core strength and stability.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book</a></article>
+        <article class="card" style="--c:var(--blue)"><div class="class-photo"><img src="img/nex.jpg" alt="Mat practice with Nex" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8c3-5 6 5 9 0s6 5 9 0M3 15c3-5 6 5 9 0s6 5 9 0"/></svg>All levels · tone & flow</span><h3>Sunset Tone</h3><p>De-stress, release office tension and sculpt before you head home.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book</a></article>
+        <article class="card" style="--c:var(--red)"><div class="class-photo"><img src="img/studio.webp" alt="Reformer equipment in the studio" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 5 14h6l-1 8 9-13h-6l1-7Z"/></svg>Jumpboard · cardio</span><h3>Jumpboard</h3><p>Energising, low-impact cardio to build endurance on the Reformer.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book</a></article>
+        <article class="card card-private" style="--c:var(--sand)"><div class="class-photo"><img src="img/leaw.jpg" alt="Leaw at the Cadillac apparatus" loading="lazy"></div><span class="lvl level-badge"><svg class="level-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3"/><path d="M6 21v-3a6 6 0 0 1 12 0v3M3 7h2m14 0h2"/></svg>1:1 · Tailored to you</span><h3>Private sessions</h3><p>One hour on the apparatus with your instructor, tailored to your body.</p><a class="btn btn-sm" href="https://wba.exsportia.com/90305524/">Choose a time</a></article>
+      </div>
+    </div>
+  </section>
+
+
+<section class="team" id="team" data-cue-label="Your instructors"><div class="wrap">
+<p class="kick" data-r>The people behind your practice</p><h2 data-r="2">Move with us</h2>
+<p class="team-lead" data-r="3">Meet Yui, Nex and Leaw. From your first Reformer class to a more focused private practice, find your rhythm with the Màlee team.</p>
+<div class="team-grid">
+<figure class="trainer" data-r><div class="trainer-photo"><img src="img/yui.jpg" alt="Kru Yui at the Pilates apparatus" loading="lazy" width="1000" height="1250"></div><figcaption><p class="kick">Pilates instructor</p><h3>Kru Yui</h3><p>Find Yui on Mondays and Tuesdays, from Morning Glow to Full Body Flow, Beginner and focused core work.</p></figcaption></figure>
+<figure class="trainer" data-r="2"><div class="trainer-photo"><img src="img/nex.jpg" alt="Kru Nex practising Pilates on the mat" loading="lazy" width="1117" height="1408"></div><figcaption><p class="kick">Pilates instructor</p><h3>Kru Nex</h3><p>Move with Nex from Wednesday to Saturday, with Reformer foundations, full-body flow and energising Jumpboard classes.</p></figcaption></figure>
+<figure class="trainer" data-r="3"><div class="trainer-photo"><img src="img/leaw.jpg" alt="Kru Leaw seated on the Cadillac apparatus" loading="lazy" width="1000" height="1250"></div><figcaption><p class="kick">Pilates instructor</p><h3>Kru Leaw</h3><p>Join Leaw on Tuesday evenings and Sunday mornings for Beginner, Full Body Flow, and Booty &amp; Core.</p></figcaption></figure>
+</div></div></section>
+
+  <!-- 4 · the pre-opening offer, from Màlee's poster -->
+  <section class="offer" id="offer" data-cue-label="Pre-opening offer">
+    <div class="wrap offer-in">
+      <p class="kick" data-r>Exclusive pre-opening offer</p>
+      <h2 data-r="2">One price, two ways to begin</h2>
+      <p class="price" data-r="3">฿1,800</p>
+      <p class="sub" data-r="3">First-time clients · pre-opening privileges for the first 100 members</p>
+      <div class="opts">
+        <div class="opt" data-r="2">
+          <div class="opt-h">Option 1 · Private trial class</div>
+          <div class="opt-b"><h3>฿1,800</h3>
+            <ul><li>1:1 private apparatus class, one hour</li><li>Free 60-minute aromatherapy massage</li><li>Personal guidance, tailored to your body</li></ul>
+            <a class="btn btn-ink" href="https://wba.exsportia.com/90305524/">Book option 1</a></div>
+        </div>
+        <div class="opt" data-r="3">
+          <div class="opt-h">Option 2 · Group classes</div>
+          <div class="opt-b"><h3>฿1,800</h3>
+            <ul><li>2 group Reformer classes</li><li>Choose one complimentary privilege:</li></ul><p class="or">1 extra Reformer class (3 in total)</p><p class="or">or a 60-minute aromatherapy massage</p>
+            <a class="btn btn-ink" href="https://wba.exsportia.com/90305524/">Book option 2</a></div>
+        </div>
+      </div>
+      <p class="fine">Choose one group-package privilege, not both. Private trial: ฿1,800 (regular ฿2,500). Group drop-in: ฿900. Advance booking required; offer eligibility and availability are confirmed by the studio.</p>
+    </div>
+  </section>
+
+<section class="packages" id="packages" data-cue-label="Soft-opening packages"><div class="wrap"><p class="kick" data-r>Soft-opening packages</p><h2 data-r="2">Make time for your practice</h2><p class="packages-lead" data-r="3">A little consistency, a little time for yourself. Choose the class pack that fits your rhythm — with a little extra care, on us.</p><div class="package-ribbon" data-r><span>From ฿650 per class</span><span>A complimentary massage with every pack</span><span>Friend passes included in group packs</span></div><div class="package-grid"><article class="package " data-r><p class="kick">Group Reformer</p><h3>5 classes</h3><div class="package-price">฿4,000</div><small>฿800 per class · 30 days</small><p>Share 1 included class with a friend.</p><p class="gift">✧ One complimentary 60-minute Thai massage.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article><article class="package " data-r><p class="kick">Group Reformer</p><h3>10 classes</h3><div class="package-price">฿7,500</div><small>฿750 per class · 60 days</small><p>Share 2 included classes with a friend.</p><p class="gift">✧ One complimentary 60-minute aromatherapy massage.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article><article class="package " data-r><p class="kick">Group Reformer</p><h3>20 classes</h3><div class="package-price">฿14,000</div><small>฿700 per class · 90 days</small><p>Share 5 included classes with a friend.</p><p class="gift">✧ One complimentary 60-minute aromatherapy massage.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article><article class="package featured" data-r><p class="kick">Best value</p><h3>30 classes</h3><div class="package-price">฿19,500</div><small>฿650 per class · 120 days</small><p>Share 10 included classes with a friend.</p><p class="gift">✧ One complimentary 60-minute aromatherapy massage.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article></div><p class="fine">Group-pack validity begins with your first attended class. Packages are non-refundable and cannot be exchanged for cash. Friend passes use classes from your pack.</p><div class="private-packs"><h3 data-r>Prefer a more personal practice?</h3><div class="package-grid">
+<article class="package" data-r><p class="kick">Private apparatus</p><h3>5 private sessions</h3><div class="package-price">฿11,500</div><small>฿2,300 per session · 60 days</small><p>One-hour sessions with Reformer, Cadillac, Chair and Barrel equipment.</p><p class="gift">✧ One complimentary 60-minute aromatherapy massage.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article><article class="package" data-r><p class="kick">Private apparatus</p><h3>10 private sessions</h3><div class="package-price">฿20,900</div><small>฿2,090 per session · 90 days</small><p>One-hour sessions with Reformer, Cadillac, Chair and Barrel equipment.</p><p class="gift">✧ One complimentary 60-minute aromatherapy massage.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article><article class="package" data-r><p class="kick">Share the experience</p><h3>Private Reformer for two</h3><div class="package-price">฿2,500</div><small>Soft-opening price · regular ฿3,000</small><p>A private Reformer session for two people. Each additional guest is ฿1,000.</p><p>By appointment. Confirm group size and session details with the studio.</p><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">View booking portal ↗</a></article></div><p class="fine">Advance reservation required. Complimentary private-package massage vouchers are non-transferable and must be used within the package validity period.</p></div></div></section>
+  <!-- 5 · timetable -->
+  <section class="tt" id="timetable" data-cue-label="Timetable">
+    <div class="wrap">
+      <div class="tt-head">
+        <div><p class="kick" data-r>Timetable</p><h2 data-r="2">Your week at Màlee</h2></div>
+        <p class="fine" data-r="3">Opening 20 October. Weekly studio timetable below; check the booking portal for available dates. Free cancellation up to 3 hours before class.</p>
+      </div>
+      <div class="days" role="tablist" aria-label="Day" data-days></div>
+      <div class="slots" data-slots></div>
+    </div>
+  </section>
+
+  <!-- 6 · first visit -->
+  <section class="visit" id="visit" data-cue-label="Your first visit">
+    <div class="wrap">
+      <p class="kick" data-r>Your first visit</p>
+      <h2 data-r="2">New to the reformer? You’re in good hands</h2>
+      <div class="steps">
+        <div class="step" data-r><h3>Start with Beginner</h3><p>Green classes teach the foundations and safe form. Or begin 1:1.</p></div>
+        <div class="step" data-r="2"><h3>Arrive 10 minutes early</h3><p>Tell your instructor it’s your first time; they’ll set up your reformer with you.</p></div>
+        <div class="step" data-r="3"><h3>Wear grip socks</h3><p>Required for safety and hygiene. Please bring a pair for your session.</p></div>
+        <div class="step" data-r="4"><h3>Plans change?</h3><p>Cancel free up to 3 hours before. Later cancellations and no-shows are charged in full.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · find us -->
+  <section class="find" id="find" data-cue-label="Find us">
+    <div class="wrap find-in">
+      <div class="find-card" data-r>
+        <p class="kick" style="color:var(--sand)">Find us</p>
+        <h2>100/24 Bo Phut, Koh Samui</h2>
+        <p>Bo Put, Ko Samui District, Surat Thani, Thailand. Opening 20 October 2026. Private sessions by appointment.</p>
+        <div class="row"><a class="btn btn-line" href="https://wba.exsportia.com/90305524/">Book with Màlee ↗</a><a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&amp;query=Malee+Pilates+100%2F24+Bo+Phut+Koh+Samui" target="_blank" rel="noopener noreferrer">Directions ↗</a></div>
+      </div>
+      <div class="find-map" data-r="2" aria-label="Illustration of Bo Phut, not a navigational map">
+        <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="400" height="320" fill="#DCCDB6"/>
+          <path d="M0 250 C 90 220, 170 270, 260 240 S 400 250, 400 250 L400 320 L0 320Z" fill="#b9cbd3"/>
+          <path d="M-10 170 L 410 120" stroke="#F6F1EA" stroke-width="14"/>
+          <path d="M150 -10 L 190 330" stroke="#F6F1EA" stroke-width="9"/>
+          <path d="M290 -10 C 270 90, 300 160, 260 330" stroke="#F6F1EA" stroke-width="6"/>
+          <circle cx="178" cy="150" r="30" fill="#3B352C" opacity=".12"/>
+          <path d="M178 118c-12 0-21 9-21 21 0 16 21 34 21 34s21-18 21-34c0-12-9-21-21-21z" fill="#3B352C"/>
+          <circle cx="178" cy="139" r="7" fill="#F6F1EA"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <img src="img/logo.webp" alt="Màlee Pilates Studio" width="2182" height="884">
+  <p>Màlee Pilates Studio · 100/24 Bo Phut, Koh Samui</p>
+  <p>Website by Genius Crew · booking with Exsportia</p>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const motion = root.classList.contains('motion');
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const smooth = t => t*t*t*(t*(t*6-15)+10);
+
+  /* ------------------------------------------------------------ reveals */
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
+  $$('[data-r]').forEach(el => io.observe(el));
+
+  /* ------------------------------------------- scroll scenes, smoothed */
+  const hdr = $('[data-hdr]');
+  const open = $('[data-open]'), photo = $('[data-open-photo]'), mark = $('[data-open-mark]'), kick = $('[data-open-kick]'), copy = $('[data-open-copy]');
+  const classes = $('[data-classes]'), rail = $('[data-rail]');
+  const par = $('[data-parallax]');
+
+  // Fal-generated pose sequence. Each sprite contains eight transparent frames.
+  // Keep the original mark visible until every strip has loaded; no blank logo.
+  const film = $('.figure-film'), filmContext = film.getContext('2d');
+  let filmReady=false, lastFilmPosition=-1;
+  const strips=[];
+  if(motion) Promise.all(Array.from({length:12},(_,i)=>new Promise((resolve,reject)=>{
+    const im=new Image();strips[i]=im;im.onload=resolve;im.onerror=reject;
+    im.src=`img/motion/pose-${String(i+1).padStart(2,'0')}.webp`;
+  }))).then(()=>{filmReady=true;}).catch(()=>{film.style.display='none';});
+  function paintFilm(position){
+    if(Math.abs(position-lastFilmPosition)<.02)return;
+    lastFilmPosition=position;
+    const first=Math.floor(position), next=Math.min(95,first+1), blend=position-first;
+    filmContext.clearRect(0,0,384,384);
+    const draw=(index,alpha)=>{filmContext.globalAlpha=alpha;filmContext.drawImage(strips[Math.floor(index/8)],(index%8)*384,0,384,384,0,0,384,384);};
+    draw(first,1-blend);if(blend)draw(next,blend);filmContext.globalAlpha=1;
+  }
+
+  let target = scrollY, y = scrollY, last = performance.now();
+
+  const progress = el => { const r = el.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
+
+  function frame(now) {
+    /* the page follows the scroll with a short lag, so every scene glides */
+    const dt = Math.min(64, now - last); last = now;
+    y += (target - y) * (1 - Math.exp(-dt / 140));
+    if (Math.abs(target - y) < .3) y = target;
+    const shift = scrollY - y;
+
+    hdr.classList.toggle('is-solid', scrollY > innerHeight * .9);
+
+    if (motion) {
+      /* 1 · the studio opens */
+      const r = open.getBoundingClientRect();
+      const p = clamp((-r.top - shift) / (r.height - innerHeight));
+      /* the logo lifts away while the photo opens from a sliver to the full band */
+      const merge = smooth(clamp((p - .04) / .46));
+      const offsets = [[-6,5,-4],[-3,-7,-2],[3,-6,2],[6,4,4]];
+      const figureFinish=smooth(clamp((merge-.82)/.18));
+      if (filmReady) {
+        const position=clamp(merge/.9)*95;
+        paintFilm(position);
+        film.style.opacity=String(1-figureFinish);
+        $('.figure-final').style.opacity=String(figureFinish);
+      }
+      $$('[data-logo-piece]').forEach((el,i) => { const [x,z,rot]=offsets[i];el.style.transform=`translate(${x*(1-merge)}%,${z*(1-merge)}%) rotate(${rot*(1-merge)}deg)`; });
+      const m = smooth(clamp((p - .56) / .16)), a = smooth(clamp((p - .64) / .23)), c = smooth(clamp((p - .83) / .12));
+      photo.style.opacity = String(smooth(clamp((p-.64)/.12)));
+      $('.scroll-hint').style.opacity = String(1-clamp(p/.15));
+      mark.style.opacity = String(1 - m);
+      mark.style.transform = `translateY(${-80 * m}px) scale(${1 - .06 * m})`;
+      const side = 50 * (1 - a), topb = 18 * (1 - a);
+      photo.style.clipPath = `inset(${topb}% ${side}% ${topb}% ${side}% round 26px)`;
+      photo.firstElementChild.style.transform = `scale(${1.08 - .08 * a})`;
+      copy.style.opacity = String(c);
+      copy.style.transform = `translateY(${30 * (1 - c)}px)`;
+      kick.style.opacity = String(c);
+
+      /* 3 · the class rail slides sideways while the section is pinned */
+      if (innerWidth > 860) {
+        const rc = classes.getBoundingClientRect();
+        const q = clamp((-rc.top - shift) / (rc.height - innerHeight));
+        const max = rail.scrollWidth - innerWidth + 40;
+        rail.style.transform = `translate3d(${-max * ease(q)}px,0,0)`;
+      }
+
+      /* the instructor photo drifts against the scroll */
+      if (par) { const rp = par.parentElement.getBoundingClientRect(); const k = clamp((innerHeight - rp.top) / (innerHeight + rp.height)); par.style.transform = `translate3d(0,${(k - .5) * -60}px,0)`; }
+    }
+    requestAnimationFrame(frame);
+  }
+  addEventListener('scroll', () => { target = scrollY; }, { passive: true });
+  requestAnimationFrame(frame);
+
+  /* ---------------------------------------------------------- timetable */
+  const LEVEL_ICONS = {"beginner": "<svg class=\"level-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 20v-8M12 14C5 14 4 8 4 5c5 0 8 3 8 7M12 11c0-5 4-7 8-7 0 5-3 8-8 8\"/></svg>", "all": "<svg class=\"level-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4L19 5\"/></svg>", "flow": "<svg class=\"level-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 8c3-5 6 5 9 0s6 5 9 0M3 15c3-5 6 5 9 0s6 5 9 0\"/></svg>", "jump": "<svg class=\"level-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M13 2 5 14h6l-1 8 9-13h-6l1-7Z\"/></svg>", "private": "<svg class=\"level-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"7\" r=\"3\"/><path d=\"M6 21v-3a6 6 0 0 1 12 0v3M3 7h2m14 0h2\"/></svg>"};
+  const CLASS_ICON = {"Morning Glow":"all","Full Body Flow":"all","Beginner":"beginner","Booty & Core":"flow","Sunset Tone":"flow","Jumpboard":"jump"};
+  const LV = { 'Morning Glow': ['var(--yellow)', 'Yellow · All levels'], 'Full Body Flow': ['var(--yellow)', 'Yellow · All levels'], 'Beginner': ['var(--green)', 'Green · Beginner'], 'Booty & Core': ['var(--blue)', 'Blue · All levels'], 'Sunset Tone': ['var(--blue)', 'Blue · All levels'], 'Jumpboard': ['var(--red)', 'Red · Jumpboard'] };
+  const TIMES = ['07:00', '09:00', '10:15', '11:30', '17:30', '18:45'];
+  const END = { '07:00': '07:55', '09:00': '09:55', '10:15': '11:10', '11:30': '12:25', '17:30': '18:25', '18:45': '19:40' };
+  /* Màlee's weekly schedule, from its timetable */
+  const WEEK = {
+    Mon: [null, 'Full Body Flow', 'Booty & Core', 'Full Body Flow', 'Sunset Tone', null],
+    Tue: ['Morning Glow', 'Booty & Core', 'Beginner', 'Full Body Flow', 'Beginner', 'Booty & Core'],
+    Wed: [null, 'Full Body Flow', 'Jumpboard', 'Beginner', 'Sunset Tone', null],
+    Thu: ['Morning Glow', 'Booty & Core', 'Beginner', 'Full Body Flow', 'Beginner', 'Full Body Flow'],
+    Fri: [null, 'Jumpboard', 'Full Body Flow', 'Booty & Core', 'Sunset Tone', null],
+    Sat: [null, 'Full Body Flow', 'Jumpboard', 'Beginner', 'Sunset Tone', 'Booty & Core'],
+    Sun: [null, 'Beginner', 'Full Body Flow', 'Booty & Core', null, null]
+  };
+  const TEACHERS = {"Mon": [null, "Yui", "Yui", "Yui", "Yui", null], "Tue": ["Yui", "Yui", "Yui", "Yui", "Leaw", "Leaw"], "Wed": [null, "Nex", "Nex", "Nex", "Nex", null], "Thu": ["Nex", "Nex", "Nex", "Nex", "Nex", "Nex"], "Fri": [null, "Nex", "Nex", "Nex", "Nex", null], "Sat": [null, "Nex", "Nex", "Nex", "Nex", "Nex"], "Sun": [null, "Leaw", "Leaw", "Leaw", null, null]};
+  const DAYNAME = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+  const days = $('[data-days]'), slots = $('[data-slots]');
+  const today = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
+  function showDay(d) {
+    $$('button', days).forEach(b => b.setAttribute('aria-selected', String(b.dataset.day === d)));
+    const rows = [];
+    WEEK[d].forEach((c, i) => {
+      if (!c) return;
+      const t = TIMES[i];
+      if (t === '17:30') rows.push(`<div class="slot slot-private"><time>12:45<small>to 17:25</small></time><div><h3>Private sessions</h3><span class="lvl">${LEVEL_ICONS.private}1:1 · by appointment</span></div><a class="btn btn-sm" href="https://wba.exsportia.com/90305524/">Choose a time</a></div>`);
+      const who = TEACHERS[d][i] || "Màlee team";
+      rows.push(`<div class="slot" style="animation-delay:${rows.length * 60}ms"><time>${t}<small>to ${END[t]}</small></time><div><h3>${c.replace('&', '&amp;')}</h3><span class="lvl" style="--c:${LV[c][0]}">${LEVEL_ICONS[CLASS_ICON[c]]}${LV[c][1]} · ${who}</span></div><a class="btn btn-ink btn-sm" href="https://wba.exsportia.com/90305524/">Book ↗</a></div>`);
+    });
+    if (!rows.some(r => r.includes('slot-private'))) rows.splice(Math.min(rows.length, 3), 0, `<div class="slot slot-private"><time>12:45<small>to 17:25</small></time><div><h3>Private sessions</h3><span class="lvl">${LEVEL_ICONS.private}1:1 · by appointment</span></div><a class="btn btn-sm" href="https://wba.exsportia.com/90305524/">Choose a time</a></div>`);
+    slots.innerHTML = rows.join('');
+  }
+  Object.keys(WEEK).forEach(d => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.role = 'tab'; b.dataset.day = d; b.textContent = DAYNAME[d];
+    b.addEventListener('click', () => showDay(d));
+    days.appendChild(b);
+  });
+  showDay(today);
+
+  /* Days until opening, using Koh Samui's calendar date. */
+  const thaiDate = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const daysToOpening = Math.ceil((Date.parse('2026-10-20T00:00:00Z')-Date.parse(thaiDate+'T00:00:00Z'))/86400000);
+  const countdown = document.querySelector('[data-launch-countdown]');
+  if(daysToOpening>0) countdown.textContent=daysToOpening+' days until a new chapter of movement';
+  else if(daysToOpening===0) countdown.textContent='Opening day · welcome to Màlee';
+  else countdown.textContent='Welcome to your practice in Koh Samui';
+})();
+</script>
+</body>
+</html>
