@@ -6,7 +6,7 @@ The dedicated website repository for MÀLEE Pilates.
 
 - `site/` — the production static website and its images
 - `wrangler.jsonc` — Cloudflare Workers static-assets deployment configuration
-- `src/worker.js` — the public/preview routing and preview password gate
+- `site/_worker.js` — the public/preview routing and preview password gate
 
 ## Local preview
 
