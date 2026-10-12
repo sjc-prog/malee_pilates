@@ -18,6 +18,15 @@ function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+// A phone number is optional. Returns "" when empty, null when it is not plausible, otherwise the number as typed, tidied.
+function cleanPhone(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const digits = raw.replace(/\D/g, "");
+  if (!/^[+\d][\d\s().-]*$/.test(raw) || digits.length < 8 || digits.length > 15) return null;
+  return (raw.startsWith("+") ? "+" : "") + digits;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 }
@@ -28,12 +37,24 @@ function createCode() {
   return String(values[0] % 1_000_000).padStart(6, "0");
 }
 
+const CLAIM_COLUMNS = [
+  ["phone", "TEXT"],
+  ["welcomed_at", "TEXT"],
+  ["exsportia_status", "TEXT"],
+  ["exsportia_detail", "TEXT"],
+];
+
 async function ensureOfferTables(db) {
   await db.batch([
     db.prepare("CREATE TABLE IF NOT EXISTS opening_offer_claims (email TEXT PRIMARY KEY, name TEXT NOT NULL, code_hash TEXT NOT NULL, code_expires_at INTEGER NOT NULL, last_sent_at INTEGER NOT NULL, verified_at TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"),
     db.prepare("CREATE TABLE IF NOT EXISTS opening_offer_inventory (campaign TEXT PRIMARY KEY, remaining INTEGER NOT NULL)"),
     db.prepare("INSERT OR IGNORE INTO opening_offer_inventory (campaign, remaining) VALUES (?1, ?2)").bind(OFFER_CAMPAIGN, OFFER_STARTING_REMAINING),
   ]);
+  const { results } = await db.prepare("PRAGMA table_info(opening_offer_claims)").all();
+  const have = new Set((results || []).map(column => column.name));
+  for (const [name, type] of CLAIM_COLUMNS) {
+    if (!have.has(name)) await db.prepare(`ALTER TABLE opening_offer_claims ADD COLUMN ${name} ${type}`).run();
+  }
 }
 
 async function offerRemaining(db) {
@@ -41,25 +62,89 @@ async function offerRemaining(db) {
   return Number(inventory?.remaining ?? 0);
 }
 
-async function sendEmail({ to, subject, html, text }) {
-  const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      personalizations: [{ to: [{ email: to }] }],
-      from: { email: "hello@maleepilates.com", name: "MÀLEE Pilates" },
-      subject,
-      content: [
-        { type: "text/plain", value: text },
-        { type: "text/html", value: html },
-      ],
-    }),
-  });
-  return response.ok;
+const MAIL_FROM = "MÀLEE Pilates <hello@maleepilates.com>";
+
+async function sendEmail(env, { to, subject, html, text }) {
+  if (!env.RESEND_API_KEY) return false;
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: env.MAIL_FROM || MAIL_FROM, to: [to], subject, html, text, ...(env.MAIL_REPLY_TO ? { reply_to: env.MAIL_REPLY_TO } : {}) }),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
-function emailShell(content) {
-  return `<!doctype html><html lang="en"><body style="margin:0;background:#fff8f7;color:#403a35;font:16px/1.55 Arial,sans-serif"><main style="max-width:520px;margin:0 auto;padding:42px 30px"><p style="margin:0 0 20px;color:#9e5267;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase">MÀLEE PILATES · FISHERMAN'S VILLAGE</p>${content}<p style="margin:28px 0 0;color:#887b73;font-size:12px">MÀLEE Pilates · Coming Soon Samui</p></main></body></html>`;
+// ---- The two emails. Table layout and inline styles, so they hold up in Gmail, Apple Mail and Outlook.
+const INK = "#45403a", PAPER = "#fffaf7", PINK = "#f2cad4", PINK_DEEP = "#a95f73", SAGE = "#e3ecdc", BUTTER = "#f6e9bd", MUTE = "#8a7f76";
+const SERIF = "'Playfair Display',Georgia,'Times New Roman',serif", SANS = "'DM Sans',Helvetica,Arial,sans-serif";
+
+function siteUrl(env) {
+  return String(env.SITE_URL || "https://maleepilates.com").replace(/\/$/, "");
+}
+
+function emailFrame(env, { preheader, body, reason }) {
+  const site = siteUrl(env);
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>MÀLEE Pilates</title></head>
+<body style="margin:0;padding:0;background:${PAPER};-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${PAPER}">${preheader}${"&nbsp;&zwnj;".repeat(40)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER}"><tr><td align="center" style="padding:28px 14px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:28px;border:1px solid #f0dfe3;overflow:hidden">
+<tr><td align="center" style="padding:34px 24px 6px;background:${PINK};background-image:linear-gradient(100deg,${PINK},${SAGE} 55%,${BUTTER})">
+<img src="${site}/img/email/logo.png" width="250" alt="MÀLEE Pilates" style="display:block;width:250px;max-width:70%;height:auto;border:0">
+<p style="margin:14px 0 0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Fisherman&rsquo;s Village &middot; Koh Samui</p>
+<div style="height:26px;line-height:26px">&nbsp;</div></td></tr>
+${body}
+<tr><td align="center" style="padding:6px 28px 30px"><p style="margin:0;font:400 12px/1.7 ${SANS};color:${MUTE}">MÀLEE Pilates &middot; Fisherman&rsquo;s Village, Koh Samui<br>${reason}</p></td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function codeEmail(env, { code }) {
+  const body = `<tr><td align="center" style="padding:34px 32px 8px">
+<p style="margin:0 0 10px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Almost there</p>
+<h1 style="margin:0;font:500 34px/1.15 ${SERIF};color:${INK}">Your MÀLEE code</h1>
+<p style="margin:14px 0 0;font:400 16px/1.65 ${SANS};color:#675d51">Enter this code on the MÀLEE page to confirm your opening gift.</p></td></tr>
+<tr><td align="center" style="padding:20px 32px 8px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:18px 30px;border-radius:18px;background:${PINK};background-image:linear-gradient(100deg,${PINK},${BUTTER});font:700 34px/1 ${SANS};letter-spacing:10px;color:#72505b">${code}</td></tr></table>
+<p style="margin:16px 0 0;font:400 14px/1.6 ${SANS};color:${MUTE}">This code expires in 10 minutes. If you didn&rsquo;t ask for it, you can safely ignore this email.</p></td></tr>
+<tr><td style="padding:14px 0 0"></td></tr>`;
+  return {
+    subject: "Your MÀLEE code",
+    text: `Your MÀLEE verification code is ${code}. It expires in 10 minutes. If you didn't ask for it, ignore this email.`,
+    html: emailFrame(env, { preheader: `Your MÀLEE code is ${code}`, body, reason: "You&rsquo;re receiving this because someone used this address to claim a MÀLEE opening gift." }),
+  };
+}
+
+function welcomeEmail(env, { name, giftCode }) {
+  const site = siteUrl(env);
+  const first = String(name || "").trim().split(/\s+/)[0];
+  const hello = first ? escapeHtml(first) : "";
+  const trainer = (file, label) => `<td width="33%" align="center" style="padding:0 5px"><img src="${site}/img/email/${file}" width="150" alt="${label}" style="display:block;width:100%;max-width:150px;height:auto;border-radius:18px;border:0"><p style="margin:8px 0 0;font:600 12px/1.3 ${SANS};color:${INK}">${label}</p></td>`;
+  const gift = giftCode
+    ? `<p style="margin:16px 0 4px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Your gift code</p><p style="margin:0;font:700 26px/1.2 ${SANS};letter-spacing:4px;color:#72505b">${escapeHtml(giftCode)}</p><p style="margin:8px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">It&rsquo;s already added to your account, so there&rsquo;s nothing to enter.</p>`
+    : `<p style="margin:14px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">Make your first MÀLEE purchase and we&rsquo;ll add the same value as credit to your account, to use on a future product or service.</p>`;
+  const body = `<tr><td align="center" style="padding:34px 32px 6px">
+<p style="margin:0 0 10px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">${hello ? `Hello ${hello}` : "Hello"}</p>
+<h1 style="margin:0;font:500 38px/1.12 ${SERIF};color:${INK}">Welcome to MÀLEE.</h1>
+<p style="margin:12px 0 0;font:italic 500 22px/1.35 ${SERIF};color:${PINK_DEEP}">We can&rsquo;t wait to welcome you.</p>
+<p style="margin:18px 0 0;font:400 16px/1.7 ${SANS};color:#675d51">Thank you for joining our opening list. MÀLEE opens its doors on <strong style="color:${INK}">20 October 2026</strong>, and you&rsquo;ll be among the very first to step inside.</p></td></tr>
+<tr><td style="padding:22px 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 22px;border-radius:22px;background:${SAGE};background-image:linear-gradient(110deg,${PINK},${SAGE} 60%,${BUTTER})">
+<p style="margin:0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Your opening gift</p>
+<p style="margin:8px 0 0;font:500 28px/1.2 ${SERIF};color:${INK}">Your first move, matched.</p>${gift}</td></tr></table></td></tr>
+<tr><td style="padding:20px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td width="50%" valign="top" style="padding:0 5px 0 0"><div style="padding:14px 12px;border-radius:16px;background:#fbf0f2;text-align:center"><p style="margin:0;font:600 18px/1.2 ${SERIF};color:${INK}">20 October</p><p style="margin:4px 0 0;font:400 12px/1.4 ${SANS};color:${MUTE}">Doors open</p></div></td>
+<td width="50%" valign="top" style="padding:0 0 0 5px"><div style="padding:14px 12px;border-radius:16px;background:#f2f6ee;text-align:center"><p style="margin:0;font:600 18px/1.2 ${SERIF};color:${INK}">Fisherman&rsquo;s Village</p><p style="margin:4px 0 0;font:400 12px/1.4 ${SANS};color:${MUTE}">Koh Samui</p></div></td></tr></table>
+<p style="margin:14px 0 0;text-align:center;font:500 13px/1.6 ${SANS};color:#675d51">Reformer &middot; Mat Pilates &middot; Private sessions &middot; Mat Yoga</p></td></tr>
+<tr><td align="center" style="padding:26px 28px 0"><p style="margin:0 0 14px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Move with our instructors</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${trainer("kru-yui.jpg", "Kru Yui")}${trainer("kru-nex.jpg", "Kru Nex")}${trainer("kru-leaw.jpg", "Kru Leaw")}</tr></table></td></tr>
+<tr><td align="center" style="padding:28px 28px 22px"><a href="${site}/" style="display:inline-block;padding:15px 30px;border-radius:999px;background:#72505b;font:600 14px/1 ${SANS};color:#ffffff;text-decoration:none">Visit MÀLEE</a></td></tr>`;
+  return {
+    subject: "Welcome to MÀLEE, we can't wait to meet you",
+    text: `Welcome to MÀLEE${first ? `, ${first}` : ""}.\n\nWe can't wait to welcome you. MÀLEE opens its doors on 20 October 2026 at Fisherman's Village, Koh Samui.\n\n${giftCode ? `Your gift code: ${giftCode}. It's already added to your account.` : "Your first move, matched: make your first MÀLEE purchase and we'll add the same value as credit to your account, to use on a future product or service."}\n\n${site}/`,
+    html: emailFrame(env, { preheader: "We can’t wait to welcome you. Your opening gift is reserved.", body, reason: "You&rsquo;re receiving this because you joined the MÀLEE opening list." }),
+  };
 }
 
 function bytesToHex(bytes) {
@@ -121,7 +206,9 @@ export default {
         try { body = await request.json(); } catch { return json({ error: "Please enter your name and email address." }, 400); }
         const name = String(body.name || "").trim().replace(/\s+/g, " ");
         const email = String(body.email || "").trim().toLowerCase();
+        const phone = cleanPhone(body.phone);
         if (name.length < 2 || name.length > 100 || !validEmail(email)) return json({ error: "Please enter your name and a valid email address." }, 400);
+        if (phone === null) return json({ error: "Please enter a valid phone number." }, 400);
         if (await offerRemaining(env.WAITLIST_DB) < 1) return json({ error: "All opening gifts have now been claimed." }, 409);
 
         const current = await env.WAITLIST_DB.prepare("SELECT verified_at, last_sent_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
@@ -131,15 +218,10 @@ export default {
 
         const code = createCode();
         await env.WAITLIST_DB.prepare(
-          "INSERT INTO opening_offer_claims (email, name, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(email) DO UPDATE SET name = excluded.name, code_hash = excluded.code_hash, code_expires_at = excluded.code_expires_at, last_sent_at = excluded.last_sent_at",
-        ).bind(email, name, await digest(`${email}:${code}`), now + OTP_LIFETIME_MS, now).run();
+          "INSERT INTO opening_offer_claims (email, name, phone, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), code_hash = excluded.code_hash, code_expires_at = excluded.code_expires_at, last_sent_at = excluded.last_sent_at",
+        ).bind(email, name, phone || null, await digest(`${email}:${code}`), now + OTP_LIFETIME_MS, now).run();
 
-        const sent = await sendEmail({
-          to: email,
-          subject: "Your MÀLEE opening gift code",
-          text: `Your MÀLEE opening gift verification code is ${code}. It expires in 10 minutes.`,
-          html: emailShell(`<h1 style="margin:0;font:500 34px Georgia,serif">Your MÀLEE code</h1><p style="color:#6f635c">Enter this code on the MÀLEE opening page to confirm your special opening gift.</p><p style="margin:28px 0;padding:17px;border-radius:14px;background:#f8dadd;color:#963f58;font-size:28px;font-weight:bold;letter-spacing:8px;text-align:center">${code}</p><p style="color:#6f635c">This code expires in 10 minutes.</p>`),
-        });
+        const sent = await sendEmail(env, { to: email, ...codeEmail(env, { code }) });
         if (!sent) {
           await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET last_sent_at = 0 WHERE email = ?1").bind(email).run();
           return json({ error: "We could not send your verification email. Please try again shortly." }, 502);
@@ -168,12 +250,8 @@ export default {
           return json({ error: "All opening gifts have now been claimed." }, 409);
         }
 
-        await sendEmail({
-          to: email,
-          subject: "Your MÀLEE opening gift is confirmed",
-          text: `You’re confirmed, ${claim.name}. Once you make your first MÀLEE booking or purchase, we’ll add matching credit to your account to use on a future product or service.`,
-          html: emailShell(`<h1 style="margin:0;font:500 34px Georgia,serif">Your opening gift is confirmed.</h1><p style="color:#6f635c">You’re confirmed, ${escapeHtml(claim.name)}.</p><p style="padding:17px;border-radius:14px;background:#f8dadd;color:#7b4051">Once you make your first MÀLEE booking or purchase, we’ll add matching credit to your account to use on a future product or service.</p>`),
-        });
+        const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name }) });
+        if (welcomed) await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET welcomed_at = CURRENT_TIMESTAMP WHERE email = ?1").bind(email).run();
         return json({ verified: true, remaining: Number(inventory.remaining) });
       }
 
