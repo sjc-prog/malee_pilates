@@ -20,6 +20,7 @@ function fakeD1(db = new DatabaseSync(':memory:')) {
 }
 
 const BACK_OFFICE = { EXSPORTIA_API: 'https://backoffice.test/api', EXSPORTIA_VENUE_ID: '1234', EXSPORTIA_FIREBASE_KEY: 'firebase-key' };
+const REGISTERED = url => url.includes('createAuthUri');
 const env = (db, extra = {}) => ({ WAITLIST_DB: db, RESEND_API_KEY: 'test-key', ASSETS: { fetch: async () => new Response('asset') }, ...extra });
 const post = (path, body) => new Request(`https://maleepilates.com${path}`, { method: 'POST', body: JSON.stringify(body) });
 const reply = (status, body = {}) => new Response(JSON.stringify(body), { status });
@@ -153,7 +154,8 @@ test('back office: a new person becomes an account and a confirmed contact, and 
   try {
     const res = await claim(d1, net, { name: 'Justin Cohen Smith', phone: '+442032901106' }, BACK_OFFICE);
     assert.equal(res.status, 200);
-    const [create, contact, confirm, reset] = net.calls;
+    assert.ok(net.calls[0].url.includes('createAuthUri'), 'the account lookup comes first');
+    const [create, contact, confirm, reset] = net.calls.slice(1);
     assert.equal(create.url, 'https://backoffice.test/api/users');
     assert.equal(create.method, 'POST');
     assert.equal(create.body.venueId, '1234');
@@ -196,7 +198,7 @@ test('back office: an email that already has an account is added to the venue as
     assert.equal((await claim(d1, net, {}, BACK_OFFICE)).status, 200);
     const lookup = net.calls.find(c => c.method === 'GET');
     assert.equal(lookup.url, 'https://backoffice.test/api/users/check/signIn?email=justin%40example.com&venueId=1234&isAfterRegistration=true');
-    assert.ok(!net.calls.some(c => c.url.includes('identitytoolkit')), 'no password email for an existing account');
+    assert.ok(!net.calls.some(c => c.url.includes('sendOobCode')), 'no password email for an existing account');
     assert.equal(d1.db.prepare('SELECT exsportia_status FROM opening_offer_claims').get().exsportia_status, 'existing');
     assert.ok(net.mail[1].html.includes('We found your account.'));
   } finally { net.restore(); }
@@ -256,5 +258,76 @@ test('a table made before the newer columns existed is upgraded in place, and ol
   try {
     const again = await worker.fetch(post('/offer/start', { name: 'Old Row', email: 'oldrow@gmail.com' }), env(d1));
     assert.equal(again.status, 409, 'a gift claimed before the upgrade still counts');
+  } finally { net.restore(); }
+});
+
+/* A back office where the account lookup says "registered" for the people in `known`. */
+const answers = (known, extra = () => null) => (url, body) => {
+  if (url.includes('createAuthUri')) return reply(200, { registered: known.includes(body.identifier), signinMethods: ['password'] });
+  return extra(url, body) || (url.includes('/check/signIn') ? reply(200, { status: true }) : reply(500));
+};
+
+test('an email that already has an Exsportia account skips the code: contact added, welcome sent, gift taken', async () => {
+  const d1 = fakeD1(), net = fakeNetwork({ backOffice: answers(['member@example.com']) });
+  try {
+    const res = await worker.fetch(post('/offer/start', { name: 'Existing Member', email: 'Member@Example.com', phone: '+66812345678' }), env(d1, BACK_OFFICE));
+    assert.equal(res.status, 200);
+    assert.deepEqual(await res.json(), { verified: true, existing: true, remaining: 22 });
+    assert.equal(net.mail.length, 1, 'one email, the welcome: no code is sent');
+    assert.match(net.mail[0].subject, /^Welcome to MÀLEE/);
+    assert.ok(net.mail[0].html.includes('We found your account.') && net.mail[0].html.includes('https://wba.exsportia.com/1234/'));
+    assert.ok(!net.calls.some(c => c.url.endsWith('/users')), 'no new account is made');
+    const lookup = net.calls.find(c => c.url.includes('/check/signIn'));
+    assert.equal(lookup.url, 'https://backoffice.test/api/users/check/signIn?email=member%40example.com&venueId=1234&isAfterRegistration=true');
+    const row = d1.db.prepare('SELECT * FROM opening_offer_claims').get();
+    assert.ok(row.verified_at && row.welcomed_at);
+    assert.equal(row.exsportia_status, 'existing');
+  } finally { net.restore(); }
+});
+
+test('an existing account still cannot claim twice, and a person with no account still gets a code', async () => {
+  const d1 = fakeD1(), net = fakeNetwork({ backOffice: answers(['member@example.com']) });
+  try {
+    const ask = email => worker.fetch(post('/offer/start', { name: 'Test Person', email, phone: email.startsWith('new') ? '+66822222222' : '+66811111111' }), env(d1, BACK_OFFICE));
+    assert.equal((await ask('member@example.com')).status, 200);
+    const again = await ask('member@example.com');
+    assert.equal(again.status, 409);
+    assert.equal(net.mail.length, 1, 'refused with no email');
+    const fresh = await ask('new.person@example.com');
+    assert.deepEqual(await fresh.json(), { sent: true });
+    assert.match(net.mail.at(-1).subject, /^Your MÀLEE code/);
+  } finally { net.restore(); }
+});
+
+test('if the account lookup fails, the person is simply sent a code', async () => {
+  const d1 = fakeD1(), net = fakeNetwork({ backOffice: () => reply(500) });
+  try {
+    const res = await worker.fetch(post('/offer/start', { name: 'Test Person', email: 'member@example.com' }), env(d1, BACK_OFFICE));
+    assert.deepEqual(await res.json(), { sent: true });
+  } finally { net.restore(); }
+});
+
+test('existing-account claims are limited per connection, so a list of emails cannot drain the gifts', async () => {
+  const emails = Array.from({ length: 7 }, (_, i) => `member${i}@example.com`);
+  const d1 = fakeD1(), net = fakeNetwork({ backOffice: answers(emails) });
+  try {
+    const statuses = [];
+    for (const [i, email] of emails.entries()) {
+      const request = new Request('https://maleepilates.com/offer/start', { method: 'POST', headers: { 'CF-Connecting-IP': '203.0.113.9' }, body: JSON.stringify({ name: 'Test Person', email, phone: `+6681000000${i}` }) });
+      statuses.push((await worker.fetch(request, env(d1, BACK_OFFICE))).status);
+    }
+    assert.deepEqual(statuses, [200, 200, 200, 200, 200, 429, 429]);
+    assert.equal(d1.db.prepare('SELECT remaining FROM opening_offer_inventory').get().remaining, 18);
+    const elsewhere = new Request('https://maleepilates.com/offer/start', { method: 'POST', headers: { 'CF-Connecting-IP': '198.51.100.7' }, body: JSON.stringify({ name: 'Test Person', email: 'member5@example.com', phone: '+66810000099' }) });
+    assert.equal((await worker.fetch(elsewhere, env(d1, BACK_OFFICE))).status, 200, 'another connection is unaffected');
+  } finally { net.restore(); }
+});
+
+test('with the back-office link off, nobody skips the code', async () => {
+  const d1 = fakeD1(), net = fakeNetwork();
+  try {
+    const res = await worker.fetch(post('/offer/start', { name: 'Test Person', email: 'member@example.com' }), env(d1));
+    assert.deepEqual(await res.json(), { sent: true });
+    assert.equal(net.calls.length, 0);
   } finally { net.restore(); }
 });

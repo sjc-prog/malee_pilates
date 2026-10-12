@@ -53,6 +53,7 @@ const CLAIM_COLUMNS = [
   ["exsportia_status", "TEXT"],
   ["exsportia_detail", "TEXT"],
   ["email_key", "TEXT"],
+  ["ip_hash", "TEXT"],
 ];
 
 async function ensureOfferTables(db) {
@@ -124,11 +125,19 @@ async function exsportiaCall(url, options = {}) {
   }
 }
 
+// Does this email already have an Exsportia account? true / false, or null when we cannot tell (link off, or the lookup failed).
+async function hasExsportiaAccount(env, email) {
+  const config = exsportiaConfig(env);
+  if (!config) return null;
+  const lookup = await exsportiaCall(`https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=${config.firebaseKey}`, { method: "POST", body: JSON.stringify({ identifier: email, continueUri: "https://maleepilates.com" }) });
+  return lookup.ok && lookup.data && typeof lookup.data.registered === "boolean" ? lookup.data.registered : null;
+}
+
 // Returns { status: "created" | "existing" | "partial" | "failed" | "off", passwordLink, detail }.
 //   created   a new account, and the contact is confirmed in the venue
 //   existing  the email already had an account; it was added to the venue as a contact
 //   partial   the account was made but the contact could not be confirmed
-async function addToExsportia(env, { name, email, phone }) {
+async function addToExsportia(env, { name, email, phone, existing = false }) {
   const config = exsportiaConfig(env);
   if (!config) return { status: "off" };
   const { api, venueId, firebaseKey } = config;
@@ -141,6 +150,10 @@ async function addToExsportia(env, { name, email, phone }) {
   // venue's contacts (registering alone only does so when the venue's settings say to).
   const addContact = () => exsportiaCall(`${api}/users/check/signIn?email=${encodeURIComponent(email)}&venueId=${encodeURIComponent(venueId)}&isAfterRegistration=true`);
 
+  if (existing) { // the email is known to have an account: just add it to the venue's contacts
+    const contact = await addContact();
+    return contact.ok ? { status: "existing", detail: "existing account added as a contact" } : { status: "failed", detail: `existing account, contact step ${contact.status}` };
+  }
   let result = await account(phone || "");
   let note = "";
   if (result.status === 409 && phone) { // that number belongs to another account: keep the contact, leave the number off
@@ -284,6 +297,31 @@ function loginPage(failed = false) {
   return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MÀLEE preview</title><style>body{min-height:100svh;margin:0;display:grid;place-items:center;background:#f6f1ea;color:#3b352c;font:16px/1.5 system-ui,sans-serif}.card{width:min(90vw,370px);padding:36px 28px;border-radius:28px;background:#fff;box-shadow:0 24px 70px #3b352c1c;text-align:center}.card img{width:180px;max-width:80%;margin:0 auto 26px}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8b7b64}.card h1{font:600 34px/1.05 Georgia,serif;margin:8px 0 14px}.card p{color:#675d51;margin:0 0 22px}.card label{display:block;text-align:left;font-size:13px;margin-bottom:7px}.card input{box-sizing:border-box;width:100%;border:1px solid #d8cab5;border-radius:12px;padding:13px;font:inherit}.card button{width:100%;border:0;border-radius:999px;margin-top:14px;padding:13px;background:#3b352c;color:#fff;font:600 14px system-ui,sans-serif;cursor:pointer}.error{color:#a94642;font-size:13px;margin:12px 0 0}</style></head><body><main class="card"><img src="/img/logo.webp" alt="MÀLEE Pilates"><p class="eyebrow">Private preview</p><h1>Welcome inside</h1><p>This version is shared privately while the studio prepares to open.</p><form method="post" action="/preview/login"><label for="password">Preview password</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus><button type="submit">Enter preview</button>${failed ? '<p class="error">That password did not match. Please try again.</p>' : ''}</form></main></body></html>`, { headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
 }
 
+// A claim is complete once the person is verified (by code, or because their Exsportia account already is):
+// take a gift, add them to the back office, send the welcome email.
+async function completeClaim(env, { email, claim, existing = false }) {
+  const db = env.WAITLIST_DB;
+  let marked;
+  try {
+    marked = await db.prepare("UPDATE opening_offer_claims SET verified_at = CURRENT_TIMESTAMP WHERE email = ?1 AND verified_at IS NULL").bind(email).run();
+  } catch { // another claim with the same email or phone number was confirmed first
+    return { error: ALREADY_CLAIMED, status: 409, claimed: true };
+  }
+  if (!marked.meta?.changes) return { error: ALREADY_CLAIMED, status: 409, claimed: true };
+  const inventory = await db.prepare("UPDATE opening_offer_inventory SET remaining = remaining - 1 WHERE campaign = ?1 AND remaining > 0 RETURNING remaining").bind(OFFER_CAMPAIGN).first();
+  if (!inventory) {
+    await db.prepare("UPDATE opening_offer_claims SET verified_at = NULL WHERE email = ?1").bind(email).run();
+    return { error: "All opening gifts have now been claimed.", status: 409 };
+  }
+  const account = await addToExsportia(env, { name: claim.name, email, phone: claim.phone || "", existing });
+  await db.prepare("UPDATE opening_offer_claims SET exsportia_status = ?1, exsportia_detail = ?2 WHERE email = ?3").bind(account.status, account.detail || null, email).run();
+  const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name, account }) });
+  if (welcomed) await db.prepare("UPDATE opening_offer_claims SET welcomed_at = CURRENT_TIMESTAMP WHERE email = ?1").bind(email).run();
+  return { remaining: Number(inventory.remaining) };
+}
+
+const EXISTING_CLAIMS_PER_HOUR = 5;
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -310,6 +348,21 @@ export default {
         const key = emailKey(email);
         const taken = await env.WAITLIST_DB.prepare("SELECT email FROM opening_offer_claims WHERE verified_at IS NOT NULL AND (email_key = ?1 OR (?2 IS NOT NULL AND phone = ?2)) LIMIT 1").bind(key, phone || null).first();
         if (taken) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
+        // Already an Exsportia account? Then there is nothing to verify and no password to make: add them straight away.
+        if (await hasExsportiaAccount(env, email) === true) {
+          const ip = request.headers.get("CF-Connecting-IP");
+          const ipHash = ip ? await digest(`ip:${ip}`) : null;
+          if (ipHash) {
+            const recent = await env.WAITLIST_DB.prepare("SELECT COUNT(*) AS n FROM opening_offer_claims WHERE ip_hash = ?1 AND exsportia_status = 'existing' AND verified_at > datetime('now', '-1 hour')").bind(ipHash).first();
+            if (Number(recent?.n) >= EXISTING_CLAIMS_PER_HOUR) return json({ error: "Too many gifts claimed from this connection. Please try again later." }, 429);
+          }
+          await env.WAITLIST_DB.prepare(
+            "INSERT INTO opening_offer_claims (email, name, phone, email_key, ip_hash, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, 'existing-account', 0, ?6) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, ip_hash = excluded.ip_hash, code_hash = 'existing-account', code_expires_at = 0",
+          ).bind(email, name, phone || null, key, ipHash, Date.now()).run();
+          const done = await completeClaim(env, { email, claim: { name, phone: phone || "" }, existing: true });
+          if (done.error) return json({ error: done.error, ...(done.claimed ? { claimed: true } : {}) }, done.status);
+          return json({ verified: true, existing: true, remaining: done.remaining });
+        }
         const current = await env.WAITLIST_DB.prepare("SELECT last_sent_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
         const now = Date.now();
         if (current && now - Number(current.last_sent_at) < OTP_RESEND_DELAY_MS) return json({ error: "Please wait a minute before requesting another code." }, 429);
@@ -340,25 +393,9 @@ export default {
         if (Date.now() > Number(claim.code_expires_at)) return json({ error: "That code has expired. Request a new one to continue." }, 400);
         if (!constantTimeEqual(String(claim.code_hash), await digest(`${email}:${code}`))) return json({ error: "That code did not match. Please try again." }, 400);
 
-        let marked;
-        try {
-          marked = await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET verified_at = CURRENT_TIMESTAMP WHERE email = ?1 AND verified_at IS NULL").bind(email).run();
-        } catch { // another claim with the same email or phone number was confirmed first
-          return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
-        }
-        if (!marked.meta?.changes) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
-        const inventory = await env.WAITLIST_DB.prepare("UPDATE opening_offer_inventory SET remaining = remaining - 1 WHERE campaign = ?1 AND remaining > 0 RETURNING remaining").bind(OFFER_CAMPAIGN).first();
-        if (!inventory) {
-          await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET verified_at = NULL WHERE email = ?1").bind(email).run();
-          return json({ error: "All opening gifts have now been claimed." }, 409);
-        }
-
-        const account = await addToExsportia(env, { name: claim.name, email, phone: claim.phone || "" });
-        await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET exsportia_status = ?1, exsportia_detail = ?2 WHERE email = ?3").bind(account.status, account.detail || null, email).run();
-
-        const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name, account }) });
-        if (welcomed) await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET welcomed_at = CURRENT_TIMESTAMP WHERE email = ?1").bind(email).run();
-        return json({ verified: true, remaining: Number(inventory.remaining) });
+        const done = await completeClaim(env, { email, claim });
+        if (done.error) return json({ error: done.error, ...(done.claimed ? { claimed: true } : {}) }, done.status);
+        return json({ verified: true, remaining: done.remaining });
       }
 
       return json({ error: "Not found." }, 404);
