@@ -292,8 +292,20 @@ async function previewIsUnlocked(request, password) {
   return constantTimeEqual(supplied, await signSession(password));
 }
 
-function loginPage(failed = false) {
-  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MÀLEE preview</title><style>body{min-height:100svh;margin:0;display:grid;place-items:center;background:#f6f1ea;color:#3b352c;font:16px/1.5 system-ui,sans-serif}.card{width:min(90vw,370px);padding:36px 28px;border-radius:28px;background:#fff;box-shadow:0 24px 70px #3b352c1c;text-align:center}.card img{width:180px;max-width:80%;margin:0 auto 26px}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8b7b64}.card h1{font:600 34px/1.05 Georgia,serif;margin:8px 0 14px}.card p{color:#675d51;margin:0 0 22px}.card label{display:block;text-align:left;font-size:13px;margin-bottom:7px}.card input{box-sizing:border-box;width:100%;border:1px solid #d8cab5;border-radius:12px;padding:13px;font:inherit}.card button{width:100%;border:0;border-radius:999px;margin-top:14px;padding:13px;background:#3b352c;color:#fff;font:600 14px system-ui,sans-serif;cursor:pointer}.error{color:#a94642;font-size:13px;margin:12px 0 0}</style></head><body><main class="card"><img src="/img/logo.webp" alt="MÀLEE Pilates"><p class="eyebrow">Private preview</p><h1>Welcome inside</h1><p>This version is shared privately while the studio prepares to open.</p><form method="post" action="/preview/login"><label for="password">Preview password</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus><button type="submit">Enter preview</button>${failed ? '<p class="error">That password did not match. Please try again.</p>' : ''}</form></main></body></html>`, { headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
+function isPrivate(pathname) {
+  return pathname.startsWith("/preview/") || pathname.startsWith("/versions/") || /^\/v\d+\//.test(pathname);
+}
+
+// Only ever send someone back to a page on this site.
+function safeNext(value) {
+  const next = String(value || "");
+  return next.startsWith("/") && !next.startsWith("//") && isPrivate(next) ? next : "/preview/";
+}
+
+const VERSIONS_LINK = '<a href="/versions/" style="position:fixed;left:12px;top:12px;z-index:2147483000;padding:7px 12px;border-radius:999px;background:rgba(64,58,53,.82);color:#fff;font:600 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.04em;text-decoration:none">&larr; All versions</a>';
+
+function loginPage(failed = false, next = "/preview/") {
+  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MÀLEE preview</title><style>body{min-height:100svh;margin:0;display:grid;place-items:center;background:#f6f1ea;color:#3b352c;font:16px/1.5 system-ui,sans-serif}.card{width:min(90vw,370px);padding:36px 28px;border-radius:28px;background:#fff;box-shadow:0 24px 70px #3b352c1c;text-align:center}.card img{width:180px;max-width:80%;margin:0 auto 26px}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8b7b64}.card h1{font:600 34px/1.05 Georgia,serif;margin:8px 0 14px}.card p{color:#675d51;margin:0 0 22px}.card label{display:block;text-align:left;font-size:13px;margin-bottom:7px}.card input{box-sizing:border-box;width:100%;border:1px solid #d8cab5;border-radius:12px;padding:13px;font:inherit}.card button{width:100%;border:0;border-radius:999px;margin-top:14px;padding:13px;background:#3b352c;color:#fff;font:600 14px system-ui,sans-serif;cursor:pointer}.error{color:#a94642;font-size:13px;margin:12px 0 0}</style></head><body><main class="card"><img src="/img/logo.webp" alt="MÀLEE Pilates"><p class="eyebrow">Private preview</p><h1>Welcome inside</h1><p>This version is shared privately while the studio prepares to open.</p><form method="post" action="/preview/login"><input type="hidden" name="next" value="${escapeHtml(next)}"><label for="password">Preview password</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus><button type="submit">Enter preview</button>${failed ? '<p class="error">That password did not match. Please try again.</p>' : ''}</form></main></body></html>`, { headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
 }
 
 // A claim is complete once the person is verified (by code, or because their Exsportia account already is):
@@ -392,24 +404,31 @@ export default {
       return json({ error: "Not found." }, 404);
     }
 
-    if (url.pathname === "/preview") return Response.redirect(new URL("/preview/", url), 302);
+    // Private: the full-site preview, every landing version (/v1, /v2 …) and their index. One password opens them all.
+    if (url.pathname === "/preview" || url.pathname === "/versions" || /^\/v\d+$/.test(url.pathname)) return Response.redirect(new URL(`${url.pathname}/`, url), 302);
+    const oldVersion = url.pathname.match(/^\/preview\/versions\/(v\d+\/)?/); // where the versions used to live
+    if (oldVersion) return Response.redirect(new URL(oldVersion[1] ? `/${oldVersion[1]}` : "/versions/", url), 301);
 
     if (url.pathname === "/preview/login" && request.method === "POST") {
       const body = await request.formData();
       const candidate = String(body.get("password") || "");
+      const next = safeNext(body.get("next"));
       const valid = password && constantTimeEqual(await digest(candidate), await digest(password));
-      if (!valid) return loginPage(true);
+      if (!valid) return loginPage(true, next);
       const session = await signSession(password);
-      return new Response(null, { status: 303, headers: { Location: "/preview/", "Set-Cookie": `${COOKIE_NAME}=${session}; Path=/preview; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`, "Cache-Control": "no-store" } });
+      return new Response(null, { status: 303, headers: { Location: next, "Set-Cookie": `${COOKIE_NAME}=${session}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`, "Cache-Control": "no-store" } });
     }
 
-    if (url.pathname.startsWith("/preview/")) {
-      if (!await previewIsUnlocked(request, password)) return loginPage();
+    if (isPrivate(url.pathname)) {
+      if (!await previewIsUnlocked(request, password)) return loginPage(false, url.pathname);
       const response = await env.ASSETS.fetch(request);
       const headers = new Headers(response.headers);
       headers.set("X-Robots-Tag", "noindex, nofollow");
       headers.set("Cache-Control", "private, no-store");
-      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+      const page = new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+      // a way back to the list from any version page
+      const isVersion = /^\/v\d+\/$/.test(url.pathname) && typeof HTMLRewriter !== "undefined" && (headers.get("content-type") || "").includes("text/html");
+      return isVersion ? new HTMLRewriter().on("body", { element: body => body.append(VERSIONS_LINK, { html: true }) }).transform(page) : page;
     }
 
     return env.ASSETS.fetch(request);
