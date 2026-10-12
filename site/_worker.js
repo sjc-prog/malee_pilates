@@ -18,14 +18,24 @@ function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-// A phone number is optional. Returns "" when empty, null when it is not plausible, otherwise the number as typed, tidied.
+// The phone number is kept the way Exsportia stores it: E.164, a "+", the country code, then the number.
+// Returns "" when empty, null when it is not a plausible international number.
 function cleanPhone(value) {
   const raw = String(value || "").trim();
   if (!raw) return "";
   const digits = raw.replace(/\D/g, "");
-  if (!/^[+\d][\d\s().-]*$/.test(raw) || digits.length < 8 || digits.length > 15) return null;
-  return (raw.startsWith("+") ? "+" : "") + digits;
+  if (!raw.startsWith("+") || !/^\+[\d\s().-]*$/.test(raw) || digits.length < 8 || digits.length > 15) return null;
+  return "+" + digits;
 }
+
+// "Same person" for the gift: lower case, no +tag, and no dots in Gmail addresses.
+function emailKey(email) {
+  const [local, domain = ""] = String(email).toLowerCase().split("@");
+  const bare = local.split("+")[0];
+  return domain === "gmail.com" || domain === "googlemail.com" ? `${bare.replace(/\./g, "")}@gmail.com` : `${bare}@${domain}`;
+}
+
+const ALREADY_CLAIMED = "This email or phone number has already claimed an opening gift. Your welcome email has the details.";
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
@@ -42,6 +52,7 @@ const CLAIM_COLUMNS = [
   ["welcomed_at", "TEXT"],
   ["exsportia_status", "TEXT"],
   ["exsportia_detail", "TEXT"],
+  ["email_key", "TEXT"],
 ];
 
 async function ensureOfferTables(db) {
@@ -55,6 +66,14 @@ async function ensureOfferTables(db) {
   for (const [name, type] of CLAIM_COLUMNS) {
     if (!have.has(name)) await db.prepare(`ALTER TABLE opening_offer_claims ADD COLUMN ${name} ${type}`).run();
   }
+  // rows made before email_key existed
+  const { results: old } = await db.prepare("SELECT email FROM opening_offer_claims WHERE email_key IS NULL").all();
+  for (const row of old || []) await db.prepare("UPDATE opening_offer_claims SET email_key = ?1 WHERE email = ?2").bind(emailKey(row.email), row.email).run();
+  // One gift per person, enforced by the database itself: a verified claim owns its email and its phone number.
+  await db.batch([
+    db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS claims_one_verified_per_email ON opening_offer_claims (email_key) WHERE verified_at IS NOT NULL"),
+    db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS claims_one_verified_per_phone ON opening_offer_claims (phone) WHERE verified_at IS NOT NULL AND phone IS NOT NULL"),
+  ]);
 }
 
 async function offerRemaining(db) {
@@ -76,6 +95,61 @@ async function sendEmail(env, { to, subject, html, text }) {
   } catch {
     return false;
   }
+}
+
+// ---- Exsportia: the person becomes a contact (and an account) in the venue's back office, the same way the booking app does it.
+// Both routes are public by design; no staff login is involved. The link is OFF until all three settings exist:
+//   EXSPORTIA_API          the server's base address
+//   EXSPORTIA_VENUE_ID     the venue the contact is added to
+//   EXSPORTIA_FIREBASE_KEY that environment's public Firebase web key (for the "choose your password" email)
+function exsportiaConfig(env) {
+  if (!env.EXSPORTIA_API || !env.EXSPORTIA_VENUE_ID || !env.EXSPORTIA_FIREBASE_KEY) return null;
+  return { api: String(env.EXSPORTIA_API).replace(/\/$/, ""), venueId: String(env.EXSPORTIA_VENUE_ID), firebaseKey: String(env.EXSPORTIA_FIREBASE_KEY) };
+}
+
+function randomPassword() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join("") + "aA1!";
+}
+
+async function exsportiaCall(url, options = {}) {
+  try {
+    const response = await fetch(url, { ...options, headers: { "content-type": "application/json", ...(options.headers || {}) }, signal: AbortSignal.timeout(9000) });
+    let data = null;
+    try { data = await response.json(); } catch { /* an empty body is fine */ }
+    return { ok: response.ok, status: response.status, data };
+  } catch (error) {
+    return { ok: false, status: 0, data: { message: String(error && error.message || error) } };
+  }
+}
+
+// Returns { status: "created" | "existing" | "failed" | "off", passwordLink, detail }.
+async function addToExsportia(env, { name, email, phone }) {
+  const config = exsportiaConfig(env);
+  if (!config) return { status: "off" };
+  const { api, venueId, firebaseKey } = config;
+  const [firstName, ...rest] = String(name).trim().split(" ");
+  const account = withPhone => exsportiaCall(`${api}/users`, {
+    method: "POST",
+    body: JSON.stringify({ venueId, email, password: randomPassword(), firstName, lastName: rest.join(" "), name, role: ["USER"], withPassword: true, ...(withPhone ? { phone_number: withPhone } : {}) }),
+  });
+
+  let result = await account(phone || "");
+  let note = "";
+  if (result.status === 409 && phone) { // that number belongs to another account: keep the contact, leave the number off
+    result = await account("");
+    note = "phone already on another account; saved without it";
+  }
+  if (result.ok) {
+    const reset = await exsportiaCall(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${firebaseKey}`, { method: "POST", body: JSON.stringify({ requestType: "PASSWORD_RESET", email }) });
+    return { status: "created", passwordLink: reset.ok, detail: [`uid ${result.data && result.data.uid || "?"}`, note, reset.ok ? "" : `password email failed ${reset.status}`].filter(Boolean).join("; ") };
+  }
+  if (result.data && result.data.type === "auth/email-already-exists") { // already has an account: add them to the venue's contacts
+    const lookup = await exsportiaCall(`${api}/users/check/signIn?email=${encodeURIComponent(email)}&venueId=${encodeURIComponent(venueId)}`);
+    return lookup.ok ? { status: "existing", detail: "existing account linked as a contact" } : { status: "failed", detail: `existing account, contact lookup ${lookup.status}` };
+  }
+  return { status: "failed", detail: `${result.status} ${JSON.stringify(result.data || {}).slice(0, 300)}` };
 }
 
 // ---- The two emails. Table layout and inline styles, so they hold up in Gmail, Apple Mail and Outlook.
@@ -117,7 +191,7 @@ function codeEmail(env, { code }) {
   };
 }
 
-function welcomeEmail(env, { name, giftCode }) {
+function welcomeEmail(env, { name, giftCode, account }) {
   const site = siteUrl(env);
   const first = String(name || "").trim().split(/\s+/)[0];
   const hello = first ? escapeHtml(first) : "";
@@ -125,6 +199,13 @@ function welcomeEmail(env, { name, giftCode }) {
   const gift = giftCode
     ? `<p style="margin:16px 0 4px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Your gift code</p><p style="margin:0;font:700 26px/1.2 ${SANS};letter-spacing:4px;color:#72505b">${escapeHtml(giftCode)}</p><p style="margin:8px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">It&rsquo;s already added to your account, so there&rsquo;s nothing to enter.</p>`
     : `<p style="margin:14px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">Make your first MÀLEE purchase and we&rsquo;ll add the same value as credit to your account, to use on a future product or service.</p>`;
+  const config = exsportiaConfig(env);
+  const linked = Boolean(account && config && (account.status === "created" || account.status === "existing"));
+  const accountNote = account && account.status === "created"
+    ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">Your MÀLEE account is ready.</strong> ${account.passwordLink ? "We&rsquo;ve sent a second email, from our booking system, with a link to choose your password." : "To choose your password, open the MÀLEE booking page and tap &ldquo;Forgot password?&rdquo;."}</div></td></tr>`
+    : account && account.status === "existing"
+      ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">We found your account.</strong> You can sign in with your usual details when you book.</div></td></tr>`
+      : "";
   const body = `<tr><td align="center" style="padding:34px 32px 6px">
 <p style="margin:0 0 10px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">${hello ? `Hello ${hello}` : "Hello"}</p>
 <h1 style="margin:0;font:500 38px/1.12 ${SERIF};color:${INK}">Welcome to MÀLEE.</h1>
@@ -133,13 +214,14 @@ function welcomeEmail(env, { name, giftCode }) {
 <tr><td style="padding:22px 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 22px;border-radius:22px;background:${SAGE};background-image:linear-gradient(110deg,${PINK},${SAGE} 60%,${BUTTER})">
 <p style="margin:0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Your opening gift</p>
 <p style="margin:8px 0 0;font:500 28px/1.2 ${SERIF};color:${INK}">Your first move, matched.</p>${gift}</td></tr></table></td></tr>
+${accountNote}
 <tr><td style="padding:20px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
 <td width="50%" valign="top" style="padding:0 5px 0 0"><div style="padding:14px 12px;border-radius:16px;background:#fbf0f2;text-align:center"><p style="margin:0;font:600 18px/1.2 ${SERIF};color:${INK}">20 October</p><p style="margin:4px 0 0;font:400 12px/1.4 ${SANS};color:${MUTE}">Doors open</p></div></td>
 <td width="50%" valign="top" style="padding:0 0 0 5px"><div style="padding:14px 12px;border-radius:16px;background:#f2f6ee;text-align:center"><p style="margin:0;font:600 18px/1.2 ${SERIF};color:${INK}">Fisherman&rsquo;s Village</p><p style="margin:4px 0 0;font:400 12px/1.4 ${SANS};color:${MUTE}">Koh Samui</p></div></td></tr></table>
 <p style="margin:14px 0 0;text-align:center;font:500 13px/1.6 ${SANS};color:#675d51">Reformer &middot; Mat Pilates &middot; Private sessions &middot; Mat Yoga</p></td></tr>
 <tr><td align="center" style="padding:26px 28px 0"><p style="margin:0 0 14px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Move with our instructors</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${trainer("kru-yui.jpg", "Kru Yui")}${trainer("kru-nex.jpg", "Kru Nex")}${trainer("kru-leaw.jpg", "Kru Leaw")}</tr></table></td></tr>
-<tr><td align="center" style="padding:28px 28px 22px"><a href="${site}/" style="display:inline-block;padding:15px 30px;border-radius:999px;background:#72505b;font:600 14px/1 ${SANS};color:#ffffff;text-decoration:none">Visit MÀLEE</a></td></tr>`;
+<tr><td align="center" style="padding:28px 28px 22px"><a href="${linked ? `https://wba.exsportia.com/${config.venueId}/` : `${site}/`}" style="display:inline-block;padding:15px 30px;border-radius:999px;background:#72505b;font:600 14px/1 ${SANS};color:#ffffff;text-decoration:none">${linked ? "Open your MÀLEE account" : "Visit MÀLEE"}</a></td></tr>`;
   return {
     subject: "Welcome to MÀLEE, we can't wait to meet you",
     text: `Welcome to MÀLEE${first ? `, ${first}` : ""}.\n\nWe can't wait to welcome you. MÀLEE opens its doors on 20 October 2026 at Fisherman's Village, Koh Samui.\n\n${giftCode ? `Your gift code: ${giftCode}. It's already added to your account.` : "Your first move, matched: make your first MÀLEE purchase and we'll add the same value as credit to your account, to use on a future product or service."}\n\n${site}/`,
@@ -211,15 +293,17 @@ export default {
         if (phone === null) return json({ error: "Please enter a valid phone number." }, 400);
         if (await offerRemaining(env.WAITLIST_DB) < 1) return json({ error: "All opening gifts have now been claimed." }, 409);
 
-        const current = await env.WAITLIST_DB.prepare("SELECT verified_at, last_sent_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
-        if (current?.verified_at) return json({ verified: true, remaining: await offerRemaining(env.WAITLIST_DB) });
+        const key = emailKey(email);
+        const taken = await env.WAITLIST_DB.prepare("SELECT email FROM opening_offer_claims WHERE verified_at IS NOT NULL AND (email_key = ?1 OR (?2 IS NOT NULL AND phone = ?2)) LIMIT 1").bind(key, phone || null).first();
+        if (taken) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
+        const current = await env.WAITLIST_DB.prepare("SELECT last_sent_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
         const now = Date.now();
         if (current && now - Number(current.last_sent_at) < OTP_RESEND_DELAY_MS) return json({ error: "Please wait a minute before requesting another code." }, 429);
 
         const code = createCode();
         await env.WAITLIST_DB.prepare(
-          "INSERT INTO opening_offer_claims (email, name, phone, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), code_hash = excluded.code_hash, code_expires_at = excluded.code_expires_at, last_sent_at = excluded.last_sent_at",
-        ).bind(email, name, phone || null, await digest(`${email}:${code}`), now + OTP_LIFETIME_MS, now).run();
+          "INSERT INTO opening_offer_claims (email, name, phone, email_key, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, code_hash = excluded.code_hash, code_expires_at = excluded.code_expires_at, last_sent_at = excluded.last_sent_at",
+        ).bind(email, name, phone || null, key, await digest(`${email}:${code}`), now + OTP_LIFETIME_MS, now).run();
 
         const sent = await sendEmail(env, { to: email, ...codeEmail(env, { code }) });
         if (!sent) {
@@ -236,21 +320,29 @@ export default {
         const code = String(body.code || "").replace(/\D/g, "");
         if (!validEmail(email) || !/^\d{6}$/.test(code)) return json({ error: "Enter the six-digit code from your email." }, 400);
 
-        const claim = await env.WAITLIST_DB.prepare("SELECT name, code_hash, code_expires_at, verified_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
+        const claim = await env.WAITLIST_DB.prepare("SELECT name, phone, code_hash, code_expires_at, verified_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
         if (!claim) return json({ error: "Request a new verification code and try again." }, 404);
-        if (claim.verified_at) return json({ verified: true, remaining: await offerRemaining(env.WAITLIST_DB) });
+        if (claim.verified_at) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
         if (Date.now() > Number(claim.code_expires_at)) return json({ error: "That code has expired. Request a new one to continue." }, 400);
         if (!constantTimeEqual(String(claim.code_hash), await digest(`${email}:${code}`))) return json({ error: "That code did not match. Please try again." }, 400);
 
-        const marked = await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET verified_at = CURRENT_TIMESTAMP WHERE email = ?1 AND verified_at IS NULL").bind(email).run();
-        if (!marked.meta?.changes) return json({ verified: true, remaining: await offerRemaining(env.WAITLIST_DB) });
+        let marked;
+        try {
+          marked = await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET verified_at = CURRENT_TIMESTAMP WHERE email = ?1 AND verified_at IS NULL").bind(email).run();
+        } catch { // another claim with the same email or phone number was confirmed first
+          return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
+        }
+        if (!marked.meta?.changes) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
         const inventory = await env.WAITLIST_DB.prepare("UPDATE opening_offer_inventory SET remaining = remaining - 1 WHERE campaign = ?1 AND remaining > 0 RETURNING remaining").bind(OFFER_CAMPAIGN).first();
         if (!inventory) {
           await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET verified_at = NULL WHERE email = ?1").bind(email).run();
           return json({ error: "All opening gifts have now been claimed." }, 409);
         }
 
-        const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name }) });
+        const account = await addToExsportia(env, { name: claim.name, email, phone: claim.phone || "" });
+        await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET exsportia_status = ?1, exsportia_detail = ?2 WHERE email = ?3").bind(account.status, account.detail || null, email).run();
+
+        const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name, account }) });
         if (welcomed) await env.WAITLIST_DB.prepare("UPDATE opening_offer_claims SET welcomed_at = CURRENT_TIMESTAMP WHERE email = ?1").bind(email).run();
         return json({ verified: true, remaining: Number(inventory.remaining) });
       }
