@@ -71,7 +71,7 @@ test('sign-up: the code email, then the welcome email, with the phone number kep
 
     const right = await worker.fetch(post('/offer/verify', { email: 'justin@example.com', code }), env(d1));
     assert.equal(right.status, 200);
-    assert.deepEqual(await right.json(), { verified: true, remaining: 22 });
+    assert.deepEqual(await right.json(), { verified: true, remaining: 49 });
     const welcome = net.mail[1];
     assert.deepEqual(welcome.to, ['justin@example.com']);
     assert.match(welcome.subject, /^Welcome to MÀLEE/);
@@ -115,7 +115,7 @@ test('one gift per person: the same email, a +tag or Gmail-dot variant, or the s
     const samePhone = await worker.fetch(post('/offer/start', { name: 'Someone Else', email: 'other@example.com', phone: '+447700900123' }), env(d1));
     assert.equal(samePhone.status, 409, 'the same phone number cannot claim again under another email');
     assert.equal(net.mail.length, sent, 'no code email is sent for a refused attempt');
-    assert.equal(d1.db.prepare('SELECT remaining FROM opening_offer_inventory').get().remaining, 22, 'one gift used, once');
+    assert.equal(d1.db.prepare('SELECT remaining FROM opening_offer_inventory').get().remaining, 49, 'one gift used, once');
 
     const fresh = await worker.fetch(post('/offer/start', { name: 'New Person', email: 'new@example.com', phone: '+66822222222' }), env(d1));
     assert.equal(fresh.status, 200, 'a different person is not affected');
@@ -133,7 +133,7 @@ test('two unconfirmed claims with the same phone: only the first to confirm gets
     assert.equal((await worker.fetch(post('/offer/verify', { email: 'second@example.com', code: codes['second@example.com'] }), env(d1))).status, 200);
     const late = await worker.fetch(post('/offer/verify', { email: 'first@example.com', code: codes['first@example.com'] }), env(d1));
     assert.equal(late.status, 409);
-    assert.equal(d1.db.prepare('SELECT remaining FROM opening_offer_inventory').get().remaining, 22);
+    assert.equal(d1.db.prepare('SELECT remaining FROM opening_offer_inventory').get().remaining, 49);
   } finally { net.restore(); }
 });
 
@@ -224,7 +224,7 @@ test('back office down: the visitor still gets their gift, the failure is record
   try {
     const res = await claim(d1, net, {}, BACK_OFFICE);
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { verified: true, remaining: 22 });
+    assert.deepEqual(await res.json(), { verified: true, remaining: 49 });
     const row = d1.db.prepare('SELECT exsportia_status, exsportia_detail, welcomed_at FROM opening_offer_claims').get();
     assert.equal(row.exsportia_status, 'failed');
     assert.match(row.exsportia_detail, /^500 /);
@@ -272,7 +272,7 @@ test('an email that already has an Exsportia account skips the code: contact add
   try {
     const res = await worker.fetch(post('/offer/start', { name: 'Existing Member', email: 'Member@Example.com', phone: '+66812345678' }), env(d1, BACK_OFFICE));
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { verified: true, existing: true, remaining: 22 });
+    assert.deepEqual(await res.json(), { verified: true, existing: true, remaining: 49 });
     assert.equal(net.mail.length, 1, 'one email, the welcome: no code is sent');
     assert.match(net.mail[0].subject, /^Welcome to MÀLEE/);
     assert.ok(net.mail[0].html.includes('We found your account.') && net.mail[0].html.includes('https://wba.exsportia.com/1234/'));
@@ -304,22 +304,6 @@ test('if the account lookup fails, the person is simply sent a code', async () =
   try {
     const res = await worker.fetch(post('/offer/start', { name: 'Test Person', email: 'member@example.com' }), env(d1, BACK_OFFICE));
     assert.deepEqual(await res.json(), { sent: true });
-  } finally { net.restore(); }
-});
-
-test('existing-account claims are limited per connection, so a list of emails cannot drain the gifts', async () => {
-  const emails = Array.from({ length: 7 }, (_, i) => `member${i}@example.com`);
-  const d1 = fakeD1(), net = fakeNetwork({ backOffice: answers(emails) });
-  try {
-    const statuses = [];
-    for (const [i, email] of emails.entries()) {
-      const request = new Request('https://maleepilates.com/offer/start', { method: 'POST', headers: { 'CF-Connecting-IP': '203.0.113.9' }, body: JSON.stringify({ name: 'Test Person', email, phone: `+6681000000${i}` }) });
-      statuses.push((await worker.fetch(request, env(d1, BACK_OFFICE))).status);
-    }
-    assert.deepEqual(statuses, [200, 200, 200, 200, 200, 429, 429]);
-    assert.equal(d1.db.prepare('SELECT remaining FROM opening_offer_inventory').get().remaining, 18);
-    const elsewhere = new Request('https://maleepilates.com/offer/start', { method: 'POST', headers: { 'CF-Connecting-IP': '198.51.100.7' }, body: JSON.stringify({ name: 'Test Person', email: 'member5@example.com', phone: '+66810000099' }) });
-    assert.equal((await worker.fetch(elsewhere, env(d1, BACK_OFFICE))).status, 200, 'another connection is unaffected');
   } finally { net.restore(); }
 });
 

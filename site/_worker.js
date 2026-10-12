@@ -3,7 +3,7 @@ const COOKIE_NAME = "malee_preview";
 const SESSION_VALUE = "malee-preview-v1";
 
 const OFFER_CAMPAIGN = "matching-credit-opening";
-const OFFER_STARTING_REMAINING = 23;
+const OFFER_STARTING_REMAINING = 50;
 const OTP_LIFETIME_MS = 10 * 60 * 1000;
 const OTP_RESEND_DELAY_MS = 60 * 1000;
 
@@ -53,7 +53,6 @@ const CLAIM_COLUMNS = [
   ["exsportia_status", "TEXT"],
   ["exsportia_detail", "TEXT"],
   ["email_key", "TEXT"],
-  ["ip_hash", "TEXT"],
 ];
 
 async function ensureOfferTables(db) {
@@ -320,8 +319,6 @@ async function completeClaim(env, { email, claim, existing = false }) {
   return { remaining: Number(inventory.remaining) };
 }
 
-const EXISTING_CLAIMS_PER_HOUR = 5;
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -350,15 +347,9 @@ export default {
         if (taken) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
         // Already an Exsportia account? Then there is nothing to verify and no password to make: add them straight away.
         if (await hasExsportiaAccount(env, email) === true) {
-          const ip = request.headers.get("CF-Connecting-IP");
-          const ipHash = ip ? await digest(`ip:${ip}`) : null;
-          if (ipHash) {
-            const recent = await env.WAITLIST_DB.prepare("SELECT COUNT(*) AS n FROM opening_offer_claims WHERE ip_hash = ?1 AND exsportia_status = 'existing' AND verified_at > datetime('now', '-1 hour')").bind(ipHash).first();
-            if (Number(recent?.n) >= EXISTING_CLAIMS_PER_HOUR) return json({ error: "Too many gifts claimed from this connection. Please try again later." }, 429);
-          }
           await env.WAITLIST_DB.prepare(
-            "INSERT INTO opening_offer_claims (email, name, phone, email_key, ip_hash, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, 'existing-account', 0, ?6) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, ip_hash = excluded.ip_hash, code_hash = 'existing-account', code_expires_at = 0",
-          ).bind(email, name, phone || null, key, ipHash, Date.now()).run();
+            "INSERT INTO opening_offer_claims (email, name, phone, email_key, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, 'existing-account', 0, ?5) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, code_hash = 'existing-account', code_expires_at = 0",
+          ).bind(email, name, phone || null, key, Date.now()).run();
           const done = await completeClaim(env, { email, claim: { name, phone: phone || "" }, existing: true });
           if (done.error) return json({ error: done.error, ...(done.claimed ? { claimed: true } : {}) }, done.status);
           return json({ verified: true, existing: true, remaining: done.remaining });
