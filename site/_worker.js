@@ -51,7 +51,7 @@ function cleanClassChoice(value) {
   return choice;
 }
 
-const ANSWER_KEYS = { level: 80, island: 80, stay: 80, heard: 80, notes: 600, questions: 600 };
+const ANSWER_KEYS = { vibe: 200, level: 80, goals: 200, island: 80, stay: 80, heard: 80, notes: 600, questions: 600 };
 function cleanAnswers(value) {
   if (!value || typeof value !== "object") return undefined;
   const out = {};

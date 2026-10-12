@@ -43,7 +43,7 @@
 .chip{border:1px solid #e3cfce;border-radius:999px;padding:9px 13px;background:#fff;color:#6f625c;font:500 13px "DM Sans",sans-serif;cursor:pointer}
 .chip[aria-pressed="true"]{border-color:#c98d9d;background:#f6dde3;color:#6d3f4d}
 textarea{width:100%;min-height:68px;padding:12px 13px;border:1px solid #e3cfce;border-radius:12px;background:#fff;font:inherit;resize:vertical}
-.optional{color:#a0918a;font-weight:400}
+.optional{color:#a0918a;font-weight:400;font-size:12px}.contrast{margin:10px auto 0!important;max-width:34ch}.contrast s{display:block;margin-bottom:4px;color:#b7a8a2;text-decoration-color:#d19aa8}
 .ticket{margin:18px 0 14px;padding:18px;border-radius:20px;background:linear-gradient(110deg,#f6d7de,#eef4e9 60%,#fbf0d4);text-align:center}
 .ticket .kicker{margin-bottom:4px}.ticket b{display:block;font:500 25px/1.15 "Playfair Display",Georgia,serif}.ticket span{display:block;margin-top:6px;color:#6f625c;font-size:13px}
 .ghost{display:inline-block;margin-top:4px;border:1px solid #d8b6bf;border-radius:999px;padding:10px 16px;background:#fff;color:#8d5566;font:600 12px "DM Sans",sans-serif;text-decoration:none;cursor:pointer}
@@ -99,12 +99,13 @@ textarea{width:100%;min-height:68px;padding:12px 13px;border:1px solid #e3cfce;b
     </section>
 
     <section data-step="questions" class="hidden">
-      <div class="step-head"><p class="kicker">Step 3 of 3</p><h2>A little about you</h2><p>So your instructor can make your first class feel just right.</p></div>
-      <div class="q" data-q="level"><p>Your Pilates experience</p><div class="chips"><button class="chip" type="button">New to Pilates</button><button class="chip" type="button">Beginner</button><button class="chip" type="button">Intermediate</button><button class="chip" type="button">Advanced</button></div></div>
-      <div class="q" data-q="stay"><p>How long are you on Koh Samui?</p><div class="chips"><button class="chip" type="button">I live here</button><button class="chip" type="button">Under a week</button><button class="chip" type="button">1–2 weeks</button><button class="chip" type="button">2–4 weeks</button><button class="chip" type="button">1–3 months</button><button class="chip" type="button">Longer</button><button class="chip" type="button">Moving here soon</button></div></div>
-      <div class="q" data-q="heard"><p>How did you hear about MÀLEE?</p><div class="chips"><button class="chip" type="button">Instagram</button><button class="chip" type="button">Facebook</button><button class="chip" type="button">A friend</button><button class="chip" type="button">Walked past</button><button class="chip" type="button">Google</button><button class="chip" type="button">Other</button></div></div>
-      <div class="q"><p>Anything we should know? <span class="optional">Injuries, pregnancy, anything at all</span></p><textarea id="notes" maxlength="600"></textarea></div>
-      <div class="q"><p>Any questions for us? <span class="optional">Optional</span></p><textarea id="questions" maxlength="600"></textarea></div>
+      <div class="step-head"><p class="kicker">Step 3 of 3</p><h2>Let’s get to know you</h2><p class="contrast"><s>“What is your fitness level?”</s> Most studios ask that. We’d rather know the real you. Tap whatever feels true.</p></div>
+      <div class="q" data-q="vibe" data-max="3"><p>Pick the words that sound most like you <span class="optional">up to 3</span></p><div class="chips"><button class="chip" type="button">⚡ Full of energy</button><button class="chip" type="button">🌿 Calm and cosy</button><button class="chip" type="button">☀️ Early bird</button><button class="chip" type="button">🌙 Night owl</button><button class="chip" type="button">☕ Coffee first</button><button class="chip" type="button">👶 Busy mama</button><button class="chip" type="button">💪 Strong and steady</button><button class="chip" type="button">🌊 Beach lover</button><button class="chip" type="button">✨ Curious about everything</button><button class="chip" type="button">🌸 Sunshine in human form</button></div></div>
+      <div class="q" data-q="level"><p>You and Pilates are…</p><div class="chips"><button class="chip" type="button">👋 Just meeting</button><button class="chip" type="button">☕ Getting to know each other</button><button class="chip" type="button">💕 Happily together</button><button class="chip" type="button">💍 Basically married</button></div></div>
+      <div class="q" data-q="goals" data-max="2"><p>What’s bringing you to the reformer? <span class="optional">up to 2</span></p><div class="chips"><button class="chip" type="button">Feeling strong</button><button class="chip" type="button">Better posture</button><button class="chip" type="button">Stretching out the stress</button><button class="chip" type="button">Bouncing back after baby</button><button class="chip" type="button">Healing an injury</button><button class="chip" type="button">Some me-time</button><button class="chip" type="button">Beach-ready</button><button class="chip" type="button">Just curious</button></div></div>
+      <div class="q" data-q="stay"><p>How long are we lucky enough to have you on Koh Samui?</p><div class="chips"><button class="chip" type="button">🏡 I live here</button><button class="chip" type="button">🌴 A little holiday</button><button class="chip" type="button">🧳 A few weeks</button><button class="chip" type="button">🌺 A few months</button><button class="chip" type="button">📦 Moving here soon</button></div></div>
+      <div class="q" data-q="heard"><p>Who sent you our way?</p><div class="chips"><button class="chip" type="button">💌 A friend told me</button><button class="chip" type="button">📸 Spotted you on Instagram</button><button class="chip" type="button">👀 Walked past and peeked in</button><button class="chip" type="button">🔎 Googled “Pilates Samui”</button><button class="chip" type="button">✨ Something else</button></div></div>
+      <div class="q"><p>Anything your instructor should know? <span class="optional">Optional</span></p><textarea id="notes" maxlength="600" placeholder="A dodgy knee, a baby on the way, a bad back… tell us and we’ll look after you."></textarea></div>
       <button class="submit" id="book" type="button">Book my free class</button>
       <p class="status" id="bookStatus"></p>
     </section>
@@ -198,11 +199,15 @@ const flag=c=>String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0)));
 
     /* step 3: a little about you */
     const answers={};
-    document.querySelectorAll('.q[data-q]').forEach(q=>q.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{q.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c===chip)));answers[q.dataset.q]=chip.textContent}));
+    const clean=t=>t.replace(/^[^A-Za-z“"]+/,'').trim();
+    document.querySelectorAll('.q[data-q]').forEach(q=>{const max=Number(q.dataset.max||1),picked=[];q.querySelectorAll('.chip').forEach(chip=>chip.onclick=()=>{
+      if(max===1){q.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c===chip)));answers[q.dataset.q]=clean(chip.textContent);return}
+      const i=picked.indexOf(chip);if(i>=0)picked.splice(i,1);else{picked.push(chip);if(picked.length>max)picked.shift()}
+      q.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(picked.includes(c))));answers[q.dataset.q]=picked.map(c=>clean(c.textContent)).join(', ')})});
     let ref='';try{ref=new URLSearchParams(location.search).get('ref')||sessionStorage.getItem('malee_ref')||'';if(ref)sessionStorage.setItem('malee_ref',ref)}catch(e){}
     async function call(path,body){const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||'Please try again.');return data}
     document.getElementById('book').onclick=async()=>{const st=document.getElementById('bookStatus'),btn=document.getElementById('book');
-      const all={...answers,notes:document.getElementById('notes').value.trim(),questions:document.getElementById('questions').value.trim()};
+      const all={...answers,notes:document.getElementById('notes').value.trim()};
       btn.disabled=true;st.textContent='';
       try{const data=await call('/offer/start',{...person,classChoice:{name:chosen.name,date:chosen.date,time:chosen.time,end:chosen.end,trainer:chosen.trainer},answers:all,source:'v5',ref});
         if(data.verified)return confirmed(data);document.getElementById('sentTo').textContent=person.email;show('verify')}
