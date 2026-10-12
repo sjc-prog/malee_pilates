@@ -124,7 +124,10 @@ async function exsportiaCall(url, options = {}) {
   }
 }
 
-// Returns { status: "created" | "existing" | "failed" | "off", passwordLink, detail }.
+// Returns { status: "created" | "existing" | "partial" | "failed" | "off", passwordLink, detail }.
+//   created   a new account, and the contact is confirmed in the venue
+//   existing  the email already had an account; it was added to the venue as a contact
+//   partial   the account was made but the contact could not be confirmed
 async function addToExsportia(env, { name, email, phone }) {
   const config = exsportiaConfig(env);
   if (!config) return { status: "off" };
@@ -134,6 +137,9 @@ async function addToExsportia(env, { name, email, phone }) {
     method: "POST",
     body: JSON.stringify({ venueId, email, password: randomPassword(), firstName, lastName: rest.join(" "), name, role: ["USER"], withPassword: true, ...(withPhone ? { phone_number: withPhone } : {}) }),
   });
+  // What the booking app does right after someone registers on a venue page: this always adds them to the
+  // venue's contacts (registering alone only does so when the venue's settings say to).
+  const addContact = () => exsportiaCall(`${api}/users/check/signIn?email=${encodeURIComponent(email)}&venueId=${encodeURIComponent(venueId)}&isAfterRegistration=true`);
 
   let result = await account(phone || "");
   let note = "";
@@ -142,12 +148,20 @@ async function addToExsportia(env, { name, email, phone }) {
     note = "phone already on another account; saved without it";
   }
   if (result.ok) {
+    const uid = result.data && result.data.uid;
+    const contact = await addContact();
+    const found = contact.ok && uid ? await exsportiaCall(`${api}/members/byVenue?venueId=${encodeURIComponent(venueId)}&userId=${encodeURIComponent(uid)}`) : null;
+    const confirmed = Boolean(found && found.ok && found.data && found.data.uid);
     const reset = await exsportiaCall(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${firebaseKey}`, { method: "POST", body: JSON.stringify({ requestType: "PASSWORD_RESET", email }) });
-    return { status: "created", passwordLink: reset.ok, detail: [`uid ${result.data && result.data.uid || "?"}`, note, reset.ok ? "" : `password email failed ${reset.status}`].filter(Boolean).join("; ") };
+    return {
+      status: confirmed ? "created" : "partial",
+      passwordLink: reset.ok,
+      detail: [`uid ${uid || "?"}`, confirmed ? `contact ${found.data.uid}` : `contact not confirmed (${contact.status})`, note, reset.ok ? "" : `password email failed ${reset.status}`].filter(Boolean).join("; "),
+    };
   }
   if (result.data && result.data.type === "auth/email-already-exists") { // already has an account: add them to the venue's contacts
-    const lookup = await exsportiaCall(`${api}/users/check/signIn?email=${encodeURIComponent(email)}&venueId=${encodeURIComponent(venueId)}`);
-    return lookup.ok ? { status: "existing", detail: "existing account linked as a contact" } : { status: "failed", detail: `existing account, contact lookup ${lookup.status}` };
+    const contact = await addContact();
+    return contact.ok ? { status: "existing", detail: "existing account added as a contact" } : { status: "failed", detail: `existing account, contact step ${contact.status}` };
   }
   return { status: "failed", detail: `${result.status} ${JSON.stringify(result.data || {}).slice(0, 300)}` };
 }
@@ -200,8 +214,8 @@ function welcomeEmail(env, { name, giftCode, account }) {
     ? `<p style="margin:16px 0 4px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Your gift code</p><p style="margin:0;font:700 26px/1.2 ${SANS};letter-spacing:4px;color:#72505b">${escapeHtml(giftCode)}</p><p style="margin:8px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">It&rsquo;s already added to your account, so there&rsquo;s nothing to enter.</p>`
     : `<p style="margin:14px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">Make your first MÀLEE purchase and we&rsquo;ll add the same value as credit to your account, to use on a future product or service.</p>`;
   const config = exsportiaConfig(env);
-  const linked = Boolean(account && config && (account.status === "created" || account.status === "existing"));
-  const accountNote = account && account.status === "created"
+  const linked = Boolean(account && config && ["created", "existing", "partial"].includes(account.status));
+  const accountNote = account && (account.status === "created" || account.status === "partial")
     ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">Your MÀLEE account is ready.</strong> ${account.passwordLink ? "We&rsquo;ve sent a second email, from our booking system, with a link to choose your password." : "To choose your password, open the MÀLEE booking page and tap &ldquo;Forgot password?&rdquo;."}</div></td></tr>`
     : account && account.status === "existing"
       ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">We found your account.</strong> You can sign in with your usual details when you book.</div></td></tr>`

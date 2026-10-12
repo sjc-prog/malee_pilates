@@ -147,13 +147,13 @@ test('confirming the same claim twice is refused, with no second welcome email',
   } finally { net.restore(); }
 });
 
-test('back office: a new person becomes an account and a contact, and gets the password email', async () => {
+test('back office: a new person becomes an account and a confirmed contact, and gets the password email', async () => {
   const d1 = fakeD1();
-  const net = fakeNetwork({ backOffice: url => url.includes('identitytoolkit') ? reply(200, { email: 'justin@example.com' }) : reply(200, { uid: 'abc123' }) });
+  const net = fakeNetwork({ backOffice: url => url.includes('identitytoolkit') ? reply(200, { email: 'justin@example.com' }) : url.includes('/members/byVenue') ? reply(200, { uid: 'MEM123' }) : url.includes('/check/signIn') ? reply(200, { status: true }) : reply(200, { uid: 'abc123' }) });
   try {
     const res = await claim(d1, net, { name: 'Justin Cohen Smith', phone: '+442032901106' }, BACK_OFFICE);
     assert.equal(res.status, 200);
-    const [create, reset] = net.calls;
+    const [create, contact, confirm, reset] = net.calls;
     assert.equal(create.url, 'https://backoffice.test/api/users');
     assert.equal(create.method, 'POST');
     assert.equal(create.body.venueId, '1234');
@@ -163,15 +163,29 @@ test('back office: a new person becomes an account and a contact, and gets the p
     assert.equal(create.body.lastName, 'Cohen Smith');
     assert.deepEqual(create.body.role, ['USER']);
     assert.ok(create.body.password.length >= 24);
+    assert.equal(contact.url, 'https://backoffice.test/api/users/check/signIn?email=justin%40example.com&venueId=1234&isAfterRegistration=true', 'the venue lookup that always adds the contact');
+    assert.equal(confirm.url, 'https://backoffice.test/api/members/byVenue?venueId=1234&userId=abc123', 'and the contact is looked up to be sure');
     assert.equal(reset.url, 'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=firebase-key');
     assert.deepEqual(reset.body, { requestType: 'PASSWORD_RESET', email: 'justin@example.com' });
     const row = d1.db.prepare('SELECT * FROM opening_offer_claims').get();
     assert.equal(row.exsportia_status, 'created');
-    assert.match(row.exsportia_detail, /uid abc123/);
+    assert.match(row.exsportia_detail, /uid abc123; contact MEM123/);
     assert.ok(!JSON.stringify(row).includes(create.body.password), 'the generated password is never stored');
     const welcome = net.mail[1].html;
     assert.ok(welcome.includes('Your MÀLEE account is ready.') && welcome.includes('second email'));
     assert.ok(welcome.includes('https://wba.exsportia.com/1234/') && welcome.includes('Open your MÀLEE account'));
+  } finally { net.restore(); }
+});
+
+test('back office: an account that was made but whose contact cannot be confirmed is recorded as partial', async () => {
+  const d1 = fakeD1();
+  const net = fakeNetwork({ backOffice: url => url.includes('identitytoolkit') ? reply(200) : url.includes('/members/byVenue') ? new Response('', { status: 200 }) : url.includes('/check/signIn') ? reply(200, { status: true }) : reply(200, { uid: 'abc123' }) });
+  try {
+    assert.equal((await claim(d1, net, {}, BACK_OFFICE)).status, 200);
+    const row = d1.db.prepare('SELECT exsportia_status, exsportia_detail FROM opening_offer_claims').get();
+    assert.equal(row.exsportia_status, 'partial');
+    assert.match(row.exsportia_detail, /contact not confirmed/);
+    assert.ok(net.mail[1].html.includes('account is ready'), 'the account itself is real, so the email says so');
   } finally { net.restore(); }
 });
 
@@ -181,7 +195,7 @@ test('back office: an email that already has an account is added to the venue as
   try {
     assert.equal((await claim(d1, net, {}, BACK_OFFICE)).status, 200);
     const lookup = net.calls.find(c => c.method === 'GET');
-    assert.equal(lookup.url, 'https://backoffice.test/api/users/check/signIn?email=justin%40example.com&venueId=1234');
+    assert.equal(lookup.url, 'https://backoffice.test/api/users/check/signIn?email=justin%40example.com&venueId=1234&isAfterRegistration=true');
     assert.ok(!net.calls.some(c => c.url.includes('identitytoolkit')), 'no password email for an existing account');
     assert.equal(d1.db.prepare('SELECT exsportia_status FROM opening_offer_claims').get().exsportia_status, 'existing');
     assert.ok(net.mail[1].html.includes('We found your account.'));
@@ -190,7 +204,7 @@ test('back office: an email that already has an account is added to the venue as
 
 test('back office: a phone number already on another account is left off, the contact is still made', async () => {
   const d1 = fakeD1();
-  const net = fakeNetwork({ backOffice: (url, body) => body && body.phone_number ? reply(409, { code: 'PHONE_IN_DB_UNCLAIMED' }) : reply(200, { uid: 'u2' }) });
+  const net = fakeNetwork({ backOffice: (url, body) => body && body.phone_number ? reply(409, { code: 'PHONE_IN_DB_UNCLAIMED' }) : url.includes('/members/byVenue') ? reply(200, { uid: 'MEM2' }) : reply(200, { uid: 'u2', status: true }) });
   try {
     assert.equal((await claim(d1, net, {}, BACK_OFFICE)).status, 200);
     const creates = net.calls.filter(c => c.url.endsWith('/users'));
