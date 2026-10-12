@@ -235,6 +235,10 @@ function emailFrame(env, { preheader, body, reason }) {
 <p style="margin:14px 0 0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Fisherman&rsquo;s Village &middot; Koh Samui</p>
 <div style="height:26px;line-height:26px">&nbsp;</div></td></tr>
 ${body}
+<tr><td align="center" style="padding:10px 28px 6px"><table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:380px"><tr><td align="center" style="padding:18px 20px;border-radius:18px;background:#f7f4f2;border:1px solid #efe6e2">
+<p style="margin:0 0 8px;font:600 10px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${MUTE}">Powered by</p>
+<a href="https://mysportia.com" style="text-decoration:none"><img src="${site}/img/email/mysportia-logo.png" width="170" alt="MySportia" style="display:inline-block;width:170px;max-width:60%;height:auto;border:0"></a>
+<p style="margin:8px 0 0;font:400 12px/1.6 ${SANS};color:${MUTE}">MÀLEE&rsquo;s bookings and your account run on MySportia.</p></td></tr></table></td></tr>
 <tr><td align="center" style="padding:6px 28px 30px"><p style="margin:0;font:400 12px/1.7 ${SANS};color:${MUTE}">MÀLEE Pilates &middot; Fisherman&rsquo;s Village, Koh Samui<br>${reason}</p></td></tr>
 </table></td></tr></table></body></html>`;
 }
@@ -274,15 +278,15 @@ function welcomeEmail(env, { name, giftCode, account, classChoice }) {
   const config = exsportiaConfig(env);
   const linked = Boolean(account && config && ["created", "existing", "partial"].includes(account.status));
   const accountNote = account && (account.status === "created" || account.status === "partial")
-    ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">Your MÀLEE account is ready.</strong> ${account.passwordLink ? "We&rsquo;ve sent a second email, from our booking system, with a link to choose your password." : "To choose your password, open the MÀLEE booking page and tap &ldquo;Forgot password?&rdquo;."}</div></td></tr>`
+    ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">Your MySportia account is ready.</strong> MÀLEE&rsquo;s bookings are powered by MySportia, so this one account is how you book, pay and see your classes. ${account.passwordLink ? "We&rsquo;ve sent a second email with a link to choose your password." : "To choose your password, open the MÀLEE booking page and tap &ldquo;Forgot password?&rdquo;."}</div></td></tr>`
     : account && account.status === "existing"
-      ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">We found your account.</strong> You can sign in with your usual details when you book.</div></td></tr>`
+      ? `<tr><td style="padding:18px 28px 0"><div style="padding:16px 18px;border-radius:16px;background:#f2f6ee;font:400 14px/1.65 ${SANS};color:#675d51"><strong style="color:${INK}">We found your MySportia account.</strong> MÀLEE&rsquo;s bookings are powered by MySportia, so you can sign in with the details you already use.</div></td></tr>`
       : "";
   const body = `<tr><td align="center" style="padding:34px 32px 6px">
 <p style="margin:0 0 10px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">${hello ? `Hello ${hello}` : "Hello"}</p>
 <h1 style="margin:0;font:500 38px/1.12 ${SERIF};color:${INK}">Welcome to MÀLEE.</h1>
 <p style="margin:12px 0 0;font:italic 500 22px/1.35 ${SERIF};color:${PINK_DEEP}">We can&rsquo;t wait to welcome you.</p>
-<p style="margin:18px 0 0;font:400 16px/1.7 ${SANS};color:#675d51">Thank you for joining our opening list. MÀLEE opens its doors on <strong style="color:${INK}">20 October 2026</strong>, and you&rsquo;ll be among the very first to step inside.</p></td></tr>
+<p style="margin:18px 0 0;font:400 16px/1.7 ${SANS};color:#675d51">${classChoice ? "Thank you for choosing your free class." : "Thank you for joining our opening list."} MÀLEE opens its doors on <strong style="color:${INK}">20 October 2026</strong>, and you&rsquo;ll be among the very first to step inside.</p></td></tr>
 ${classChoice ? freeClass : `<tr><td style="padding:22px 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 22px;border-radius:22px;background:${SAGE};background-image:linear-gradient(110deg,${PINK},${SAGE} 60%,${BUTTER})">
 <p style="margin:0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Your opening gift</p>
 <p style="margin:8px 0 0;font:500 28px/1.2 ${SERIF};color:${INK}">Your first move, matched.</p>${gift}</td></tr></table></td></tr>`}

@@ -63,6 +63,7 @@ test('sign-up: the code email, then the welcome email, with the phone number kep
     assert.equal(codeMail.subject, 'Your MÀLEE code');
     const code = codeMail.text.match(/\b(\d{6})\b/)[1];
     assert.ok(codeMail.html.includes(code) && codeMail.html.includes('/img/email/logo.png'));
+    assert.ok(codeMail.html.includes('Powered by') && codeMail.html.includes('/img/email/mysportia-logo.png'), 'every email says it is powered by MySportia');
     assert.equal(d1.db.prepare('SELECT phone FROM opening_offer_claims').get().phone, '+66812345678');
 
     const wrong = await worker.fetch(post('/offer/verify', { email: 'justin@example.com', code: code === '000000' ? '111111' : '000000' }), env(d1));
@@ -174,7 +175,7 @@ test('back office: a new person becomes an account and a confirmed contact, and 
     assert.match(row.exsportia_detail, /uid abc123; contact MEM123/);
     assert.ok(!JSON.stringify(row).includes(create.body.password), 'the generated password is never stored');
     const welcome = net.mail[1].html;
-    assert.ok(welcome.includes('Your MÀLEE account is ready.') && welcome.includes('second email'));
+    assert.ok(welcome.includes('Your MySportia account is ready.') && welcome.includes('second email'));
     assert.ok(welcome.includes('https://wba.exsportia.com/1234/') && welcome.includes('Open your MÀLEE account'));
   } finally { net.restore(); }
 });
@@ -200,7 +201,7 @@ test('back office: an email that already has an account is added to the venue as
     assert.equal(lookup.url, 'https://backoffice.test/api/users/check/signIn?email=justin%40example.com&venueId=1234&isAfterRegistration=true');
     assert.ok(!net.calls.some(c => c.url.includes('sendOobCode')), 'no password email for an existing account');
     assert.equal(d1.db.prepare('SELECT exsportia_status FROM opening_offer_claims').get().exsportia_status, 'existing');
-    assert.ok(net.mail[1].html.includes('We found your account.'));
+    assert.ok(net.mail[1].html.includes('We found your MySportia account.'));
   } finally { net.restore(); }
 });
 
@@ -229,7 +230,7 @@ test('back office down: the visitor still gets their gift, the failure is record
     assert.equal(row.exsportia_status, 'failed');
     assert.match(row.exsportia_detail, /^500 /);
     assert.ok(row.welcomed_at);
-    assert.ok(!net.mail[1].html.includes('account is ready') && !net.mail[1].html.includes('We found your account'));
+    assert.ok(!net.mail[1].html.includes('account is ready') && !net.mail[1].html.includes('We found your'));
     assert.ok(net.mail[1].html.includes('Visit MÀLEE'));
   } finally { net.restore(); }
 });
@@ -275,7 +276,7 @@ test('an email that already has an Exsportia account skips the code: contact add
     assert.partialDeepStrictEqual(await res.json(), { verified: true, existing: true, remaining: 49 });
     assert.equal(net.mail.length, 1, 'one email, the welcome: no code is sent');
     assert.match(net.mail[0].subject, /^Welcome to MÀLEE/);
-    assert.ok(net.mail[0].html.includes('We found your account.') && net.mail[0].html.includes('https://wba.exsportia.com/1234/'));
+    assert.ok(net.mail[0].html.includes('We found your MySportia account.') && net.mail[0].html.includes('https://wba.exsportia.com/1234/'));
     assert.ok(!net.calls.some(c => c.url.endsWith('/users')), 'no new account is made');
     const lookup = net.calls.find(c => c.url.includes('/check/signIn'));
     assert.equal(lookup.url, 'https://backoffice.test/api/users/check/signIn?email=member%40example.com&venueId=1234&isAfterRegistration=true');
