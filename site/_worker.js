@@ -35,6 +35,38 @@ function emailKey(email) {
   return domain === "gmail.com" || domain === "googlemail.com" ? `${bare.replace(/\./g, "")}@gmail.com` : `${bare}@${domain}`;
 }
 
+// ---- Version 5: the free class they chose, their answers, and who invited them.
+const OPENING_CLASSES = ["Morning Glow", "Full Body Flow", "Beginner", "Booty & Core", "Sunset Tone", "Jumpboard"];
+const INSTRUCTORS = ["Kru Yui", "Kru Nex", "Kru Leaw"];
+const FIRST_FREE_DAY = "2026-10-20", LAST_FREE_DAY = "2026-11-02";
+
+// undefined when none was sent, null when it is not one of the opening classes
+function cleanClassChoice(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const pick = key => String(value[key] || "").trim();
+  const choice = { name: pick("name"), date: pick("date"), time: pick("time"), end: pick("end"), trainer: pick("trainer") };
+  if (!OPENING_CLASSES.includes(choice.name) || !INSTRUCTORS.includes(choice.trainer)) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(choice.date) || choice.date < FIRST_FREE_DAY || choice.date > LAST_FREE_DAY) return null;
+  if (!/^\d{2}:\d{2}$/.test(choice.time) || !/^\d{2}:\d{2}$/.test(choice.end)) return null;
+  return choice;
+}
+
+const ANSWER_KEYS = { level: 80, island: 80, stay: 80, heard: 80, notes: 600, questions: 600 };
+function cleanAnswers(value) {
+  if (!value || typeof value !== "object") return undefined;
+  const out = {};
+  for (const [key, max] of Object.entries(ANSWER_KEYS)) {
+    const text = String(value[key] || "").trim().slice(0, max);
+    if (text) out[key] = text;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+// A short code for "invite a friend" links: the same person always gets the same code.
+async function referralCode(key) {
+  return (await digest(`ref:${key}`)).slice(0, 8);
+}
+
 const ALREADY_CLAIMED = "This email or phone number has already claimed an opening gift. Your welcome email has the details.";
 
 function escapeHtml(value) {
@@ -53,6 +85,11 @@ const CLAIM_COLUMNS = [
   ["exsportia_status", "TEXT"],
   ["exsportia_detail", "TEXT"],
   ["email_key", "TEXT"],
+  ["class_choice", "TEXT"],
+  ["answers", "TEXT"],
+  ["ref_code", "TEXT"],
+  ["referred_by", "TEXT"],
+  ["source", "TEXT"],
 ];
 
 async function ensureOfferTables(db) {
@@ -217,11 +254,20 @@ function codeEmail(env, { code }) {
   };
 }
 
-function welcomeEmail(env, { name, giftCode, account }) {
+function welcomeEmail(env, { name, giftCode, account, classChoice }) {
   const site = siteUrl(env);
   const first = String(name || "").trim().split(/\s+/)[0];
   const hello = first ? escapeHtml(first) : "";
   const trainer = (file, label) => `<td width="33%" align="center" style="padding:0 5px"><img src="${site}/img/email/${file}" width="150" alt="${label}" style="display:block;width:100%;max-width:150px;height:auto;border-radius:18px;border:0"><p style="margin:8px 0 0;font:600 12px/1.3 ${SANS};color:${INK}">${label}</p></td>`;
+  const when = classChoice ? new Date(`${classChoice.date}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "";
+  const freeClass = classChoice
+    ? `<tr><td style="padding:22px 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 22px;border-radius:22px;background:${SAGE};background-image:linear-gradient(110deg,${PINK},${SAGE} 60%,${BUTTER})">
+<p style="margin:0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Your free class</p>
+<p style="margin:8px 0 0;font:500 30px/1.15 ${SERIF};color:${INK}">${escapeHtml(classChoice.name)}</p>
+<p style="margin:10px 0 0;font:600 15px/1.5 ${SANS};color:${INK}">${escapeHtml(when)} &middot; ${escapeHtml(classChoice.time)}&ndash;${escapeHtml(classChoice.end)}</p>
+<p style="margin:2px 0 0;font:400 14px/1.5 ${SANS};color:#675d51">with ${escapeHtml(classChoice.trainer)}</p>
+<p style="margin:14px 0 0;font:400 13px/1.6 ${SANS};color:#675d51">Please arrive 10 minutes early, and bring grip socks (they&rsquo;re also sold at the studio).</p></td></tr></table></td></tr>`
+    : "";
   const gift = giftCode
     ? `<p style="margin:16px 0 4px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Your gift code</p><p style="margin:0;font:700 26px/1.2 ${SANS};letter-spacing:4px;color:#72505b">${escapeHtml(giftCode)}</p><p style="margin:8px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">It&rsquo;s already added to your account, so there&rsquo;s nothing to enter.</p>`
     : `<p style="margin:14px 0 0;font:400 14px/1.6 ${SANS};color:#675d51">Make your first MÀLEE purchase and we&rsquo;ll add the same value as credit to your account, to use on a future product or service.</p>`;
@@ -237,9 +283,9 @@ function welcomeEmail(env, { name, giftCode, account }) {
 <h1 style="margin:0;font:500 38px/1.12 ${SERIF};color:${INK}">Welcome to MÀLEE.</h1>
 <p style="margin:12px 0 0;font:italic 500 22px/1.35 ${SERIF};color:${PINK_DEEP}">We can&rsquo;t wait to welcome you.</p>
 <p style="margin:18px 0 0;font:400 16px/1.7 ${SANS};color:#675d51">Thank you for joining our opening list. MÀLEE opens its doors on <strong style="color:${INK}">20 October 2026</strong>, and you&rsquo;ll be among the very first to step inside.</p></td></tr>
-<tr><td style="padding:22px 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 22px;border-radius:22px;background:${SAGE};background-image:linear-gradient(110deg,${PINK},${SAGE} 60%,${BUTTER})">
+${classChoice ? freeClass : `<tr><td style="padding:22px 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 22px;border-radius:22px;background:${SAGE};background-image:linear-gradient(110deg,${PINK},${SAGE} 60%,${BUTTER})">
 <p style="margin:0;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Your opening gift</p>
-<p style="margin:8px 0 0;font:500 28px/1.2 ${SERIF};color:${INK}">Your first move, matched.</p>${gift}</td></tr></table></td></tr>
+<p style="margin:8px 0 0;font:500 28px/1.2 ${SERIF};color:${INK}">Your first move, matched.</p>${gift}</td></tr></table></td></tr>`}
 ${accountNote}
 <tr><td style="padding:20px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
 <td width="50%" valign="top" style="padding:0 5px 0 0"><div style="padding:14px 12px;border-radius:16px;background:#fbf0f2;text-align:center"><p style="margin:0;font:600 18px/1.2 ${SERIF};color:${INK}">20 October</p><p style="margin:4px 0 0;font:400 12px/1.4 ${SANS};color:${MUTE}">Doors open</p></div></td>
@@ -249,8 +295,8 @@ ${accountNote}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${trainer("kru-yui.jpg", "Kru Yui")}${trainer("kru-nex.jpg", "Kru Nex")}${trainer("kru-leaw.jpg", "Kru Leaw")}</tr></table></td></tr>
 <tr><td align="center" style="padding:28px 28px 22px"><a href="${linked ? `https://wba.exsportia.com/${config.venueId}/` : `${site}/`}" style="display:inline-block;padding:15px 30px;border-radius:999px;background:#72505b;font:600 14px/1 ${SANS};color:#ffffff;text-decoration:none">${linked ? "Open your MÀLEE account" : "Visit MÀLEE"}</a></td></tr>`;
   return {
-    subject: "Welcome to MÀLEE, we can't wait to meet you",
-    text: `Welcome to MÀLEE${first ? `, ${first}` : ""}.\n\nWe can't wait to welcome you. MÀLEE opens its doors on 20 October 2026 at Fisherman's Village, Koh Samui.\n\n${giftCode ? `Your gift code: ${giftCode}. It's already added to your account.` : "Your first move, matched: make your first MÀLEE purchase and we'll add the same value as credit to your account, to use on a future product or service."}\n\n${site}/`,
+    subject: classChoice ? `Welcome to MÀLEE: your free class, ${when}` : "Welcome to MÀLEE, we can't wait to meet you",
+    text: `Welcome to MÀLEE${first ? `, ${first}` : ""}.\n\nWe can't wait to welcome you. MÀLEE opens its doors on 20 October 2026 at Fisherman's Village, Koh Samui.\n\n${classChoice ? `Your free class: ${classChoice.name}, ${when}, ${classChoice.time}-${classChoice.end}, with ${classChoice.trainer}. Please arrive 10 minutes early.` : giftCode ? `Your gift code: ${giftCode}. It's already added to your account.` : "Your first move, matched: make your first MÀLEE purchase and we'll add the same value as credit to your account, to use on a future product or service."}\n\n${site}/`,
     html: emailFrame(env, { preheader: "We can’t wait to welcome you. Your opening gift is reserved.", body, reason: "You&rsquo;re receiving this because you joined the MÀLEE opening list." }),
   };
 }
@@ -326,9 +372,11 @@ async function completeClaim(env, { email, claim, existing = false }) {
   }
   const account = await addToExsportia(env, { name: claim.name, email, phone: claim.phone || "", existing });
   await db.prepare("UPDATE opening_offer_claims SET exsportia_status = ?1, exsportia_detail = ?2 WHERE email = ?3").bind(account.status, account.detail || null, email).run();
-  const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name, account }) });
+  let classChoice;
+  try { classChoice = claim.class_choice ? JSON.parse(claim.class_choice) : undefined; } catch { classChoice = undefined; }
+  const welcomed = await sendEmail(env, { to: email, ...welcomeEmail(env, { name: claim.name, account, classChoice }) });
   if (welcomed) await db.prepare("UPDATE opening_offer_claims SET welcomed_at = CURRENT_TIMESTAMP WHERE email = ?1").bind(email).run();
-  return { remaining: Number(inventory.remaining) };
+  return { remaining: Number(inventory.remaining), ref: claim.ref_code || undefined };
 }
 
 export default {
@@ -352,19 +400,26 @@ export default {
         const phone = cleanPhone(body.phone);
         if (name.length < 2 || name.length > 100 || !validEmail(email)) return json({ error: "Please enter your name and a valid email address." }, 400);
         if (phone === null) return json({ error: "Please enter a valid phone number." }, 400);
+        const classChoice = cleanClassChoice(body.classChoice);
+        if (classChoice === null) return json({ error: "Please choose your class again." }, 400);
+        const answers = cleanAnswers(body.answers);
+        const referredBy = /^[0-9a-f]{8}$/.test(String(body.ref || "")) ? String(body.ref) : null;
+        const source = String(body.source || "").replace(/[^a-z0-9-]/gi, "").slice(0, 20) || null;
+        const extra = { class_choice: classChoice ? JSON.stringify(classChoice) : null, answers: answers ? JSON.stringify(answers) : null, referred_by: referredBy, source };
         if (await offerRemaining(env.WAITLIST_DB) < 1) return json({ error: "All opening gifts have now been claimed." }, 409);
 
         const key = emailKey(email);
+        const refCode = await referralCode(key);
         const taken = await env.WAITLIST_DB.prepare("SELECT email FROM opening_offer_claims WHERE verified_at IS NOT NULL AND (email_key = ?1 OR (?2 IS NOT NULL AND phone = ?2)) LIMIT 1").bind(key, phone || null).first();
         if (taken) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
         // Already an Exsportia account? Then there is nothing to verify and no password to make: add them straight away.
         if (await hasExsportiaAccount(env, email) === true) {
           await env.WAITLIST_DB.prepare(
-            "INSERT INTO opening_offer_claims (email, name, phone, email_key, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, 'existing-account', 0, ?5) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, code_hash = 'existing-account', code_expires_at = 0",
-          ).bind(email, name, phone || null, key, Date.now()).run();
-          const done = await completeClaim(env, { email, claim: { name, phone: phone || "" }, existing: true });
+            "INSERT INTO opening_offer_claims (email, name, phone, email_key, ref_code, class_choice, answers, referred_by, source, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, 'existing-account', 0, ?10) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, ref_code = excluded.ref_code, class_choice = excluded.class_choice, answers = excluded.answers, referred_by = COALESCE(opening_offer_claims.referred_by, excluded.referred_by), source = excluded.source, code_hash = 'existing-account', code_expires_at = 0",
+          ).bind(email, name, phone || null, key, refCode, extra.class_choice, extra.answers, extra.referred_by, extra.source, Date.now()).run();
+          const done = await completeClaim(env, { email, claim: { name, phone: phone || "", class_choice: extra.class_choice, ref_code: refCode }, existing: true });
           if (done.error) return json({ error: done.error, ...(done.claimed ? { claimed: true } : {}) }, done.status);
-          return json({ verified: true, existing: true, remaining: done.remaining });
+          return json({ verified: true, existing: true, remaining: done.remaining, ref: done.ref });
         }
         const current = await env.WAITLIST_DB.prepare("SELECT last_sent_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
         const now = Date.now();
@@ -372,8 +427,8 @@ export default {
 
         const code = createCode();
         await env.WAITLIST_DB.prepare(
-          "INSERT INTO opening_offer_claims (email, name, phone, email_key, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, code_hash = excluded.code_hash, code_expires_at = excluded.code_expires_at, last_sent_at = excluded.last_sent_at",
-        ).bind(email, name, phone || null, key, await digest(`${email}:${code}`), now + OTP_LIFETIME_MS, now).run();
+          "INSERT INTO opening_offer_claims (email, name, phone, email_key, ref_code, class_choice, answers, referred_by, source, code_hash, code_expires_at, last_sent_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = COALESCE(excluded.phone, opening_offer_claims.phone), email_key = excluded.email_key, ref_code = excluded.ref_code, class_choice = excluded.class_choice, answers = excluded.answers, referred_by = COALESCE(opening_offer_claims.referred_by, excluded.referred_by), source = excluded.source, code_hash = excluded.code_hash, code_expires_at = excluded.code_expires_at, last_sent_at = excluded.last_sent_at",
+        ).bind(email, name, phone || null, key, refCode, extra.class_choice, extra.answers, extra.referred_by, extra.source, await digest(`${email}:${code}`), now + OTP_LIFETIME_MS, now).run();
 
         const sent = await sendEmail(env, { to: email, ...codeEmail(env, { code }) });
         if (!sent) {
@@ -390,7 +445,7 @@ export default {
         const code = String(body.code || "").replace(/\D/g, "");
         if (!validEmail(email) || !/^\d{6}$/.test(code)) return json({ error: "Enter the six-digit code from your email." }, 400);
 
-        const claim = await env.WAITLIST_DB.prepare("SELECT name, phone, code_hash, code_expires_at, verified_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
+        const claim = await env.WAITLIST_DB.prepare("SELECT name, phone, class_choice, ref_code, code_hash, code_expires_at, verified_at FROM opening_offer_claims WHERE email = ?1").bind(email).first();
         if (!claim) return json({ error: "Request a new verification code and try again." }, 404);
         if (claim.verified_at) return json({ error: ALREADY_CLAIMED, claimed: true }, 409);
         if (Date.now() > Number(claim.code_expires_at)) return json({ error: "That code has expired. Request a new one to continue." }, 400);
@@ -398,7 +453,7 @@ export default {
 
         const done = await completeClaim(env, { email, claim });
         if (done.error) return json({ error: done.error, ...(done.claimed ? { claimed: true } : {}) }, done.status);
-        return json({ verified: true, remaining: done.remaining });
+        return json({ verified: true, remaining: done.remaining, ...(done.ref ? { ref: done.ref } : {}) });
       }
 
       return json({ error: "Not found." }, 404);

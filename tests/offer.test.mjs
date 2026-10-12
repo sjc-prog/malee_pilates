@@ -71,7 +71,7 @@ test('sign-up: the code email, then the welcome email, with the phone number kep
 
     const right = await worker.fetch(post('/offer/verify', { email: 'justin@example.com', code }), env(d1));
     assert.equal(right.status, 200);
-    assert.deepEqual(await right.json(), { verified: true, remaining: 49 });
+    assert.partialDeepStrictEqual(await right.json(), { verified: true, remaining: 49 });
     const welcome = net.mail[1];
     assert.deepEqual(welcome.to, ['justin@example.com']);
     assert.match(welcome.subject, /^Welcome to MÀLEE/);
@@ -224,7 +224,7 @@ test('back office down: the visitor still gets their gift, the failure is record
   try {
     const res = await claim(d1, net, {}, BACK_OFFICE);
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { verified: true, remaining: 49 });
+    assert.partialDeepStrictEqual(await res.json(), { verified: true, remaining: 49 });
     const row = d1.db.prepare('SELECT exsportia_status, exsportia_detail, welcomed_at FROM opening_offer_claims').get();
     assert.equal(row.exsportia_status, 'failed');
     assert.match(row.exsportia_detail, /^500 /);
@@ -272,7 +272,7 @@ test('an email that already has an Exsportia account skips the code: contact add
   try {
     const res = await worker.fetch(post('/offer/start', { name: 'Existing Member', email: 'Member@Example.com', phone: '+66812345678' }), env(d1, BACK_OFFICE));
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { verified: true, existing: true, remaining: 49 });
+    assert.partialDeepStrictEqual(await res.json(), { verified: true, existing: true, remaining: 49 });
     assert.equal(net.mail.length, 1, 'one email, the welcome: no code is sent');
     assert.match(net.mail[0].subject, /^Welcome to MÀLEE/);
     assert.ok(net.mail[0].html.includes('We found your account.') && net.mail[0].html.includes('https://wba.exsportia.com/1234/'));
@@ -313,5 +313,60 @@ test('with the back-office link off, nobody skips the code', async () => {
     const res = await worker.fetch(post('/offer/start', { name: 'Test Person', email: 'member@example.com' }), env(d1));
     assert.deepEqual(await res.json(), { sent: true });
     assert.equal(net.calls.length, 0);
+  } finally { net.restore(); }
+});
+
+const CLASS = { name: 'Morning Glow', date: '2026-10-21', time: '07:00', end: '07:55', trainer: 'Kru Yui' };
+
+test('version 5: the chosen class and the answers are kept, and the welcome email is about the free class', async () => {
+  const d1 = fakeD1(), net = fakeNetwork();
+  try {
+    const answers = { level: 'New to Pilates', island: 'I live on Koh Samui', stay: '1-3 years', heard: 'Instagram', notes: 'Old knee injury', questions: 'Is parking easy?', sneaky: 'dropped' };
+    const start = await worker.fetch(post('/offer/start', { name: 'Anna Lee', email: 'anna@example.com', phone: '+66812345678', classChoice: CLASS, answers, source: 'v5' }), env(d1));
+    assert.equal(start.status, 200);
+    const code = net.mail[0].text.match(/\b(\d{6})\b/)[1];
+    const done = await (await worker.fetch(post('/offer/verify', { email: 'anna@example.com', code }), env(d1))).json();
+    assert.match(done.ref, /^[0-9a-f]{8}$/, 'an invite code comes back for the share links');
+    const row = d1.db.prepare('SELECT * FROM opening_offer_claims').get();
+    assert.deepEqual(JSON.parse(row.class_choice), CLASS);
+    const saved = JSON.parse(row.answers);
+    assert.equal(saved.level, 'New to Pilates');
+    assert.equal(saved.questions, 'Is parking easy?');
+    assert.equal(saved.sneaky, undefined, 'only the known questions are kept');
+    assert.equal(row.source, 'v5');
+    assert.equal(row.ref_code, done.ref);
+    const welcome = net.mail[1];
+    assert.equal(welcome.subject, 'Welcome to MÀLEE: your free class, Wednesday 21 October');
+    assert.ok(welcome.html.includes('Your free class') && welcome.html.includes('Morning Glow') && welcome.html.includes('with Kru Yui') && welcome.html.includes('07:00&ndash;07:55'));
+    assert.ok(!welcome.html.includes('Your first move, matched'), 'the free class replaces the matched-credit box');
+  } finally { net.restore(); }
+});
+
+test('version 5: a class outside the opening weeks or not on the timetable is refused', async () => {
+  const d1 = fakeD1(), net = fakeNetwork();
+  try {
+    for (const bad of [{ ...CLASS, date: '2026-11-03' }, { ...CLASS, name: 'Hot Yoga' }, { ...CLASS, trainer: 'Someone' }, { ...CLASS, time: '7am' }]) {
+      const res = await worker.fetch(post('/offer/start', { name: 'Anna Lee', email: 'anna@example.com', classChoice: bad }), env(d1));
+      assert.equal(res.status, 400, JSON.stringify(bad));
+    }
+    assert.equal(net.mail.length, 0);
+  } finally { net.restore(); }
+});
+
+test('version 5: a friend who arrives through an invite link is recorded against the person who invited them', async () => {
+  const d1 = fakeD1(), net = fakeNetwork();
+  try {
+    const first = await (await claim(d1, net, { email: 'host@example.com', phone: '+66811111111' })).json();
+    await claim(d1, net, { email: 'friend@example.com', phone: '+66822222222' });
+    // the friend's start carried the host's code
+    const net2 = fakeNetwork();
+    try {
+      const res = await worker.fetch(post('/offer/start', { name: 'Third Person', email: 'third@example.com', phone: '+66833333333', ref: first.ref }), env(d1));
+      assert.equal(res.status, 200);
+    } finally { net2.restore(); }
+    assert.equal(d1.db.prepare("SELECT referred_by FROM opening_offer_claims WHERE email = 'third@example.com'").get().referred_by, first.ref);
+    const junk = await worker.fetch(post('/offer/start', { name: 'Fourth Person', email: 'fourth@example.com', ref: 'not-a-code' }), env(d1));
+    assert.equal(junk.status, 200);
+    assert.equal(d1.db.prepare("SELECT referred_by FROM opening_offer_claims WHERE email = 'fourth@example.com'").get().referred_by, null);
   } finally { net.restore(); }
 });
