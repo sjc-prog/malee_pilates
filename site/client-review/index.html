@@ -133,7 +133,7 @@
         {id:"customer_location",type:"decision",title:"Customers choose a studio when booking",reference:"Each booking should clearly show Bophut or Nathon so classes, trainers and capacities remain separate."}
       ],
       privateItems:[
-        {id:"nathon_booking_method",type:"choice",title:"How should customers book a private session at Nathon?",reference:"Choose fixed slots, flexible appointment times, request and confirm, or tell us if this still needs deciding.",options:[["fixed","Fixed slots"],["flexible","Flexible times"],["request","Request & confirm"],["not-sure","Not sure yet"]],prompt:"Please add any booking details, for example the days and time range."},
+        {id:"nathon_booking_method",type:"choice",title:"How should customers book a private session at Nathon?",reference:"Choose the setup that applies. The next question collects the timetable separately.",options:[["fixed","Fixed slots"],["flexible","Flexible times"],["request","Request & confirm"],["not-sure","Not sure yet"],["other","Type something else"]],prompt:"Please describe the booking setup."},
         {id:"nathon_timetable",type:"answer",title:"Could you please clarify the full Nathon private timetable?",reference:"If times are fixed, list every available day and slot. If customers choose within a range, give recurring days, opening and closing times, session length, booking interval and the time needed between sessions."},
         {id:"nathon_instructors",type:"answer",title:"Which instructors can teach private sessions at Nathon?",reference:"Please include both 1-to-1 and private group sessions, with each instructor's available days and times."},
         {id:"bophut_private",type:"decision",title:"Does Bophut also offer private sessions?",reference:"If yes, please describe whether customers choose fixed slots, flexible times or submit a request, and provide its timetable and available instructors.",prompt:"Please provide the Bophut private booking method, days, times and instructors.",requireNoteFor:["yes","change"]},
@@ -173,15 +173,15 @@
 
     function renderItem(item,index){
       const options=item.options||(item.type==="answer"?[["provided","Add answer"],["not-sure","Not sure yet"]]:[["yes","Yes"],["no","No"],["change","Change"]]);
-      const noteLabel=item.type==="answer"?"Please write your answer":"What should we change or know?";
-      return `<article class="review-card" data-item="${item.id}" data-type="${item.type}"><span class="number">${index+1}</span><h2>${escapeText(item.title)}</h2><p class="reference">${escapeText(item.reference)}</p>${item.details?`<details class="detail-toggle"><summary>View the full details</summary><div class="detail-body">${item.details}</div></details>`:""}<div class="choices ${options.length===4?"four":""}">${options.map(([value,label])=>`<label class="choice ${value}"><input type="radio" name="${item.id}_status" value="${value}"><span>${label}</span></label>`).join("")}</div><div class="answer-wrap"><label for="${item.id}_answer">${noteLabel}</label><textarea id="${item.id}_answer" data-answer placeholder="Type here…"></textarea></div><p class="error-message">Please choose an option${item.type==="answer"?" and add your answer":""}.</p></article>`;
+      const noteLabel=item.prompt||(item.type==="answer"?"Please write your answer":"What should we change or know?");
+      return `<article class="review-card" data-item="${item.id}" data-type="${item.type}"><span class="number">${index+1}</span><h2>${escapeText(item.title)}</h2><p class="reference">${escapeText(item.reference)}</p>${item.details?`<details class="detail-toggle"><summary>View the full details</summary><div class="detail-body">${item.details}</div></details>`:""}<div class="choices ${options.length>=4?"four":""}">${options.map(([value,label])=>`<label class="choice ${value}"><input type="radio" name="${item.id}_status" value="${value}"><span>${label}</span></label>`).join("")}</div><div class="answer-wrap"><label for="${item.id}_answer">${noteLabel}</label><textarea id="${item.id}_answer" data-answer placeholder="Type here…"></textarea></div><p class="error-message">Please choose an option and add detail only where requested.</p></article>`;
     }
     for(const [containerId,items] of Object.entries(groups)){document.getElementById(containerId).innerHTML=items.map(renderItem).join("");}
 
     function itemDefinition(id){return allItems.find(item=>item.id===id);}
     function updateAnswerVisibility(card){
       const item=itemDefinition(card.dataset.item),status=card.querySelector("input:checked")?.value,wrap=card.querySelector(".answer-wrap");
-      const visible=item.type!=="decision"||["no","change"].includes(status)||(item.requireNoteFor||[]).includes(status);
+      const visible=(item.type==="answer"&&status==="provided")||(item.type==="choice"&&status==="other")||["no","change"].includes(status)||(item.requireNoteFor||[]).includes(status);
       wrap.classList.toggle("visible",visible);
     }
     document.querySelectorAll(".review-card").forEach(card=>{
@@ -208,7 +208,7 @@
     function validateCard(card){
       const item=itemDefinition(card.dataset.item),{status,answer}=itemValue(item);let valid=Boolean(status);
       if(item.type==="answer"&&status==="provided"&&!answer)valid=false;
-      if(item.type==="choice"&&status!=="not-sure"&&!answer)valid=false;
+      if(item.type==="choice"&&status==="other"&&!answer)valid=false;
       if(["no","change"].includes(status)&&!answer)valid=false;
       if((item.requireNoteFor||[]).includes(status)&&!answer)valid=false;
       card.classList.toggle("is-error",!valid);return valid;

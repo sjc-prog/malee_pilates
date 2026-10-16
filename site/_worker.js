@@ -355,7 +355,7 @@ function safeNext(value) {
 const VERSIONS_LINK = '<a href="/versions/" style="position:fixed;left:12px;top:12px;z-index:2147483000;padding:7px 12px;border-radius:999px;background:rgba(64,58,53,.82);color:#fff;font:600 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.04em;text-decoration:none">&larr; All versions</a>';
 
 const REVIEW_RECIPIENT = "sjc@exsportia.com";
-const REVIEW_STATUSES = new Set(["yes", "no", "change", "fixed", "flexible", "request", "provided", "not-sure"]);
+const REVIEW_STATUSES = new Set(["yes", "no", "change", "fixed", "flexible", "request", "provided", "not-sure", "other"]);
 
 function cleanReviewText(value, maximum) {
   return String(value || "").trim().replace(/\r\n/g, "\n").slice(0, maximum);
@@ -381,7 +381,7 @@ function cleanReviewSubmission(body) {
     const status = cleanReviewText(item.status, 30).toLowerCase();
     const answer = cleanReviewText(item.answer, 3000);
     if (!id || seen.has(id) || !title || !REVIEW_STATUSES.has(status)) continue;
-    if (["no", "change", "provided", "fixed", "flexible", "request"].includes(status) && !answer) return null;
+    if (["no", "change", "provided", "other"].includes(status) && !answer) return null;
     seen.add(id);
     responses.push({ id, title, reference, status, answer });
   }
@@ -397,7 +397,7 @@ function cleanReviewSubmission(body) {
 }
 
 function reviewStatusLabel(status) {
-  return ({ yes: "Yes — correct", no: "No", change: "Change required", fixed: "Fixed appointment slots", flexible: "Flexible appointment times", request: "Request and confirm", provided: "Answer provided", "not-sure": "Not sure yet" })[status] || status;
+  return ({ yes: "Yes — correct", no: "No", change: "Change required", fixed: "Fixed appointment slots", flexible: "Flexible appointment times", request: "Request and confirm", provided: "Answer provided", "not-sure": "Not sure yet", other: "Type something else" })[status] || status;
 }
 
 function reviewStatusColor(status) {

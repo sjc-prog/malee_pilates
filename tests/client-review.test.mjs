@@ -20,7 +20,7 @@ const payload = {
   responses: [
     { id: 'venue_structure', title: 'One venue with two studios', reference: 'Bophut and Nathon', status: 'yes', answer: '' },
     { id: 'nathon_timetable', title: 'Nathon timetable', reference: 'Please provide days and times', status: 'provided', answer: 'Monday to Friday, fixed slots at 09:30 and 11:00.' },
-    { id: 'nathon_booking_method', title: 'Nathon booking method', reference: 'Fixed or flexible', status: 'fixed', answer: 'Customers choose one of the two fixed slots.' },
+    { id: 'nathon_booking_method', title: 'Nathon booking method', reference: 'Fixed or flexible', status: 'fixed', answer: '' },
   ],
   additionalNotes: 'Please call before publishing.',
   completedAt: 'Friday, 16 October 2026 at 15:00',
