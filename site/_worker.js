@@ -368,7 +368,6 @@ function cleanReviewSubmission(body) {
   const email = cleanReviewText(contact.email, 180).toLowerCase();
   const role = cleanReviewText(contact.role, 100).replace(/\s+/g, " ");
   const phone = cleanReviewText(contact.phone, 60).replace(/\s+/g, " ");
-  if (name.length < 2 || !validEmail(email)) return null;
 
   const rawResponses = Array.isArray(body.responses) ? body.responses.slice(0, 40) : [];
   if (!rawResponses.length) return null;
@@ -428,16 +427,16 @@ function clientReviewEmail(env, submission) {
   const contactDetails = [contact.role, contact.email, contact.phone].filter(Boolean).map(escapeHtml).join(" &middot; ");
   const notes = additionalNotes ? `<tr><td style="padding:18px 0 0"><div style="padding:18px;border-radius:18px;background:#f7f4f2"><h2 style="margin:0 0 8px;font:600 18px/1.3 ${SERIF};color:${INK}">Additional notes</h2><p style="margin:0;font:400 14px/1.65 ${SANS};color:${INK}">${lines(additionalNotes)}</p></div></td></tr>` : "";
   const body = `<tr><td style="padding:30px 28px 8px">
-    <p style="margin:0 0 8px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Client review submitted</p>
-    <h1 style="margin:0;font:500 34px/1.15 ${SERIF};color:${INK}">${escapeHtml(contact.name)}</h1>
-    <p style="margin:9px 0 0;font:400 14px/1.6 ${SANS};color:${MUTE}">${contactDetails}</p>
+    <p style="margin:0 0 8px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Setup review submitted</p>
+    <h1 style="margin:0;font:500 34px/1.15 ${SERIF};color:${INK}">MÀLEE Pilates</h1>
+    ${contactDetails ? `<p style="margin:9px 0 0;font:400 14px/1.6 ${SANS};color:${MUTE}">${contactDetails}</p>` : ""}
     <p style="margin:14px 0 0;font:400 13px/1.6 ${SANS};color:${MUTE}">Submission ${escapeHtml(submissionId)}${completedAt ? ` &middot; ${escapeHtml(completedAt)}` : ""}</p>
   </td></tr><tr><td style="padding:14px 28px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${responseRows}</table></td></tr>${notes}<tr><td style="height:20px"></td></tr>`;
   const plain = [
     "MÀLEE PILATES CLIENT REVIEW",
-    `Submitted by: ${contact.name}`,
+    "Setup review for MÀLEE Pilates",
     contact.role ? `Role: ${contact.role}` : "",
-    `Email: ${contact.email}`,
+    contact.email ? `Email: ${contact.email}` : "",
     contact.phone ? `Phone: ${contact.phone}` : "",
     `Submission: ${submissionId}`,
     completedAt ? `Completed: ${completedAt}` : "",
@@ -452,7 +451,7 @@ function clientReviewEmail(env, submission) {
     additionalNotes ? `ADDITIONAL NOTES\n${additionalNotes}` : "",
   ].filter(value => value !== "").join("\n");
   return {
-    subject: `MÀLEE client review submitted — ${contact.name.replace(/[\r\n]/g, " ")}`,
+    subject: "MÀLEE setup review submitted",
     text: plain,
     html: emailFrame(env, { preheader: `MÀLEE review submitted by ${escapeHtml(contact.name)}`, body, reason: "This review was submitted through the private MÀLEE setup page." }),
   };

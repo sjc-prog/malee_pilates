@@ -17,7 +17,6 @@ async function unlockedCookie() {
 }
 
 const payload = {
-  contact: { name: 'Malee Owner', role: 'Owner', email: 'owner@example.com', phone: '+66 81 234 5678' },
   responses: [
     { id: 'venue_structure', title: 'One venue with two studios', reference: 'Bophut and Nathon', status: 'yes', answer: '' },
     { id: 'nathon_timetable', title: 'Nathon timetable', reference: 'Please provide days and times', status: 'provided', answer: 'Monday to Friday, fixed slots at 09:30 and 11:00.' },
@@ -35,7 +34,7 @@ test('the client review endpoint is private', async () => {
   assert.equal(response.status, 401);
 });
 
-test('a completed review is emailed to Exsportia with the client as reply-to', async () => {
+test('a completed review is emailed to Exsportia without requiring respondent details', async () => {
   const original = globalThis.fetch;
   const sent = [];
   globalThis.fetch = async (url, options) => {
@@ -54,8 +53,8 @@ test('a completed review is emailed to Exsportia with the client as reply-to', a
     assert.deepEqual(await response.json(), { submitted: true, submissionId: 'MR-20261016-TEST01', sentTo: 'sjc@exsportia.com' });
     assert.equal(sent.length, 1);
     assert.deepEqual(sent[0].to, ['sjc@exsportia.com']);
-    assert.equal(sent[0].reply_to, 'owner@example.com');
-    assert.match(sent[0].subject, /MÀLEE client review submitted/);
+    assert.equal(sent[0].reply_to, undefined);
+    assert.equal(sent[0].subject, 'MÀLEE setup review submitted');
     assert.ok(sent[0].html.includes('Monday to Friday, fixed slots at 09:30 and 11:00.'));
     assert.ok(sent[0].text.includes('Please call before publishing.'));
   } finally {

@@ -31,29 +31,21 @@
   <main class="shell" id="app">
     <header class="top">
       <div class="brand"><img src="/img/logo.webp" alt="MÀLEE Pilates"></div>
-      <span class="private">Private review</span>
     </header>
 
     <div class="progress-shell" aria-label="Form progress">
-      <div class="progress-meta"><span id="stepLabel">Step 1 of 7</span><span id="progressLabel">Your details</span></div>
+      <div class="progress-meta"><span id="stepLabel">Step 1 of 7</span><span id="progressLabel">Setup review</span></div>
       <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
     </div>
 
     <div class="panel">
       <form id="reviewForm" novalidate>
-        <section class="step active" data-step="0" data-label="Your details">
-          <p class="eyebrow">MÀLEE studio setup</p>
-          <h1>Let’s check everything together.</h1>
+        <section class="step active" data-step="0" data-label="Setup review">
+          <p class="eyebrow">MÀLEE Pilates</p>
+          <h1>Setup review for MÀLEE</h1>
           <p class="intro">Please work through each short step. Confirm what is correct, flag anything that is wrong, and tell us what should change. Your progress saves automatically on this device.</p>
           <div class="notice"><strong>Where do the answers go?</strong><br>When you submit the final step, a complete copy will be emailed to <strong>sjc@exsportia.com</strong>.</div>
-          <div class="field-grid two">
-            <div class="field"><label for="contactName">Your name <span class="required">*</span></label><input id="contactName" name="contactName" autocomplete="name" required></div>
-            <div class="field"><label for="contactRole">Your role</label><input id="contactRole" name="contactRole" placeholder="Owner, manager, instructor…"></div>
-            <div class="field"><label for="contactEmail">Your email <span class="required">*</span></label><input id="contactEmail" name="contactEmail" type="email" autocomplete="email" required></div>
-            <div class="field"><label for="contactPhone">Phone or WhatsApp</label><input id="contactPhone" name="contactPhone" autocomplete="tel"></div>
-          </div>
           <div class="honeypot" aria-hidden="true"><label>Company website<input id="companyWebsite" tabindex="-1" autocomplete="off"></label></div>
-          <p class="error-message" id="contactError">Please enter your name and a valid email address.</p>
           <p class="save-state" data-save-state>Not saved yet</p>
         </section>
 
@@ -175,7 +167,7 @@
 
     const allItems=Object.values(groups).flat();
     const form=document.getElementById("reviewForm"),steps=[...document.querySelectorAll(".step")],nextButton=document.getElementById("nextButton"),backButton=document.getElementById("backButton"),progressBar=document.getElementById("progressBar"),stepLabel=document.getElementById("stepLabel"),progressLabel=document.getElementById("progressLabel");
-    const contactName=document.getElementById("contactName"),contactRole=document.getElementById("contactRole"),contactEmail=document.getElementById("contactEmail"),contactPhone=document.getElementById("contactPhone"),additionalNotes=document.getElementById("additionalNotes");
+    const additionalNotes=document.getElementById("additionalNotes");
     let current=0,saveTimer;
     const escapeText=value=>String(value||"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
 
@@ -201,13 +193,13 @@
     function itemValue(item){const card=document.querySelector(`[data-item="${item.id}"]`);return{status:card.querySelector("input:checked")?.value||"",answer:card.querySelector("[data-answer]").value.trim()};}
     function snapshot(){
       const answers={};for(const item of allItems)answers[item.id]=itemValue(item);
-      return{current,contact:{name:contactName.value,role:contactRole.value,email:contactEmail.value,phone:contactPhone.value},answers,additionalNotes:document.getElementById("additionalNotes").value};
+      return{current,answers,additionalNotes:document.getElementById("additionalNotes").value};
     }
     function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(save,220);}
     function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent="Saved on this device");}
     function restore(){
       let saved;try{saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");}catch{return}
-      if(!saved)return;contactName.value=saved.contact?.name||"";contactRole.value=saved.contact?.role||"";contactEmail.value=saved.contact?.email||"";contactPhone.value=saved.contact?.phone||"";document.getElementById("additionalNotes").value=saved.additionalNotes||"";
+      if(!saved)return;document.getElementById("additionalNotes").value=saved.additionalNotes||"";
       for(const item of allItems){const value=saved.answers?.[item.id];if(!value)continue;const card=document.querySelector(`[data-item="${item.id}"]`),radio=card.querySelector(`input[value="${CSS.escape(value.status||"")}"]`);if(radio)radio.checked=true;card.querySelector("[data-answer]").value=value.answer||"";updateAnswerVisibility(card);}
       current=Math.min(Math.max(Number(saved.current)||0,0),steps.length-1);document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent="Progress restored from this device");
     }
@@ -222,12 +214,12 @@
       card.classList.toggle("is-error",!valid);return valid;
     }
     function validateStep(index){
-      if(index===0){const valid=contactName.value.trim().length>1&&contactEmail.validity.valid&&contactEmail.value.trim();document.getElementById("contactError").style.display=valid?"none":"block";return Boolean(valid);}
+      if(index===0)return true;
       const cards=cardsInStep(index);const results=cards.map(validateCard);const valid=results.every(Boolean);if(!valid)steps[index].querySelector(".is-error")?.scrollIntoView({behavior:"smooth",block:"center"});return valid;
     }
     function responsePayload(){return allItems.map(item=>{const value=itemValue(item);return{id:item.id,title:item.title,reference:item.referenceEmail||item.reference,status:value.status,answer:value.answer};});}
     function buildReview(){
-      const summary=document.getElementById("reviewSummary");summary.innerHTML=`<div class="summary-card"><header><h3>${escapeText(contactName.value)}</h3><span class="status-pill">Contact</span></header><p>${escapeText([contactRole.value,contactEmail.value,contactPhone.value].filter(Boolean).join(" · "))}</p></div>`+allItems.map(item=>{const value=itemValue(item),label={yes:"Yes — correct",no:"No",change:"Change required",fixed:"Fixed slots",flexible:"Flexible times",request:"Request & confirm",provided:"Answer provided","not-sure":"Not sure yet"}[value.status]||value.status;return`<div class="summary-card"><header><h3>${escapeText(item.title)}</h3><span class="status-pill">${escapeText(label)}</span></header>${value.answer?`<p>${escapeText(value.answer)}</p>`:""}</div>`;}).join("")+(additionalNotes.value?`<div class="summary-card"><header><h3>Additional notes</h3></header><p>${escapeText(additionalNotes.value)}</p></div>`:"");
+      const summary=document.getElementById("reviewSummary");summary.innerHTML=allItems.map(item=>{const value=itemValue(item),label={yes:"Yes — correct",no:"No",change:"Change required",fixed:"Fixed slots",flexible:"Flexible times",request:"Request & confirm",provided:"Answer provided","not-sure":"Not sure yet"}[value.status]||value.status;return`<div class="summary-card"><header><h3>${escapeText(item.title)}</h3><span class="status-pill">${escapeText(label)}</span></header>${value.answer?`<p>${escapeText(value.answer)}</p>`:""}</div>`;}).join("")+(additionalNotes.value?`<div class="summary-card"><header><h3>Additional notes</h3></header><p>${escapeText(additionalNotes.value)}</p></div>`:"");
     }
     function showStep(index){
       current=index;steps.forEach((step,i)=>step.classList.toggle("active",i===index));stepLabel.textContent=`Step ${index+1} of ${steps.length}`;progressLabel.textContent=steps[index].dataset.label;progressBar.style.width=`${(index+1)/steps.length*100}%`;backButton.hidden=index===0;nextButton.textContent=index===steps.length-1?"Send completed review":"Save and continue";if(index===steps.length-1)buildReview();save();window.scrollTo({top:0,behavior:"smooth"});
@@ -236,7 +228,7 @@
       const confirm=document.getElementById("finalConfirm"),status=document.getElementById("submitStatus");if(!confirm.checked){status.textContent="Please confirm that you have reviewed the answers.";return}
       status.textContent="Sending your completed review…";nextButton.disabled=true;backButton.disabled=true;
       const submissionId=`MR-${new Date().toISOString().slice(0,10).replaceAll("-","")}-${crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase().slice(0,6)}`;
-      const payload={contact:{name:contactName.value.trim(),role:contactRole.value.trim(),email:contactEmail.value.trim(),phone:contactPhone.value.trim()},responses:responsePayload(),additionalNotes:additionalNotes.value.trim(),completedAt:new Date().toLocaleString("en-GB",{dateStyle:"full",timeStyle:"short",timeZone:"Asia/Bangkok"}),submissionId,companyWebsite:document.getElementById("companyWebsite").value};
+      const payload={responses:responsePayload(),additionalNotes:additionalNotes.value.trim(),completedAt:new Date().toLocaleString("en-GB",{dateStyle:"full",timeStyle:"short",timeZone:"Asia/Bangkok"}),submissionId,companyWebsite:document.getElementById("companyWebsite").value};
       try{const response=await fetch("/client-review/submit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"The review could not be sent.");localStorage.removeItem(STORAGE_KEY);form.hidden=true;document.getElementById("formNav").hidden=true;document.querySelector(".progress-shell").hidden=true;const success=document.getElementById("successPanel");success.classList.add("active");document.getElementById("successCode").textContent=`Reference ${data.submissionId||submissionId}`;window.scrollTo({top:0,behavior:"smooth"});}catch(error){status.textContent=error.message;nextButton.disabled=false;backButton.disabled=false;}
     }
     nextButton.addEventListener("click",()=>{if(current===steps.length-1){submit();return}if(!validateStep(current))return;save();showStep(current+1);});
