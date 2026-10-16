@@ -120,13 +120,13 @@ async function offerRemaining(db) {
 
 const MAIL_FROM = "MÀLEE Pilates <hello@maleepilates.com>";
 
-async function sendEmail(env, { to, subject, html, text }) {
+async function sendEmail(env, { to, subject, html, text, replyTo }) {
   if (!env.RESEND_API_KEY) return false;
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: env.MAIL_FROM || MAIL_FROM, to: [to], subject, html, text, ...(env.MAIL_REPLY_TO ? { reply_to: env.MAIL_REPLY_TO } : {}) }),
+      body: JSON.stringify({ from: env.MAIL_FROM || MAIL_FROM, to: [to], subject, html, text, ...((replyTo || env.MAIL_REPLY_TO) ? { reply_to: replyTo || env.MAIL_REPLY_TO } : {}) }),
     });
     return response.ok;
   } catch {
@@ -343,7 +343,7 @@ async function previewIsUnlocked(request, password) {
 }
 
 function isPrivate(pathname) {
-  return pathname.startsWith("/preview/") || pathname.startsWith("/versions/") || /^\/v\d+\//.test(pathname);
+  return pathname.startsWith("/preview/") || pathname.startsWith("/versions/") || pathname.startsWith("/client-review/") || /^\/v\d+\//.test(pathname);
 }
 
 // Only ever send someone back to a page on this site.
@@ -353,6 +353,110 @@ function safeNext(value) {
 }
 
 const VERSIONS_LINK = '<a href="/versions/" style="position:fixed;left:12px;top:12px;z-index:2147483000;padding:7px 12px;border-radius:999px;background:rgba(64,58,53,.82);color:#fff;font:600 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.04em;text-decoration:none">&larr; All versions</a>';
+
+const REVIEW_RECIPIENT = "sjc@exsportia.com";
+const REVIEW_STATUSES = new Set(["yes", "no", "change", "fixed", "flexible", "request", "provided", "not-sure"]);
+
+function cleanReviewText(value, maximum) {
+  return String(value || "").trim().replace(/\r\n/g, "\n").slice(0, maximum);
+}
+
+function cleanReviewSubmission(body) {
+  if (!body || typeof body !== "object") return null;
+  const contact = body.contact && typeof body.contact === "object" ? body.contact : {};
+  const name = cleanReviewText(contact.name, 100).replace(/\s+/g, " ");
+  const email = cleanReviewText(contact.email, 180).toLowerCase();
+  const role = cleanReviewText(contact.role, 100).replace(/\s+/g, " ");
+  const phone = cleanReviewText(contact.phone, 60).replace(/\s+/g, " ");
+  if (name.length < 2 || !validEmail(email)) return null;
+
+  const rawResponses = Array.isArray(body.responses) ? body.responses.slice(0, 40) : [];
+  if (!rawResponses.length) return null;
+  const responses = [];
+  const seen = new Set();
+  for (const item of rawResponses) {
+    if (!item || typeof item !== "object") continue;
+    const id = cleanReviewText(item.id, 80).replace(/[^a-z0-9_-]/gi, "");
+    const title = cleanReviewText(item.title, 220);
+    const reference = cleanReviewText(item.reference, 1200);
+    const status = cleanReviewText(item.status, 30).toLowerCase();
+    const answer = cleanReviewText(item.answer, 3000);
+    if (!id || seen.has(id) || !title || !REVIEW_STATUSES.has(status)) continue;
+    if (["no", "change", "provided", "fixed", "flexible", "request"].includes(status) && !answer) return null;
+    seen.add(id);
+    responses.push({ id, title, reference, status, answer });
+  }
+  if (!responses.length) return null;
+
+  return {
+    contact: { name, email, role, phone },
+    responses,
+    additionalNotes: cleanReviewText(body.additionalNotes, 5000),
+    completedAt: cleanReviewText(body.completedAt, 80),
+    submissionId: cleanReviewText(body.submissionId, 80).replace(/[^a-z0-9_-]/gi, "") || crypto.randomUUID(),
+  };
+}
+
+function reviewStatusLabel(status) {
+  return ({ yes: "Yes — correct", no: "No", change: "Change required", fixed: "Fixed appointment slots", flexible: "Flexible appointment times", request: "Request and confirm", provided: "Answer provided", "not-sure": "Not sure yet" })[status] || status;
+}
+
+function reviewStatusColor(status) {
+  if (status === "yes" || status === "provided") return "#667c5c";
+  if (status === "no") return "#9a4f5e";
+  if (status === "change") return "#9a6b37";
+  return "#6a667d";
+}
+
+function lines(value) {
+  return escapeHtml(value || "").replace(/\n/g, "<br>");
+}
+
+function clientReviewEmail(env, submission) {
+  const { contact, responses, additionalNotes, completedAt, submissionId } = submission;
+  const responseRows = responses.map((item, index) => {
+    const status = reviewStatusLabel(item.status);
+    const answer = item.answer
+      ? `<div style="margin-top:10px;padding:12px 14px;border-radius:12px;background:#fff;font:400 14px/1.6 ${SANS};color:${INK}"><strong>Client answer or requested change</strong><br>${lines(item.answer)}</div>`
+      : "";
+    const reference = item.reference ? `<p style="margin:7px 0 0;font:400 12px/1.55 ${SANS};color:${MUTE}">${lines(item.reference)}</p>` : "";
+    return `<tr><td style="padding:8px 0"><div style="padding:18px;border-radius:18px;background:${index % 2 ? "#f2f6ee" : "#fbf0f2"};border:1px solid #eadde0">
+      <p style="margin:0;font:600 11px/1.4 ${SANS};letter-spacing:.12em;text-transform:uppercase;color:${reviewStatusColor(item.status)}">${escapeHtml(status)}</p>
+      <h2 style="margin:6px 0 0;font:600 18px/1.35 ${SERIF};color:${INK}">${escapeHtml(item.title)}</h2>${reference}${answer}
+    </div></td></tr>`;
+  }).join("");
+  const contactDetails = [contact.role, contact.email, contact.phone].filter(Boolean).map(escapeHtml).join(" &middot; ");
+  const notes = additionalNotes ? `<tr><td style="padding:18px 0 0"><div style="padding:18px;border-radius:18px;background:#f7f4f2"><h2 style="margin:0 0 8px;font:600 18px/1.3 ${SERIF};color:${INK}">Additional notes</h2><p style="margin:0;font:400 14px/1.65 ${SANS};color:${INK}">${lines(additionalNotes)}</p></div></td></tr>` : "";
+  const body = `<tr><td style="padding:30px 28px 8px">
+    <p style="margin:0 0 8px;font:600 11px/1.4 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:${PINK_DEEP}">Client review submitted</p>
+    <h1 style="margin:0;font:500 34px/1.15 ${SERIF};color:${INK}">${escapeHtml(contact.name)}</h1>
+    <p style="margin:9px 0 0;font:400 14px/1.6 ${SANS};color:${MUTE}">${contactDetails}</p>
+    <p style="margin:14px 0 0;font:400 13px/1.6 ${SANS};color:${MUTE}">Submission ${escapeHtml(submissionId)}${completedAt ? ` &middot; ${escapeHtml(completedAt)}` : ""}</p>
+  </td></tr><tr><td style="padding:14px 28px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${responseRows}</table></td></tr>${notes}<tr><td style="height:20px"></td></tr>`;
+  const plain = [
+    "MÀLEE PILATES CLIENT REVIEW",
+    `Submitted by: ${contact.name}`,
+    contact.role ? `Role: ${contact.role}` : "",
+    `Email: ${contact.email}`,
+    contact.phone ? `Phone: ${contact.phone}` : "",
+    `Submission: ${submissionId}`,
+    completedAt ? `Completed: ${completedAt}` : "",
+    "",
+    ...responses.flatMap((item, index) => [
+      `${index + 1}. ${item.title}`,
+      `Response: ${reviewStatusLabel(item.status)}`,
+      item.reference ? `Reference: ${item.reference}` : "",
+      item.answer ? `Client answer/change: ${item.answer}` : "",
+      "",
+    ]),
+    additionalNotes ? `ADDITIONAL NOTES\n${additionalNotes}` : "",
+  ].filter(value => value !== "").join("\n");
+  return {
+    subject: `MÀLEE client review submitted — ${contact.name.replace(/[\r\n]/g, " ")}`,
+    text: plain,
+    html: emailFrame(env, { preheader: `MÀLEE review submitted by ${escapeHtml(contact.name)}`, body, reason: "This review was submitted through the private MÀLEE setup page." }),
+  };
+}
 
 function loginPage(failed = false, next = "/preview/") {
   return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MÀLEE preview</title><style>body{min-height:100svh;margin:0;display:grid;place-items:center;background:#f6f1ea;color:#3b352c;font:16px/1.5 system-ui,sans-serif}.card{width:min(90vw,370px);padding:36px 28px;border-radius:28px;background:#fff;box-shadow:0 24px 70px #3b352c1c;text-align:center}.card img{width:180px;max-width:80%;margin:0 auto 26px}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8b7b64}.card h1{font:600 34px/1.05 Georgia,serif;margin:8px 0 14px}.card p{color:#675d51;margin:0 0 22px}.card label{display:block;text-align:left;font-size:13px;margin-bottom:7px}.card input{box-sizing:border-box;width:100%;border:1px solid #d8cab5;border-radius:12px;padding:13px;font:inherit}.card button{width:100%;border:0;border-radius:999px;margin-top:14px;padding:13px;background:#3b352c;color:#fff;font:600 14px system-ui,sans-serif;cursor:pointer}.error{color:#a94642;font-size:13px;margin:12px 0 0}</style></head><body><main class="card"><img src="/img/logo.webp" alt="MÀLEE Pilates"><p class="eyebrow">Private preview</p><h1>Welcome inside</h1><p>This version is shared privately while the studio prepares to open.</p><form method="post" action="/preview/login"><input type="hidden" name="next" value="${escapeHtml(next)}"><label for="password">Preview password</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus><button type="submit">Enter preview</button>${failed ? '<p class="error">That password did not match. Please try again.</p>' : ''}</form></main></body></html>`, { headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
@@ -387,6 +491,21 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const password = env.PREVIEW_PASSWORD;
+
+    if (url.pathname === "/client-review/submit") {
+      if (request.method !== "POST") return json({ error: "Not found." }, 404);
+      if (!await previewIsUnlocked(request, password)) return json({ error: "Your private session has expired. Please unlock the review page again." }, 401);
+      const declaredLength = Number(request.headers.get("content-length") || 0);
+      if (declaredLength > 80_000) return json({ error: "This response is too large to submit." }, 413);
+      let body;
+      try { body = await request.json(); } catch { return json({ error: "We could not read the form. Please review it and try again." }, 400); }
+      if (body && body.companyWebsite) return json({ submitted: true });
+      const submission = cleanReviewSubmission(body);
+      if (!submission) return json({ error: "Please complete the required details and provide an answer for every question." }, 400);
+      const sent = await sendEmail(env, { to: REVIEW_RECIPIENT, replyTo: submission.contact.email, ...clientReviewEmail(env, submission) });
+      if (!sent) return json({ error: "Your answers are saved on this device, but the email could not be sent. Please try again shortly." }, 502);
+      return json({ submitted: true, submissionId: submission.submissionId, sentTo: REVIEW_RECIPIENT });
+    }
 
     if (url.pathname.startsWith("/offer/")) {
       if (!env.WAITLIST_DB) return json({ error: "The opening list is being prepared. Please try again in a moment." }, 503);
@@ -464,7 +583,7 @@ export default {
     }
 
     // Private: the full-site preview, every landing version (/v1, /v2 …) and their index. One password opens them all.
-    if (url.pathname === "/preview" || url.pathname === "/versions" || /^\/v\d+$/.test(url.pathname)) return Response.redirect(new URL(`${url.pathname}/`, url), 302);
+    if (url.pathname === "/preview" || url.pathname === "/versions" || url.pathname === "/client-review" || /^\/v\d+$/.test(url.pathname)) return Response.redirect(new URL(`${url.pathname}/`, url), 302);
     const oldVersion = url.pathname.match(/^\/preview\/versions\/(v\d+\/)?/); // where the versions used to live
     if (oldVersion) return Response.redirect(new URL(oldVersion[1] ? `/${oldVersion[1]}` : "/versions/", url), 301);
 

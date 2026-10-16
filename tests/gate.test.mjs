@@ -14,7 +14,7 @@ test('the home page is public', async () => {
 });
 
 test('every version, the version list and the full-site preview ask for the password', async () => {
-  for (const path of ['/v1/', '/v4/', '/v5/', '/v12/', '/versions/', '/preview/']) {
+  for (const path of ['/v1/', '/v4/', '/v5/', '/v12/', '/versions/', '/preview/', '/client-review/']) {
     served.length = 0;
     const res = await get(path);
     const html = await res.text();
@@ -25,7 +25,7 @@ test('every version, the version list and the full-site preview ask for the pass
 });
 
 test('short and old addresses lead to the right place', async () => {
-  for (const [from, to, status] of [['/v4', '/v4/', 302], ['/versions', '/versions/', 302], ['/preview', '/preview/', 302], ['/preview/versions/v2/', '/v2/', 301], ['/preview/versions/', '/versions/', 301]]) {
+  for (const [from, to, status] of [['/v4', '/v4/', 302], ['/versions', '/versions/', 302], ['/preview', '/preview/', 302], ['/client-review', '/client-review/', 302], ['/preview/versions/v2/', '/v2/', 301], ['/preview/versions/', '/versions/', 301]]) {
     const res = await get(from);
     assert.equal(res.status, status, from);
     assert.equal(new URL(res.headers.get('location')).pathname, to, from);
@@ -43,7 +43,7 @@ test('the password opens every private page and returns the person where they we
   assert.match(cookie, /Path=\/;/, 'one cookie for the whole site, not just /preview');
 
   const session = cookie.split(';')[0];
-  for (const path of ['/v4/', '/versions/', '/preview/']) {
+  for (const path of ['/v4/', '/versions/', '/preview/', '/client-review/']) {
     const res = await get(path, session);
     assert.equal(await res.text(), '<html><body>page</body></html>', path);
     assert.equal(res.headers.get('x-robots-tag'), 'noindex, nofollow');
