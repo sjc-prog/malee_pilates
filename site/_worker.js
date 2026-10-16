@@ -381,7 +381,7 @@ function cleanReviewSubmission(body) {
     const status = cleanReviewText(item.status, 30).toLowerCase();
     const answer = cleanReviewText(item.answer, 3000);
     if (!id || seen.has(id) || !title || !REVIEW_STATUSES.has(status)) continue;
-    if (["no", "change", "provided", "other"].includes(status) && !answer) return null;
+    if (["change", "provided", "other"].includes(status) && !answer) return null;
     seen.add(id);
     responses.push({ id, title, reference, status, answer });
   }

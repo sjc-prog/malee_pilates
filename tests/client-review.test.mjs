@@ -19,6 +19,7 @@ async function unlockedCookie() {
 const payload = {
   responses: [
     { id: 'venue_structure', title: 'One venue with two studios', reference: 'Bophut and Nathon', status: 'yes', answer: '' },
+    { id: 'bophut_private', title: 'Bophut private sessions', reference: 'Confirm if offered', status: 'no', answer: '' },
     { id: 'nathon_timetable', title: 'Nathon timetable', reference: 'Please provide days and times', status: 'provided', answer: 'Monday to Friday, fixed slots at 09:30 and 11:00.' },
     { id: 'nathon_booking_method', title: 'Nathon booking method', reference: 'Fixed or flexible', status: 'fixed', answer: '' },
   ],
@@ -64,7 +65,7 @@ test('a completed review is emailed to Exsportia without requiring respondent de
 
 test('a change or written answer cannot be submitted empty', async () => {
   const bad = structuredClone(payload);
-  bad.responses[1].answer = '';
+  bad.responses[2].answer = '';
   const response = await worker.fetch(new Request('https://maleepilates.com/client-review/submit', {
     method: 'POST',
     headers: { 'content-type': 'application/json', cookie: await unlockedCookie() },

@@ -9,11 +9,11 @@
   <title>MÀLEE Pilates · Studio setup review</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root{--ink:#45403a;--muted:#7c726b;--paper:#fffaf7;--white:#fff;--pink:#e9b9c5;--pink-soft:#faedf1;--pink-deep:#a95f73;--sage:#dce7d6;--sage-deep:#637557;--butter:#f5e8bd;--aqua:#dceeed;--line:#eadfde;--danger:#a3485d;--shadow:0 18px 55px rgba(92,63,72,.12)}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(circle at 10% 3%,#fff 0,transparent 24rem),radial-gradient(circle at 95% 22%,#f7e4e9 0,transparent 28rem),var(--paper);color:var(--ink);font:400 15px/1.55 "DM Sans",sans-serif}
-    button,input,textarea{font:inherit}.shell{width:min(100%,820px);margin:0 auto;padding:18px 16px calc(112px + env(safe-area-inset-bottom))}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand img{width:112px;height:auto}.private{padding:7px 10px;border-radius:999px;background:#f4ebe8;color:#89766d;font-size:10px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;white-space:nowrap}
+    button,input,textarea{font:inherit}.shell{width:min(100%,820px);margin:0 auto;padding:18px 16px calc(112px + env(safe-area-inset-bottom))}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand img{width:112px;height:auto}.language-toggle{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid #e8d8d5;border-radius:999px;background:#fff}.language-toggle button{min-width:72px;border:0;border-radius:999px;padding:10px 13px;background:transparent;color:#756a63;font-size:13px;font-weight:800;cursor:pointer}.language-toggle button[aria-pressed="true"]{background:linear-gradient(100deg,#dca8b6,#e7c5cd);color:#643f4a;box-shadow:0 4px 12px rgba(169,95,115,.18)}
     .progress-shell{position:sticky;top:0;z-index:10;margin:0 -16px 18px;padding:10px 16px 12px;background:rgba(255,250,247,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(233,185,197,.35)}.progress-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px;color:var(--muted);font-size:11px;font-weight:600}.progress-track{height:7px;overflow:hidden;border-radius:99px;background:#f0e8e4}.progress-bar{width:14.28%;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--pink-deep),#c18c9a,var(--sage-deep));transition:width .35s ease}
     .panel{overflow:hidden;border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.93);box-shadow:var(--shadow)}.step{display:none;padding:26px 20px 30px}.step.active{display:block;animation:enter .3s ease}.eyebrow{margin:0 0 9px;color:var(--pink-deep);font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}.step h1{margin:0;font:500 clamp(30px,8vw,47px)/1.05 "Playfair Display",Georgia,serif;letter-spacing:-.035em}.intro{max-width:650px;margin:13px 0 24px;color:var(--muted);font-size:15px}.notice{margin:18px 0;padding:16px 17px;border:1px solid #efcfd6;border-radius:18px;background:linear-gradient(110deg,var(--pink-soft),#f2f7ee);color:#665b55}.notice strong{color:var(--ink)}
     .field-grid{display:grid;gap:14px}.field label{display:block;margin:0 0 7px;font-size:12px;font-weight:700}.field input,.field textarea{width:100%;border:1px solid #dfd1ce;border-radius:14px;background:#fff;padding:13px 14px;color:var(--ink);outline:none}.field input:focus,.field textarea:focus{border-color:#bd8190;box-shadow:0 0 0 4px rgba(233,185,197,.25)}.field textarea{min-height:120px;resize:vertical}.required{color:var(--danger)}
@@ -31,6 +31,10 @@
   <main class="shell" id="app">
     <header class="top">
       <div class="brand"><img src="/img/logo.webp" alt="MÀLEE Pilates"></div>
+      <div class="language-toggle" role="group" aria-label="Language">
+        <button type="button" data-language="en" aria-pressed="true">English</button>
+        <button type="button" data-language="th" aria-pressed="false">ไทย</button>
+      </div>
     </header>
 
     <div class="progress-shell" aria-label="Form progress">
@@ -166,40 +170,95 @@
     };
 
     const allItems=Object.values(groups).flat();
+    const thaiItems={
+      venue_structure:["หนึ่งบัญชี MÀLEE มีสองสตูดิโอ","เราเข้าใจว่า MÀLEE ควรใช้บัญชีสถานที่เดียว โดยมีสตูดิโอ Bophut และ Nathon อยู่ภายในบัญชีเดียวกัน"],
+      bophut_studio:["สตูดิโอ Bophut","มีเครื่อง Reformer 9 เครื่อง รองรับคลาสกลุ่มสูงสุด 9 คน และใช้ตารางคลาสประจำสัปดาห์ด้านล่าง"],
+      nathon_studio:["สตูดิโอ Nathon","มีเครื่อง Reformer 6 เครื่อง ที่ซอยเม็ด ลิปะน้อย Nathon เปิดเฉพาะ Private Reformer: แบบ 1 ต่อ 1 หรือกลุ่มส่วนตัวสูงสุด 6 คน"],
+      customer_location:["ลูกค้าเลือกสตูดิโอเมื่อจอง","การจองทุกครั้งควรระบุ Bophut หรือ Nathon อย่างชัดเจน เพื่อแยกคลาส ครูผู้สอน และจำนวนผู้เข้าร่วม"],
+      nathon_booking_method:["ลูกค้าควรจอง Private Session ที่ Nathon อย่างไร?","เลือกวิธีที่ใช้จริง ตารางเวลาจะถามในคำถามถัดไป","กรุณาอธิบายรูปแบบการจอง"],
+      nathon_timetable:["กรุณายืนยันตาราง Private ที่ Nathon","หากมีเวลาตายตัว กรุณาระบุวันและทุกช่วงเวลา หากลูกค้าเลือกเวลาในช่วงที่กำหนด กรุณาระบุวันประจำ เวลาเปิด–ปิด ระยะเวลาคลาส ช่วงเวลาการจอง และเวลาพักระหว่างคลาส"],
+      nathon_instructors:["ครูคนใดสอน Private ที่ Nathon ได้บ้าง?","กรุณาระบุทั้งคลาส 1 ต่อ 1 และ Private กลุ่ม พร้อมวันและเวลาที่ครูแต่ละคนว่าง"],
+      bophut_private:["Bophut มี Private Session ด้วยหรือไม่?","หากมี กรุณาระบุว่าลูกค้าเลือกเวลาตายตัว เลือกช่วงเวลา หรือส่งคำขอ และระบุตารางกับครูที่ว่าง","กรุณาระบุวิธีจอง Private ที่ Bophut วัน เวลา และครูผู้สอน"],
+      private_duration:["Private Session ของแต่ละสตูดิโอนานเท่าไร?","ข้อมูลเดิมระบุ 60 นาที กรุณายืนยัน Bophut และ Nathon แยกกัน หากแตกต่างกัน"],
+      private_product_studios:["Private package แต่ละแบบใช้ที่สตูดิโอใดได้บ้าง?","กรุณายืนยันว่า Private Trial, Private Drop-in และ 5 Private Sessions ใช้ที่ Bophut, Nathon หรือทั้งสองแห่ง"],
+      private_trainer_choice:["ลูกค้าเลือกครู Private ที่ต้องการได้หรือไม่?","เลือก ใช่ หากลูกค้าเลือกครูเอง เลือก ไม่ใช่ หาก MÀLEE เป็นผู้จัดครูให้ หรือเลือก เปลี่ยนแปลง เพื่ออธิบายขั้นตอนอื่น"],
+      group_classes:["ประเภทคลาสกลุ่มที่ Bophut","Morning Glow, Full Body Flow, Beginner, Booty and Core, Sunset Tone และ Jumpboard แต่ละคลาสนาน 55 นาที รองรับ 9 คน"],
+      bophut_timetable:["ตารางคลาสประจำสัปดาห์ที่ Bophut","เราเข้าใจว่าคลาสประจำทั้งหมดด้านล่างจัดที่ Bophut Studio"],
+      jumpboard_level:["Jumpboard เหมาะกับระดับใด?","กรุณาเลือก มือใหม่ ระดับกลาง ระดับสูง หรือทุกระดับ และระบุข้อกำหนดด้านประสบการณ์"],
+      trainer_private_bophut:["ครูแต่ละคนรับจอง Private ที่ Bophut ได้เมื่อไร?","กรุณาระบุเวลาว่างนอกตารางคลาสกลุ่มของ Kru Yui, Kru Nex และ Kru Leaw หรือแจ้งหากไม่ได้รับ Private ที่นี่"],
+      group_packages:["ราคาแพ็กเกจคลาสกลุ่ม","กรุณาตรวจสอบราคา จำนวนคลาส ระยะเวลาหมดอายุ และจำนวนครั้งที่แชร์ได้"],
+      private_prices:["ราคา Private Session","Private Trial 1,800 บาท; Private Drop-in 2,500 บาท; 5 Private Sessions 11,500 บาท ใช้ได้ 30 วัน; ผู้ร่วมเพิ่ม 1,000 บาทต่อคนต่อคลาส"],
+      package_model:["ผลิตภัณฑ์คลาสกลุ่มเป็นแพ็กเกจแบบเติมเงิน","เราเข้าใจว่าแพ็กเกจมีจำนวนเครดิตและวันหมดอายุที่กำหนด และไม่ต่ออายุอัตโนมัติแบบสมาชิกหรือ subscription"],
+      legacy_private_10:["ไม่ต้องสร้างแพ็กเกจ Private 10 ครั้งแบบเดิม","แพ็กเกจ 20,900 บาท / 90 วัน ปรากฏเฉพาะในข้อมูลเก่า และไม่มีในรายการราคาล่าสุด"],
+      legacy_private_two:["ไม่ต้องสร้างโปรโมชัน Private สองคนแบบเดิม","โปรโมชันสองคน 2,500 บาท ปรากฏเฉพาะในข้อมูลเก่า และไม่มีในรายการราคาล่าสุด"],
+      halloween_studio:["คลาส Halloween ฟรีจะจัดที่สตูดิโอใด?","มีคลาสฟรี 5 คลาสในวันเสาร์ที่ 31 ตุลาคม 2026 กรุณาระบุว่าเป็น Bophut หรือ Nathon"],
+      halloween_schedule:["ตารางเปิดตัว Halloween","มีคลาสฟรี 5 คลาส คลาสละ 9 ที่นั่ง ต้องจองออนไลน์"],
+      halloween_replace:["แทนที่ตารางวันเสาร์ปกติในวันที่ 31 ตุลาคม","การตั้งค่าที่แนะนำคือซ่อนคลาสวันเสาร์ปกติที่สตูดิโอจัดงาน เพื่อไม่ให้ลูกค้าเห็นคลาสซ้ำ"],
+      massage_gift:["ของขวัญเปิดตัวสำหรับแพ็กเกจ","แพ็กเกจคลาสกลุ่ม 5, 10, 20 และ 30 คลาส และแพ็กเกจ 5 Private Sessions จะได้รับนวดไทยหรือนวดเท้าฟรี 60 นาที ใช้ภายใน 14 วัน ไม่รวม Trial และ Drop-in"],
+      massage_limit:["ของขวัญนวดมีจำนวนกี่สิทธิ์ และโปรโมชันสิ้นสุดเมื่อไร?","ข้อมูลโปรโมชันระบุว่าจำนวนจำกัด แต่ยังไม่ระบุจำนวนสิทธิ์หรือวันสิ้นสุด"],
+      mat_yoga:["ยังไม่ต้องสร้าง Mat Yoga","ยังไม่มีตารางหรือราคาของ Mat Yoga ครบถ้วน เลือก เปลี่ยนแปลง หากต้องการเพิ่มตอนนี้ แล้วระบุสตูดิโอ ระยะเวลา จำนวนผู้เข้าร่วม ตาราง ครู และการใช้แพ็กเกจ","กรุณาระบุการตั้งค่า Mat Yoga หรือสิ่งที่ต้องเปลี่ยนแปลง"],
+      trainer_profiles:["กรุณาให้ข้อมูลครูสำหรับเว็บไซต์","สำหรับครูแต่ละคน กรุณาเพิ่มประวัติย่อ คุณวุฒิ ภาษาที่พูดได้ และคลาสหรือ Private Service ที่สอน"]
+    };
+    const stepCopy={
+      en:[
+        ["MÀLEE Pilates","Setup review for MÀLEE","Please work through each short step. Confirm what is correct, flag anything that is wrong, and tell us what should change. Your progress saves automatically on this device."],
+        ["Step 2","First, the two studios.","For each point, choose Yes if it is correct, No if it is not correct, or Change and write the correction."],
+        ["Step 3","How should private bookings work?","A fixed class slot and a flexible service appointment are set up differently. These answers decide what customers will see when they book."],
+        ["Step 4","Classes, timetable and trainers.","Please review the Bophut group classes and regular weekly timetable, then fill in the missing trainer information."],
+        ["Step 5","Prices and packages.","These are the customer products we currently understand should be offered. Open the details to check every price and expiry period."],
+        ["Step 6","Launch offers and website details.","Please confirm the Halloween launch classes, opening gift and any remaining information required for the website."],
+        ["Final step","Review your answers.","Please check the summary below. Use Back if you need to change anything."]
+      ],
+      th:[
+        ["MÀLEE Pilates","แบบทบทวนการตั้งค่าสำหรับ MÀLEE","กรุณาตรวจสอบทีละขั้น ยืนยันข้อมูลที่ถูกต้อง แจ้งข้อมูลที่ไม่ถูกต้อง และบอกเราว่าต้องแก้ไขอะไร ความคืบหน้าจะบันทึกในอุปกรณ์นี้อัตโนมัติ"],
+        ["ขั้นตอนที่ 2","เริ่มจากสองสตูดิโอ","เลือก ใช่ หากข้อมูลถูกต้อง เลือก ไม่ใช่ หากไม่ถูกต้อง หรือเลือก เปลี่ยนแปลง แล้วกรอกรายละเอียดที่ต้องแก้"],
+        ["ขั้นตอนที่ 3","Private Booking ควรทำงานอย่างไร?","การจองคลาสแบบเวลาตายตัวและการนัดหมายแบบเลือกช่วงเวลาตั้งค่าไม่เหมือนกัน คำตอบเหล่านี้กำหนดสิ่งที่ลูกค้าจะเห็นเมื่อจอง"],
+        ["ขั้นตอนที่ 4","คลาส ตาราง และครูผู้สอน","กรุณาตรวจสอบคลาสกลุ่มและตารางประจำสัปดาห์ของ Bophut แล้วกรอกข้อมูลครูที่ยังขาด"],
+        ["ขั้นตอนที่ 5","ราคาและแพ็กเกจ","นี่คือผลิตภัณฑ์สำหรับลูกค้าที่เราเข้าใจว่าควรมี เปิดรายละเอียดเพื่อตรวจสอบราคาและวันหมดอายุ"],
+        ["ขั้นตอนที่ 6","ข้อเสนอเปิดตัวและข้อมูลเว็บไซต์","กรุณายืนยันคลาสเปิดตัว Halloween ของขวัญเปิดตัว และข้อมูลที่เหลือสำหรับเว็บไซต์"],
+        ["ขั้นตอนสุดท้าย","ตรวจสอบคำตอบ","กรุณาตรวจสอบสรุปคำตอบด้านล่าง กด ย้อนกลับ หากต้องการแก้ไข"]
+      ]
+    };
     const form=document.getElementById("reviewForm"),steps=[...document.querySelectorAll(".step")],nextButton=document.getElementById("nextButton"),backButton=document.getElementById("backButton"),progressBar=document.getElementById("progressBar"),stepLabel=document.getElementById("stepLabel"),progressLabel=document.getElementById("progressLabel");
-    const additionalNotes=document.getElementById("additionalNotes");
-    let current=0,saveTimer;
+    const additionalNotes=document.getElementById("additionalNotes"),languageButtons=[...document.querySelectorAll("[data-language]")];
+    let current=0,saveTimer,language=localStorage.getItem("malee-client-review-language")==="th"?"th":"en";
     const escapeText=value=>String(value||"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
 
+    const translated=(item,index)=>language==="th"&&thaiItems[item.id]?.[index]?thaiItems[item.id][index]:item[["title","reference","prompt"][index]];
+    const optionLabel=(value,label)=>language!=="th"?label:({yes:"ใช่",no:"ไม่ใช่",change:"เปลี่ยนแปลง",fixed:"เวลาตายตัว",flexible:"เลือกเวลาในช่วงที่กำหนด",request:"ส่งคำขอและยืนยัน",provided:"เพิ่มคำตอบ",other:"พิมพ์คำตอบอื่น", "not-sure":"ยังไม่แน่ใจ"}[value]||label);
     function renderItem(item,index){
       const options=item.options||(item.type==="answer"?[["provided","Add answer"],["not-sure","Not sure yet"]]:[["yes","Yes"],["no","No"],["change","Change"]]);
-      const noteLabel=item.prompt||(item.type==="answer"?"Please write your answer":"What should we change or know?");
-      return `<article class="review-card" data-item="${item.id}" data-type="${item.type}"><span class="number">${index+1}</span><h2>${escapeText(item.title)}</h2><p class="reference">${escapeText(item.reference)}</p>${item.details?`<details class="detail-toggle"><summary>View the full details</summary><div class="detail-body">${item.details}</div></details>`:""}<div class="choices ${options.length>=4?"four":""}">${options.map(([value,label])=>`<label class="choice ${value}"><input type="radio" name="${item.id}_status" value="${value}"><span>${label}</span></label>`).join("")}</div><div class="answer-wrap"><label for="${item.id}_answer">${noteLabel}</label><textarea id="${item.id}_answer" data-answer placeholder="Type here…"></textarea></div><p class="error-message">Please choose an option and add detail only where requested.</p></article>`;
+      const noteLabel=translated(item,2)||(item.type==="answer"?(language==="th"?"กรุณาพิมพ์คำตอบของคุณ":"Please write your answer"):(language==="th"?"ต้องการเปลี่ยนแปลงหรือแจ้งข้อมูลอะไร?":"What should we change or know?"));
+      const detailsLabel=language==="th"?"ดูรายละเอียดทั้งหมด":"View the full details";
+      const errorLabel=language==="th"?"กรุณาเลือกคำตอบ และกรอกรายละเอียดเฉพาะเมื่อระบบขอข้อมูลเพิ่ม":"Please choose an option and add detail only where requested.";
+      return `<article class="review-card" data-item="${item.id}" data-type="${item.type}"><span class="number">${index+1}</span><h2>${escapeText(translated(item,0))}</h2><p class="reference">${escapeText(translated(item,1))}</p>${item.details?`<details class="detail-toggle"><summary>${detailsLabel}</summary><div class="detail-body">${item.details}</div></details>`:""}<div class="choices ${options.length>=4?"four":""}">${options.map(([value,label])=>`<label class="choice ${value}"><input type="radio" name="${item.id}_status" value="${value}"><span>${optionLabel(value,label)}</span></label>`).join("")}</div><div class="answer-wrap"><label for="${item.id}_answer">${noteLabel}</label><textarea id="${item.id}_answer" data-answer placeholder="${language==="th"?"พิมพ์ที่นี่…":"Type here…"}"></textarea></div><p class="error-message">${errorLabel}</p></article>`;
     }
-    for(const [containerId,items] of Object.entries(groups)){document.getElementById(containerId).innerHTML=items.map(renderItem).join("");}
+    function bindCards(){document.querySelectorAll(".review-card").forEach(card=>{
+      card.addEventListener("change",()=>{updateAnswerVisibility(card);card.classList.remove("is-error");queueSave();});
+      card.addEventListener("input",()=>{card.classList.remove("is-error");queueSave();});
+    });}
+    function renderGroups(answers={}){for(const [containerId,items] of Object.entries(groups)){document.getElementById(containerId).innerHTML=items.map(renderItem).join("");}
+      for(const item of allItems){const value=answers[item.id];if(!value)continue;const card=document.querySelector(`[data-item="${item.id}"]`),radio=card.querySelector(`input[value="${CSS.escape(value.status||"")}"]`);if(radio)radio.checked=true;card.querySelector("[data-answer]").value=value.answer||"";updateAnswerVisibility(card);}bindCards();}
+    renderGroups();
 
     function itemDefinition(id){return allItems.find(item=>item.id===id);}
     function updateAnswerVisibility(card){
       const item=itemDefinition(card.dataset.item),status=card.querySelector("input:checked")?.value,wrap=card.querySelector(".answer-wrap");
-      const visible=(item.type==="answer"&&status==="provided")||(item.type==="choice"&&status==="other")||["no","change"].includes(status)||(item.requireNoteFor||[]).includes(status);
+      const visible=(item.type==="answer"&&status==="provided")||(item.type==="choice"&&status==="other")||status==="change"||(item.requireNoteFor||[]).includes(status);
       wrap.classList.toggle("visible",visible);
     }
-    document.querySelectorAll(".review-card").forEach(card=>{
-      card.addEventListener("change",()=>{updateAnswerVisibility(card);card.classList.remove("is-error");queueSave();});
-      card.addEventListener("input",()=>{card.classList.remove("is-error");queueSave();});
-    });
     form.addEventListener("input",queueSave);form.addEventListener("change",queueSave);
 
     function itemValue(item){const card=document.querySelector(`[data-item="${item.id}"]`);return{status:card.querySelector("input:checked")?.value||"",answer:card.querySelector("[data-answer]").value.trim()};}
     function snapshot(){
       const answers={};for(const item of allItems)answers[item.id]=itemValue(item);
-      return{current,answers,additionalNotes:document.getElementById("additionalNotes").value};
+      return{current,language,answers,additionalNotes:document.getElementById("additionalNotes").value};
     }
     function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(save,220);}
     function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent="Saved on this device");}
     function restore(){
       let saved;try{saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");}catch{return}
-      if(!saved)return;document.getElementById("additionalNotes").value=saved.additionalNotes||"";
+      if(!saved)return;if(saved.language&&saved.language!==language){language=saved.language;renderGroups();}document.getElementById("additionalNotes").value=saved.additionalNotes||"";
       for(const item of allItems){const value=saved.answers?.[item.id];if(!value)continue;const card=document.querySelector(`[data-item="${item.id}"]`),radio=card.querySelector(`input[value="${CSS.escape(value.status||"")}"]`);if(radio)radio.checked=true;card.querySelector("[data-answer]").value=value.answer||"";updateAnswerVisibility(card);}
       current=Math.min(Math.max(Number(saved.current)||0,0),steps.length-1);document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent="Progress restored from this device");
     }
@@ -219,21 +278,31 @@
     }
     function responsePayload(){return allItems.map(item=>{const value=itemValue(item);return{id:item.id,title:item.title,reference:item.referenceEmail||item.reference,status:value.status,answer:value.answer};});}
     function buildReview(){
-      const summary=document.getElementById("reviewSummary");summary.innerHTML=allItems.map(item=>{const value=itemValue(item),label={yes:"Yes — correct",no:"No",change:"Change required",fixed:"Fixed slots",flexible:"Flexible times",request:"Request & confirm",provided:"Answer provided","not-sure":"Not sure yet"}[value.status]||value.status;return`<div class="summary-card"><header><h3>${escapeText(item.title)}</h3><span class="status-pill">${escapeText(label)}</span></header>${value.answer?`<p>${escapeText(value.answer)}</p>`:""}</div>`;}).join("")+(additionalNotes.value?`<div class="summary-card"><header><h3>Additional notes</h3></header><p>${escapeText(additionalNotes.value)}</p></div>`:"");
+      const summary=document.getElementById("reviewSummary"),labels=language==="th"?{yes:"ใช่ — ถูกต้อง",no:"ไม่ใช่",change:"เปลี่ยนแปลง",fixed:"เวลาตายตัว",flexible:"เลือกช่วงเวลา",request:"ส่งคำขอและยืนยัน",provided:"เพิ่มคำตอบ",other:"คำตอบอื่น","not-sure":"ยังไม่แน่ใจ"}:{yes:"Yes — correct",no:"No",change:"Change required",fixed:"Fixed slots",flexible:"Flexible times",request:"Request & confirm",provided:"Answer provided",other:"Type something else","not-sure":"Not sure yet"};summary.innerHTML=allItems.map(item=>{const value=itemValue(item),label=labels[value.status]||value.status;return`<div class="summary-card"><header><h3>${escapeText(translated(item,0))}</h3><span class="status-pill">${escapeText(label)}</span></header>${value.answer?`<p>${escapeText(value.answer)}</p>`:""}</div>`;}).join("")+(additionalNotes.value?`<div class="summary-card"><header><h3>${language==="th"?"หมายเหตุเพิ่มเติม":"Additional notes"}</h3></header><p>${escapeText(additionalNotes.value)}</p></div>`:"");
     }
+    const progressNames={en:["Setup review","Studios","Private bookings","Classes and trainers","Prices and packages","Launch and website","Review and submit"],th:["ตรวจสอบการตั้งค่า","สตูดิโอ","การจอง Private","คลาสและครูผู้สอน","ราคาและแพ็กเกจ","การเปิดตัวและเว็บไซต์","ตรวจสอบและส่ง"]};
+    function applyLanguageCopy(){
+      document.documentElement.lang=language;languageButtons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.language===language)));
+      steps.forEach((step,index)=>{const [eyebrow,title,intro]=stepCopy[language][index];step.querySelector(".eyebrow").textContent=eyebrow;step.querySelector("h1").textContent=title;step.querySelector(".intro").textContent=intro;});
+      steps[0].querySelector(".notice").innerHTML=language==="th"?"<strong>คำตอบจะส่งไปที่ไหน?</strong><br>เมื่อส่งขั้นตอนสุดท้ายแล้ว สำเนาคำตอบทั้งหมดจะถูกส่งไปที่ <strong>sjc@exsportia.com</strong>":"<strong>Where do the answers go?</strong><br>When you submit the final step, a complete copy will be emailed to <strong>sjc@exsportia.com</strong>.";
+      document.querySelector('label[for="additionalNotes"]').textContent=language==="th"?"มีข้อมูลอื่นที่อยากให้เราทราบหรือไม่?":"Anything else we should know?";additionalNotes.placeholder=language==="th"?"เพิ่มหมายเหตุ การแก้ไข หรือคำขอที่นี่…":"Add any final notes, corrections or requests here.";
+      document.querySelector('label[for="finalConfirm"]').textContent=language==="th"?"ฉันได้ตรวจสอบคำตอบแล้ว และต้องการส่งให้ Exsportia":"I have reviewed these answers and would like to send them to Exsportia.";
+      document.querySelector(".success h1").textContent=language==="th"?"ขอบคุณค่ะ":"Thank you.";document.querySelector(".success p").innerHTML=language==="th"?"แบบทบทวนการตั้งค่า MÀLEE ของคุณถูกส่งไปที่ <strong>sjc@exsportia.com</strong> แล้ว Exsportia จะใช้คำตอบเพื่อตั้งค่าระบบจองและข้อมูลเว็บไซต์ให้เสร็จสมบูรณ์":"Your MÀLEE studio review has been sent to <strong>sjc@exsportia.com</strong>. Exsportia can now use your answers to complete the booking setup and website information.";
+    }
+    function setLanguage(nextLanguage){const answers=snapshot().answers;language=nextLanguage;localStorage.setItem("malee-client-review-language",language);renderGroups(answers);applyLanguageCopy();if(current===steps.length-1)buildReview();showStep(current);}
     function showStep(index){
-      current=index;steps.forEach((step,i)=>step.classList.toggle("active",i===index));stepLabel.textContent=`Step ${index+1} of ${steps.length}`;progressLabel.textContent=steps[index].dataset.label;progressBar.style.width=`${(index+1)/steps.length*100}%`;backButton.hidden=index===0;nextButton.textContent=index===steps.length-1?"Send completed review":"Save and continue";if(index===steps.length-1)buildReview();save();window.scrollTo({top:0,behavior:"smooth"});
+      current=index;steps.forEach((step,i)=>step.classList.toggle("active",i===index));stepLabel.textContent=language==="th"?`ขั้นตอน ${index+1} จาก ${steps.length}`:`Step ${index+1} of ${steps.length}`;progressLabel.textContent=progressNames[language][index];progressBar.style.width=`${(index+1)/steps.length*100}%`;backButton.hidden=index===0;backButton.textContent=language==="th"?"ย้อนกลับ":"Back";nextButton.textContent=index===steps.length-1?(language==="th"?"ส่งแบบทบทวน":"Send completed review"):(language==="th"?"บันทึกและดำเนินการต่อ":"Save and continue");if(index===steps.length-1)buildReview();save();window.scrollTo({top:0,behavior:"smooth"});
     }
     async function submit(){
-      const confirm=document.getElementById("finalConfirm"),status=document.getElementById("submitStatus");if(!confirm.checked){status.textContent="Please confirm that you have reviewed the answers.";return}
-      status.textContent="Sending your completed review…";nextButton.disabled=true;backButton.disabled=true;
+      const confirm=document.getElementById("finalConfirm"),status=document.getElementById("submitStatus");if(!confirm.checked){status.textContent=language==="th"?"กรุณายืนยันว่าคุณตรวจสอบคำตอบแล้ว":"Please confirm that you have reviewed the answers.";return}
+      status.textContent=language==="th"?"กำลังส่งแบบทบทวน…":"Sending your completed review…";nextButton.disabled=true;backButton.disabled=true;
       const submissionId=`MR-${new Date().toISOString().slice(0,10).replaceAll("-","")}-${crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase().slice(0,6)}`;
       const payload={responses:responsePayload(),additionalNotes:additionalNotes.value.trim(),completedAt:new Date().toLocaleString("en-GB",{dateStyle:"full",timeStyle:"short",timeZone:"Asia/Bangkok"}),submissionId,companyWebsite:document.getElementById("companyWebsite").value};
       try{const response=await fetch("/client-review/submit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"The review could not be sent.");localStorage.removeItem(STORAGE_KEY);form.hidden=true;document.getElementById("formNav").hidden=true;document.querySelector(".progress-shell").hidden=true;const success=document.getElementById("successPanel");success.classList.add("active");document.getElementById("successCode").textContent=`Reference ${data.submissionId||submissionId}`;window.scrollTo({top:0,behavior:"smooth"});}catch(error){status.textContent=error.message;nextButton.disabled=false;backButton.disabled=false;}
     }
     nextButton.addEventListener("click",()=>{if(current===steps.length-1){submit();return}if(!validateStep(current))return;save();showStep(current+1);});
     backButton.addEventListener("click",()=>{if(current>0)showStep(current-1);});
-    restore();showStep(current);
+    languageButtons.forEach(button=>button.addEventListener("click",()=>setLanguage(button.dataset.language)));restore();applyLanguageCopy();showStep(current);
   </script>
 </body>
 </html>
