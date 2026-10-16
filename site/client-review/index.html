@@ -255,12 +255,12 @@
       return{current,language,answers,additionalNotes:document.getElementById("additionalNotes").value};
     }
     function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(save,220);}
-    function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent="Saved on this device");}
+    function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent=language==="th"?"บันทึกในอุปกรณ์นี้แล้ว":"Saved on this device");}
     function restore(){
       let saved;try{saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");}catch{return}
       if(!saved)return;if(saved.language&&saved.language!==language){language=saved.language;renderGroups();}document.getElementById("additionalNotes").value=saved.additionalNotes||"";
       for(const item of allItems){const value=saved.answers?.[item.id];if(!value)continue;const card=document.querySelector(`[data-item="${item.id}"]`),radio=card.querySelector(`input[value="${CSS.escape(value.status||"")}"]`);if(radio)radio.checked=true;card.querySelector("[data-answer]").value=value.answer||"";updateAnswerVisibility(card);}
-      current=Math.min(Math.max(Number(saved.current)||0,0),steps.length-1);document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent="Progress restored from this device");
+      current=Math.min(Math.max(Number(saved.current)||0,0),steps.length-1);document.querySelectorAll("[data-save-state]").forEach(el=>el.textContent=language==="th"?"กู้คืนความคืบหน้าจากอุปกรณ์นี้แล้ว":"Progress restored from this device");
     }
 
     function cardsInStep(index){return[...steps[index].querySelectorAll(".review-card")];}
