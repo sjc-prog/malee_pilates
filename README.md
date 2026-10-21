@@ -6,7 +6,7 @@ The dedicated website repository for MÀLEE Pilates.
 
 - `site/` — the production static website and its images
 - `wrangler.jsonc` — Cloudflare Workers static-assets deployment configuration
-- `site/_worker.js` — the public/preview routing and preview password gate
+- `site/_worker.js` — the public/private routing and preview password gate
 
 ## Local preview
 
@@ -22,9 +22,11 @@ npx wrangler deploy
 
 The custom domain should be attached in the Cloudflare project after the first deployment. DNS is already managed in Cloudflare.
 
-### Private preview
+### Public site and private areas
 
-The public root path serves the Coming Soon page. The complete site is available at `/preview/` after entering the `PREVIEW_PASSWORD` Cloudflare Worker secret. Set this secret with Wrangler before deploying; never add it to this repository.
+From 21 Oct 2026 the root (`site/index.html`) is the public landing page: Free Class Day, offers, classes, packages, teachers, first visit, find us. Every booking button deep-links into the booking portal (`https://wba.exsportia.com/90305524/...`: `class/schedule/select-session`, `class/<classId>/select-session`, `subscription/<id>`, `instructor/<id>/select-service`, `instructor-service/<serviceId>/select-instructor`). Wording tagged `.pre` / `.post` switches itself after Free Class Day (31 Oct 2026, 20:00 Koh Samui time). The old Coming Soon page is kept at `/v0/`.
+
+The earlier versions (`/v1/` to `/v6/`), `/versions/`, the full `/preview/` site and `/client-review/` stay behind the `PREVIEW_PASSWORD` Cloudflare Worker secret. Set it with Wrangler before deploying.
 
 ## Source history
 
