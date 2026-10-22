@@ -14,13 +14,13 @@ Open `site/index.html` in a browser, or run a local static server from the repos
 
 ## Deployment
 
-After the Cloudflare project and custom domain are confirmed, deploy the current website with:
+Production uses Cloudflare Pages project `malee-pilates`, branch `coming-soon-password-preview`, with `maleepilates.com` and `www.maleepilates.com` attached. Deploy with:
 
 ```bash
-npx wrangler deploy
+npx --yes wrangler@4.137.0 pages deploy site --project-name malee-pilates --branch coming-soon-password-preview
 ```
 
-The custom domain should be attached in the Cloudflare project after the first deployment. DNS is already managed in Cloudflare.
+The root `wrangler.jsonc` is a legacy Workers configuration; the command above deploys the existing Pages project and its `_worker.js`. Keep the existing Pages bindings and secrets. DNS is managed in Cloudflare.
 
 ### Public site and private areas
 
