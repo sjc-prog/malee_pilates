@@ -296,7 +296,7 @@ ${accountNote}
 <td width="50%" valign="top" style="padding:0 0 0 5px"><div style="padding:14px 12px;border-radius:16px;background:#f2f6ee;text-align:center"><p style="margin:0;font:600 18px/1.2 ${SERIF};color:${INK}">Fisherman&rsquo;s Village</p><p style="margin:4px 0 0;font:400 12px/1.4 ${SANS};color:${MUTE}">Koh Samui</p></div></td></tr></table>
 <p style="margin:14px 0 0;text-align:center;font:500 13px/1.6 ${SANS};color:#675d51">Reformer &middot; Mat Pilates &middot; Private sessions &middot; Mat Yoga</p></td></tr>
 <tr><td align="center" style="padding:26px 28px 0"><p style="margin:0 0 14px;font:600 11px/1.4 ${SANS};letter-spacing:.2em;text-transform:uppercase;color:${PINK_DEEP}">Move with our instructors</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${trainer("kru-yui.jpg", "Kru Yui")}${trainer("kru-nex.jpg", "Kru Nex")}${trainer("kru-leaw.jpg", "Kru Leaw")}</tr></table></td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${trainer("kru-yui.jpg", "Kru Yui")}${trainer("../nex-malee-logo.png", "Kru Nex")}${trainer("kru-leaw.jpg", "Kru Leaw")}</tr></table></td></tr>
 <tr><td align="center" style="padding:28px 28px 22px"><a href="${linked ? `https://wba.exsportia.com/${config.venueId}/` : `${site}/`}" style="display:inline-block;padding:15px 30px;border-radius:999px;background:#72505b;font:600 14px/1 ${SANS};color:#ffffff;text-decoration:none">${linked ? "Open your MÀLEE account" : "Visit MÀLEE"}</a></td></tr>`;
   return {
     subject: classChoice ? `Welcome to MÀLEE: your free class, ${when}` : "Welcome to MÀLEE, we can't wait to meet you",
