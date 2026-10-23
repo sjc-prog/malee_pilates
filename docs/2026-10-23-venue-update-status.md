@@ -38,3 +38,18 @@ The global 60-unit validation cap incorrectly prevented 90/120 DAYS. The fix mak
 ## Policy limitation
 
 VMS's available online-payment cancellation presets permit refunds before their cutoff. The configured 12-hour preset does not fully implement a no-cash-refund rule for direct-pay bookings. Package credit restoration is distinct. Do not represent all refund handling as automated; retain this as an explicit unresolved policy/system distinction.
+
+## Follow-up completed: shared passes and purchase links
+
+The owner clarified that these are 10 and 20 group class passes, shareable with additional participants, with no separate bonus-pass promise. This resolves the earlier credit-count question.
+
+- Popular 92736697 repaired through the current VMS editor: 10 visits in total, additional participants enabled, THB7,000, 90 days, User select start, Semi-flexible benefit cancellation, full description and terms. Published through the catalogue's Put on sale action and verified checked Live.
+- Ultimate 52164718 created: 20 visits in total, additional participants enabled, THB13,000, 120 days, User select start, Semi-flexible cancellation, full description and terms. Verified Live in VMS and public WBA.
+- Both public WBA pages show the correct allowance, Shareable, selected start-date mode, duration, price and Get subscription button. The 20-pass button successfully opens the account/checkout entry. No test purchase was made.
+- Current editor accepts and saves 90/120-day products. The earlier draft-edit stall is no longer present.
+- VMS profile incorrectly displays Sold out for the new unlimited plan, despite Limit how many are sold being off and public checkout available. This appears to be a profile display issue; no artificial stock cap was added.
+- Removed the website's 30-day start-date assertion because the current editor exposes unrestricted customer-selected dates for these products.
+- Website now uses group class passes and direct purchase links for both plans. Four equal desktop columns replace five; two-column intermediate layout and one-column phone layout. DOM layout checks: desktop four equal widths and identical button Y positions; phone 390px viewport/390px scroll width and one 350px card column. Browser viewport overrides reset afterward.
+- Website commit 79de64c; deployed https://b7194121.malee-pilates.pages.dev. Existing bookings and purchased memberships were not edited.
+
+The earlier remaining items relating to completing/publishing these two products and their purchase links are superseded by this section. The separately noted direct-pay cash-refund policy limitation remains.
