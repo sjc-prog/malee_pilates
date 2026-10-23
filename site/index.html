@@ -181,8 +181,8 @@
     @media(max-width:640px){.grid3{grid-template-columns:1fr}}
 
     /* packages */
-    .pk{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
-    .pack{position:relative;background:var(--paper);border:1.5px solid rgba(69,64,58,.14);border-radius:var(--r);padding:26px 22px 24px;display:flex;flex-direction:column;gap:6px}
+    .pk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 16px}
+    .pack{min-width:0;position:relative;background:var(--paper);border:1.5px solid rgba(69,64,58,.14);border-radius:var(--r);padding:26px 22px 24px;display:flex;flex-direction:column;gap:6px}
     .pack.hot{border-color:var(--ink);box-shadow:var(--shadow)}
     .pack.new{background:var(--butter-soft);border-color:var(--butter)}
     .tag{position:absolute;top:-13px;left:20px;background:var(--ink);color:var(--paper);font:700 11px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:7px 12px;border-radius:999px}
@@ -193,10 +193,9 @@
     .pack ul{list-style:none;margin:12px 0 18px;padding:0;display:grid;gap:8px;font-size:14.5px;color:var(--soft)}
     .pack ul li{padding-left:20px;position:relative}
     .pack ul li::before{content:"✓";position:absolute;left:0;color:var(--rose);font-weight:700}
-    .pack .btn{margin-top:auto}
+    .pack .btn{margin-top:auto;width:100%;text-align:center;justify-content:center;white-space:normal;min-height:48px}
     .pack .btn::after{content:"";position:absolute;inset:0;border-radius:var(--r)}
-    @media(max-width:1060px){.pk{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:720px){.pk{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1060px){.pk{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:480px){.pk{grid-template-columns:1fr}}
     .sub{font:500 26px/1.2 var(--serif);margin:56px 0 22px}
     .priv{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -369,7 +368,7 @@
         <h3>A warm welcome</h3>
         <ul>
           <li><strong>Introduction Offer:</strong> buy 2 classes, get 1 free. 3 classes for ฿1,800, for first-time clients.</li>
-          <li><strong>Move together:</strong> use your 10- or 20-class membership to book additional participants. Each person uses one class credit from your shared balance, subject to available spaces.</li>
+          <li><strong>Move together:</strong> use your 10- or 20-class membership to book additional participants. Each person uses one group class pass, subject to available spaces.</li>
         </ul>
         <a class="btn sm" href="#packages">See the packages</a>
       </article>
@@ -394,15 +393,15 @@
 
 <section class="s" id="packages">
   <div class="wrap">
-    <div class="head rv"><p class="eyebrow">Packages</p><h2>Make movement <em>a habit</em></h2><p>Choose a package start date within 30 days of purchase. Your credits cover classes from that date, within your package validity. For our 10- and 20-class packages, contact the studio while online checkout is being updated.</p></div>
+    <div class="head rv"><p class="eyebrow">Packages</p><h2>Make movement <em>a habit</em></h2><p>Choose your start date when you buy. Your passes cover classes from that date, within your package validity. Share the 10- and 20-pass packages with the people you bring.</p></div>
     <div class="pk rv">
-      <article class="pack new"><span class="tag">First time at Màlee?</span><div class="n">3</div><div class="u">group classes · Introduction Offer</div><div class="price">฿1,800</div><div class="per">Buy 2 classes, get 1 free</div><ul><li>Valid for 14 days</li><li>For first-time clients</li><li>At Bophut Studio</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/90162412" data-cta="Package: Introduction Offer">Get this offer</a></article>
-      <article class="pack"><div class="n">5</div><div class="u">group classes</div><div class="price">฿4,000</div><div class="per">฿800 a class</div><ul><li>60 days from your chosen start date</li><li>5 credits for your own practice</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/subscription/71996186" data-cta="Package: 5 classes">Choose</a></article>
-      <article class="pack hot"><span class="tag">Most popular</span><div class="n">10</div><div class="u">group classes</div><div class="price">฿7,000</div><div class="per">฿700 a class</div><ul><li>90 days from your chosen start date</li><li>Book additional participants</li></ul><a class="btn sm" href="https://wa.me/61422163778?text=Hello%2C%20I%20would%20like%20to%20ask%20about%20the%2010-class%20soft-opening%20package." rel="noopener" data-cta="Package: 10 classes">Enquire with the studio</a></article>
-      <article class="pack"><div class="n">20</div><div class="u">group classes</div><div class="price">฿13,000</div><div class="per">฿650 a class</div><ul><li>120 days from your chosen start date</li><li>Book additional participants</li></ul><a class="btn sm ghost" href="https://wa.me/61422163778?text=Hello%2C%20I%20would%20like%20to%20ask%20about%20the%2020-class%20soft-opening%20package." rel="noopener" data-cta="Package: 20 classes">Enquire with the studio</a></article>
+      <article class="pack new"><span class="tag">First time at Màlee?</span><div class="n">3</div><div class="u">group class passes · Introduction Offer</div><div class="price">฿1,800</div><div class="per">Buy 2 classes, get 1 free</div><ul><li>Valid for 14 days</li><li>For first-time clients</li><li>At Bophut Studio</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/90162412" data-cta="Package: Introduction Offer">Get this offer</a></article>
+      <article class="pack"><div class="n">5</div><div class="u">group class passes</div><div class="price">฿4,000</div><div class="per">฿800 a class</div><ul><li>60 days from your chosen start date</li><li>5 passes for your own practice</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/subscription/71996186" data-cta="Package: 5 classes">Choose</a></article>
+      <article class="pack hot"><span class="tag">Most popular</span><div class="n">10</div><div class="u">group class passes</div><div class="price">฿7,000</div><div class="per">฿700 a class</div><ul><li>90 days from your chosen start date</li><li>Book additional participants</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/92736697" rel="noopener" data-cta="Package: 10 classes">Buy passes</a></article>
+      <article class="pack"><div class="n">20</div><div class="u">group class passes</div><div class="price">฿13,000</div><div class="per">฿650 a class</div><ul><li>120 days from your chosen start date</li><li>Book additional participants</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/subscription/52164718" rel="noopener" data-cta="Package: 20 classes">Buy passes</a></article>
     </div>
 
-    <p class="fine">Your 10- or 20-class membership can cover you and additional participants, including friends who have attended before. Each participant uses one credit from the membership balance. Book as many participants as your remaining credits and the available class spaces allow. Credits can only be used for classes within the membership’s active dates. Late cancellations and no-shows use the corresponding participant credits.</p>
+    <p class="fine">Share your 10 or 20 group class passes with friends, including friends who have attended before. Each pass covers one person attending one group class: you and two friends use three passes. Book as many participants as your remaining passes and the available class spaces allow. Passes can only be used for classes within the membership’s active dates. Late cancellations and no-shows use the passes reserved for those participants.</p>
 
     <h3 class="sub rv">Prefer a one-to-one practice?</h3>
     <div class="priv rv">
@@ -410,7 +409,7 @@
       <article class="pack"><div class="u">Private drop-in</div><div class="price">฿2,500</div><div class="per">One hour, 1:1 at Bophut Studio</div><ul><li>Choose your instructor</li><li>Advance booking required</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/instructor-service/44903938/select-instructor" data-cta="Private drop-in">Book a private session</a></article>
       <article class="pack"><div class="u">5 private sessions</div><div class="price">฿11,500</div><div class="per">Five one-hour sessions</div><ul><li>30 days from your chosen start date</li><li>Advance booking required</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/43795212" data-cta="Package: 5 private sessions">Choose 5 sessions</a></article>
     </div>
-    <p class="fine">Bring a friend to a private session: each extra person is ฿1,000 per person, per session, paid in cash at the studio on arrival. Packages are non-refundable and non-transferable. Group bookings and changes must be made at least 12 hours before class. Cancel at least 12 hours before a group class or 24 hours before a private session to keep the credit within its validity. Late cancellations and no-shows use the credit.</p>
+    <p class="fine">Bring a friend to a private session: each extra person is ฿1,000 per person, per session, paid in cash at the studio on arrival. Packages are non-refundable and non-transferable. Group bookings and changes must be made at least 12 hours before class. Cancel at least 12 hours before a group class or 24 hours before a private session to keep the pass within its validity. Late cancellations and no-shows use the pass.</p>
   </div>
 </section>
 
@@ -432,7 +431,7 @@
       <div class="step"><b>1</b><h3>Arrive 10–15 minutes early</h3><p>Tell your instructor it’s your first time, and they will set you up.</p></div>
       <div class="step"><b>2</b><h3>Bring grip socks</h3><p>They are required for safety and hygiene.</p></div>
       <div class="step"><b>3</b><h3>Start with Beginner</h3><p>Solid foundations, safe movements and better posture from day one.</p></div>
-      <div class="step"><b>4</b><h3>Plans change?</h3><p>Cancel or reschedule at least 12 hours before a group class, or 24 hours before a private session. Late cancellations and no-shows use your credit.</p></div>
+      <div class="step"><b>4</b><h3>Plans change?</h3><p>Cancel or reschedule at least 12 hours before a group class, or 24 hours before a private session. Late cancellations and no-shows use your pass.</p></div>
     </div>
   </div>
 </section>
