@@ -25,11 +25,11 @@ Isolated production-based branch: hotfix/malee-membership-day-duration.
 Commit: 41303f3d3.
 PR: https://github.com/Exsportia/exsportia-admin/pull/4892.
 
-The global 60-unit validation cap incorrectly prevented 90/120 DAYS. The fix makes the day bound unit-aware while retaining the existing non-day limit. New regression tests plus existing validation tests passed locally (15 tests); CI lint, E2E IDs and full tests passed. Production build was still running at this status update. Not yet merged/deployed. Repository auto-merge is disabled; do not bypass protections.
+The global 60-unit validation cap incorrectly prevented 90/120 DAYS. The fix makes the day bound unit-aware while retaining the existing non-day limit. New regression tests plus existing validation tests passed locally (15 tests); CI lint, E2E IDs, full tests and production build all passed. PR merged normally at 2026-10-23 01:35 UTC as 940c07dae91f745a3c3acaf1086a8a3f82adbce3. Hosting deployment still needs verification. Repository protections were not bypassed.
 
 ## Remaining
 
-- Finish PR required build, normal merge and verify production VMS deployment.
+- Verify production VMS hosting deployment of merged commit 940c07dae91f745a3c3acaf1086a8a3f82adbce3.
 - Complete new 90-/120-day products after credit count confirmation. Enable additional-participant benefit; use purchaser-selected start within 30 days; verify limits and cancellation rules.
 - Draft 92736697 is OFFLINE and incomplete (90 days/THB7000 but copied 5-credit allowance and missing fields); its edit screen stalls. Never publish as-is. A clean normal-UI duplicate may be necessary.
 - Replace website 10-/20-class enquiry buttons with verified new product purchase links only after publication. Intro/Starter/private buy links already exist.
