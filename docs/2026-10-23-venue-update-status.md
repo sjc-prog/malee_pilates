@@ -1,55 +1,51 @@
 # MÀLEE update status — 23 October 2026
 
-Venue: 90305524. Website: https://maleepilates.com/.
+Venue 90305524 · https://maleepilates.com/
 
-## Latest confirmed interpretation
+## Source documents reviewed
 
-The 10- and 20-class memberships should support additional participants. Any friend may participate, including returning clients. Each participant consumes one credit; there is no separate first-time-friend voucher restriction. Capacity and remaining balance still apply.
+All pages of these client PDFs were reviewed together:
+- Malee_Pilates_Soft_Opening_Guide.pdf
+- Malee_Pilates_Studio_Timetable.pdf
+- Malee_Pilates_Terms_and_Policy_2_Pages.pdf
+- Studio_Instructor_Compensation_Policy.pdf
+- Malee_Pilates_Private_Rates 2.pdf (identical to the unnumbered private-rates PDF)
 
-Awaiting the owner's answer: retain the earlier bonus as 11/22 total shared credits, or use 10/20 with no bonus. Do not publish these products or enable purchase buttons until this is resolved and the products are fully configured.
+Sources are in /Users/jcohen/Downloads. Instructor compensation is internal and has not been published on the website.
 
-## Completed
+## Completed in production VMS
 
-- November schedule audited: 136 sessions, 55 minutes, 9 spaces, THB 900, Bophut. Saturday Sunset Tone assigned to Yui with explicit owner approval.
-- Intro 90162412: 3 classes, THB 1,800, 14 days; Starter 71996186: 5 classes, THB 4,000, 60 days. Both live, purchaser chooses activation date within 30 days.
-- Private package 43795212: 5 sessions, THB 11,500, retained 30-day validity; purchaser-selected activation within 30 days and 24-hour credit cancellation policy.
-- Superseded group products hidden from new sales; purchased memberships retained.
-- Six regular class templates updated through VMS: Beginner 00892166, Jumpboard 01019048, Full Body Flow 10506027, Booty & Core 21823706, Morning Glow 28859647, Sunset Tone 45120497.
-- Each has 720-minute minimum advance booking, 12-hour cancellation lock, Semi-Flexible 12-hour online-payment policy, and automatic cancellation two hours before start with minimum participants 1 (only empty sessions).
-- Booked Halloween classes, existing bookings and purchased entitlements were not edited.
-- Shared-participant website copy deployed: commit 7d4b816; Cloudflare Pages deployment https://74cd0981.malee-pilates.pages.dev. Domain content verified. 27 website tests passed.
+- November timetable previously audited: 136 sessions, 55 minutes, 9 spaces, THB900, Bophut. Yui Saturday Sunset Tone availability changed with explicit owner approval.
+- Six regular class templates: 12-hour advance booking and cancellation, automatic cancellation of empty sessions two hours before start.
+- Introduction 90162412: 3 passes / THB1800 / 14 days.
+- Starter 71996186: 5 passes / THB4000 / 60 days.
+- Popular 92736697: 10 total shared passes / THB7000 / 90 days.
+- Ultimate 52164718: 20 total shared passes / THB13000 / 120 days.
+- Private 43795212 corrected to 5 sessions / THB13500 / 60 days, with 24-hour benefit cancellation and customer-selected activation date.
+- Single Private Bophut 44903938 and Nathon 82165675 corrected to THB2990 for 60 minutes. Descriptions and policy text updated.
+- Old private trials and obsolete flat-price Private Group service off sale. Records retained.
+- Five retired packages removed after each was verified to have no holders and explicit deletion confirmation: 57206557, 40791514, 65284488, 37439167, 47008022.
+- Old intro 09441668 retained off sale because it has an existing holder.
+- Membership cover images updated to the website studio photo for group packages and Yui photo for private package.
+- Existing bookings and purchased entitlements were not edited. No test purchase or booking was made.
 
-## VMS duration fix
+## Website changes prepared
 
-Isolated production-based branch: hotfix/malee-membership-day-duration.
-Commit: 41303f3d3.
-PR: https://github.com/Exsportia/exsportia-admin/pull/4892.
+Four aligned group package cards with matching photos and pastel colours. Two private cards replace the old three: single THB2990 and five THB13500/60 days. Removed the obsolete private trial. Added equipment, extra-person THB1000 and booking/studio policy information. Buttons link directly to the corresponding WBA products.
 
-The global 60-unit validation cap incorrectly prevented 90/120 DAYS. The fix makes the day bound unit-aware while retaining the existing non-day limit. New regression tests plus existing validation tests passed locally (15 tests); CI lint, E2E IDs, full tests and production build all passed. PR merged normally at 2026-10-23 01:35 UTC as 940c07dae91f745a3c3acaf1086a8a3f82adbce3. Hosting deployment still needs verification. Repository protections were not bypassed.
+27 existing automated tests pass. Desktop preview checked visually. Deployment recorded in the task response.
 
-## Remaining
+## Explicit limitations and unresolved checks
 
-- Verify production VMS hosting deployment of merged commit 940c07dae91f745a3c3acaf1086a8a3f82adbce3.
-- Complete new 90-/120-day products after credit count confirmation. Enable additional-participant benefit; use purchaser-selected start within 30 days; verify limits and cancellation rules.
-- Draft 92736697 is OFFLINE and incomplete (90 days/THB7000 but copied 5-credit allowance and missing fields); its edit screen stalls. Never publish as-is. A clean normal-UI duplicate may be necessary.
-- Replace website 10-/20-class enquiry buttons with verified new product purchase links only after publication. Intro/Starter/private buy links already exist.
-- Verify private-service policy separately; the private package benefit is already 24 hours.
+- Customer-selected activation is configured; automatic activation on first attendance is not equivalent. The new editor does not expose the maximum advance-start limit, so enforcement of the PDF's one-month rule is not verified.
+- User explicitly chose 10/20 total passes shared with any participants. This overrides the PDF's separate restricted bonus Friend Pass wording; no extra 1/2 passes are promised.
+- Private services remain pay-on-arrival with one participant in checkout. The THB1000 extra-person supplement is not automated; website directs customers to arrange this with the studio.
+- Private service cancellation setting shows No Limit although policy text says 24 hours. Payment-gated cancellation controls and the no-cash-refund requirement need reconciliation. Do not claim this policy is fully enforced automatically.
+- Existing group online-payment cancellation presets can allow cash refunds before cutoff. This differs from the client's no-cash-refund policy; package-pass restoration is separate.
+- Full signed-in mobile checkout, selected start date enforcement and participant redemption remain unverified. Public WBA pages and account-entry buttons were checked, but no customer login was available. A 312px WBA viewport overflowed its 375px minimum layout; standard-width mobile recheck remains.
+- Instructor compensation PDF reviewed, but payroll rules not configured.
+- Chrome connection timed out during the final review; earlier saved VMS screenshots document the changes.
 
-## Policy limitation
+## VMS duration bug
 
-VMS's available online-payment cancellation presets permit refunds before their cutoff. The configured 12-hour preset does not fully implement a no-cash-refund rule for direct-pay bookings. Package credit restoration is distinct. Do not represent all refund handling as automated; retain this as an explicit unresolved policy/system distinction.
-
-## Follow-up completed: shared passes and purchase links
-
-The owner clarified that these are 10 and 20 group class passes, shareable with additional participants, with no separate bonus-pass promise. This resolves the earlier credit-count question.
-
-- Popular 92736697 repaired through the current VMS editor: 10 visits in total, additional participants enabled, THB7,000, 90 days, User select start, Semi-flexible benefit cancellation, full description and terms. Published through the catalogue's Put on sale action and verified checked Live.
-- Ultimate 52164718 created: 20 visits in total, additional participants enabled, THB13,000, 120 days, User select start, Semi-flexible cancellation, full description and terms. Verified Live in VMS and public WBA.
-- Both public WBA pages show the correct allowance, Shareable, selected start-date mode, duration, price and Get subscription button. The 20-pass button successfully opens the account/checkout entry. No test purchase was made.
-- Current editor accepts and saves 90/120-day products. The earlier draft-edit stall is no longer present.
-- VMS profile incorrectly displays Sold out for the new unlimited plan, despite Limit how many are sold being off and public checkout available. This appears to be a profile display issue; no artificial stock cap was added.
-- Removed the website's 30-day start-date assertion because the current editor exposes unrestricted customer-selected dates for these products.
-- Website now uses group class passes and direct purchase links for both plans. Four equal desktop columns replace five; two-column intermediate layout and one-column phone layout. DOM layout checks: desktop four equal widths and identical button Y positions; phone 390px viewport/390px scroll width and one 350px card column. Browser viewport overrides reset afterward.
-- Website commit 79de64c; deployed https://b7194121.malee-pilates.pages.dev. Existing bookings and purchased memberships were not edited.
-
-The earlier remaining items relating to completing/publishing these two products and their purchase links are superseded by this section. The separately noted direct-pay cash-refund policy limitation remains.
+PR https://github.com/Exsportia/exsportia-admin/pull/4892 merged as 940c07dae91f745a3c3acaf1086a8a3f82adbce3. Production editor successfully saved the 90- and 120-day products. Repository protections were not bypassed.
