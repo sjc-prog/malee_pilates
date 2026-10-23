@@ -181,6 +181,17 @@
     @media(max-width:640px){.grid3{grid-template-columns:1fr}}
 
     /* packages */
+    .opening-sale{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 28px;margin:0 0 28px;background:linear-gradient(110deg,#fae5eb,#f0f3e9);border:1px solid #e8cbd3;border-radius:20px}
+    .opening-sale h3{font:500 28px/1.2 var(--serif);margin:4px 0 8px}
+    .opening-sale p{margin:0;font-size:14px;color:var(--soft)}
+    .sale-clock{display:flex;gap:8px;flex-shrink:0}
+    .sale-clock span{display:grid;text-align:center;min-width:60px;padding:12px 8px;background:rgba(255,255,255,.7);border-radius:12px}
+    .sale-clock b{font:500 28px/1 var(--serif);font-variant-numeric:tabular-nums;color:#774a59}
+    .sale-clock small{font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-top:7px}
+    .pack .was{font-size:15px;color:var(--soft);margin-top:6px}
+    .pack .was s{text-decoration-thickness:1.5px}
+    .sale-ended .was{display:none}
+    @media(max-width:700px){.opening-sale{flex-direction:column;align-items:flex-start;padding:22px 18px;gap:18px}.sale-clock{width:100%}.sale-clock span{flex:1;min-width:0}}
     .pk{display:flex;flex-wrap:wrap;justify-content:center;gap:24px 16px}.pk>.pack{flex:0 0 calc((100% - 64px)/5)}
     .pack{min-width:0;position:relative;background:var(--paper);border:1.5px solid rgba(69,64,58,.14);border-radius:var(--r);padding:26px 22px 24px;display:flex;flex-direction:column;gap:6px}
     .pack.hot{border-color:#bf858f;box-shadow:0 12px 32px rgba(139,95,105,.10)}
@@ -406,11 +417,15 @@
 <section class="s" id="packages">
   <div class="wrap">
     <div class="head rv"><p class="eyebrow">Classes &amp; packages</p><h2>Make movement <em>a habit</em></h2><p>Drop in for one class, or choose a package for regular practice. With a package, choose your start date when you buy. Share the 10- and 20-pass packages with the people you bring.</p></div>
+    <aside class="opening-sale" aria-label="Opening month package sale">
+      <div><p class="eyebrow">Opening month special</p><h3 id="sale-title">30 days to begin something good.</h3><p id="sale-detail">Special package prices for our first 30 days of regular classes.<br>Buy before 1 December 2026 · Bangkok time.</p></div>
+      <div class="sale-clock" id="sale-clock" role="timer" aria-label="Time remaining until the opening sale ends" aria-live="off"><span><b data-sale-unit="days">—</b><small>Days</small></span><span><b data-sale-unit="hours">—</b><small>Hours</small></span><span><b data-sale-unit="minutes">—</b><small>Mins</small></span><span><b data-sale-unit="seconds">—</b><small>Secs</small></span></div>
+    </aside>
     <div class="pk rv">
       <article class="pack"><img class="pack-cover" src="img/studio.webp" alt="" loading="lazy" width="620" height="280"><div class="pack-label">Drop-in</div><div class="n">1</div><div class="u">group class · one-time visit</div><div class="price">฿900</div><div class="per">฿900 per class</div><ul><li>Choose any regular group class</li><li>No package commitment</li><li>Book your place online</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/class/schedule/select-session" data-cta="Drop-in: one group class">Book a class</a></article>
       <article class="pack new"><img class="pack-cover" src="img/studio.webp" alt="" loading="lazy" width="620" height="280"><div class="pack-label">Introduction</div><span class="tag">First time at Màlee?</span><div class="n">3</div><div class="u">group class passes · Introduction Offer</div><div class="price">฿1,800</div><div class="per">฿600 per class · Buy 2, get 1 free</div><ul><li>Valid for 14 days</li><li>For first-time clients</li><li>At Bophut Studio</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/90162412" data-cta="Package: Introduction Offer">Get this offer</a></article>
       <article class="pack"><img class="pack-cover" src="img/studio.webp" alt="" loading="lazy" width="620" height="280"><div class="pack-label">Starter</div><div class="n">5</div><div class="u">group class passes</div><div class="price">฿4,000</div><div class="per">฿800 per class</div><ul><li>60 days from your chosen start date</li><li>5 group class passes</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/subscription/71996186" data-cta="Package: 5 classes">Choose</a></article>
-      <article class="pack hot"><img class="pack-cover" src="img/studio.webp" alt="" loading="lazy" width="620" height="280"><div class="pack-label">Popular</div><span class="tag">Most popular</span><div class="n">10</div><div class="u">group class passes</div><div class="price">฿7,000</div><div class="per">฿700 per class</div><ul><li>90 days from your chosen start date</li><li class="friend-bonus"><strong>+ 1 Friend Pass</strong><span>Complimentary opening gift</span></li><li>Paid passes can also be shared</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/92736697" rel="noopener" data-cta="Package: 10 classes">Buy passes</a></article>
+      <article class="pack hot"><img class="pack-cover" src="img/studio.webp" alt="" loading="lazy" width="620" height="280"><div class="pack-label">Popular</div><span class="tag">Most popular</span><div class="n">10</div><div class="u">group class passes</div><div class="was">Regular price <s>฿10,000</s></div><div class="price">฿7,000</div><div class="per">฿700 per class</div><ul><li>90 days from your chosen start date</li><li class="friend-bonus"><strong>+ 1 Friend Pass</strong><span>Complimentary opening gift</span></li><li>Paid passes can also be shared</li></ul><a class="btn sm" href="https://wba.exsportia.com/90305524/subscription/92736697" rel="noopener" data-cta="Package: 10 classes">Buy passes</a></article>
       <article class="pack"><img class="pack-cover" src="img/studio.webp" alt="" loading="lazy" width="620" height="280"><div class="pack-label">Ultimate</div><div class="n">20</div><div class="u">group class passes</div><div class="price">฿13,000</div><div class="per">฿650 per class</div><ul><li>120 days from your chosen start date</li><li class="friend-bonus"><strong>+ 2 Friend Passes</strong><span>Complimentary opening gift</span></li><li>Paid passes can also be shared</li></ul><a class="btn sm ghost" href="https://wba.exsportia.com/90305524/subscription/52164718" rel="noopener" data-cta="Package: 20 classes">Buy passes</a></article>
     </div>
 
@@ -528,6 +543,22 @@
 
 <script>
   (function(){
+    var saleEnd=Date.parse('2026-12-01T00:00:00+07:00');
+    function updateSaleCountdown(){
+      var remaining=Math.max(0,Math.floor((saleEnd-Date.now())/1000));
+      if(!remaining){
+        document.getElementById('packages').classList.add('sale-ended');
+        document.getElementById('sale-title').textContent='Our opening month sale has ended.';
+        document.getElementById('sale-detail').textContent='Please check the booking portal for current package prices and availability.';
+        document.getElementById('sale-clock').hidden=true;
+        document.getElementById('sale-clock').style.display='none';
+        return false;
+      }
+      var values={days:Math.floor(remaining/86400),hours:Math.floor(remaining/3600)%24,minutes:Math.floor(remaining/60)%60,seconds:remaining%60};
+      Object.keys(values).forEach(function(unit){document.querySelector('[data-sale-unit="'+unit+'"]').textContent=String(values[unit]).padStart(2,'0')});
+      return true;
+    }
+    if(updateSaleCountdown()){var saleTimer=setInterval(function(){if(!updateSaleCountdown())clearInterval(saleTimer)},1000)}
     var box=document.querySelector('.confetti');
     if(box){var seed=11,rnd=function(){seed=(seed*16807)%2147483647;return(seed-1)/2147483646},n=innerWidth<700?58:132,metals=['g','g','g','s','s','s','r','r'];
       for(var i=0;i<n;i++){var e=document.createElement('i'),t=rnd(),z=rnd(),x,y;
