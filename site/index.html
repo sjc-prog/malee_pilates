@@ -98,6 +98,51 @@
     .head p{color:var(--soft);margin-top:14px;font-size:19px}
     .center{text-align:center;margin-inline:auto}
 
+    /* studio */
+    .studio{background:var(--cream)}
+    .shot{position:relative;display:block;overflow:hidden;border-radius:var(--r);background:var(--pink-soft);box-shadow:var(--shadow);cursor:zoom-in}
+    .shot img{width:100%;height:100%;object-fit:cover;transition:transform 1s cubic-bezier(.2,1,.3,1)}
+    .shot:hover img{transform:scale(1.04)}
+    .shot.rv{transition:opacity .7s ease,transform .9s cubic-bezier(.2,1,.3,1.08);transition-delay:calc(var(--i,0)*120ms)}
+    .shot.shot-lead{aspect-ratio:16/9;border-radius:clamp(28px,4vw,48px)}
+    .shot.shot-lead img{object-position:50% 60%;transform:scale(1.1)}
+    .shot.shot-lead.in img{transform:none}
+    .shot.shot-lead.in:hover img{transform:scale(1.03)}
+    .shot .shot-tag{position:absolute;left:clamp(14px,3vw,30px);bottom:clamp(14px,3vw,30px);max-width:calc(100% - 28px);background:rgba(255,250,247,.93);backdrop-filter:blur(8px);padding:10px 16px;border-radius:999px;font:600 14px/1.25 var(--sans);color:var(--ink)}
+    .mosaic{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,2vw,22px);margin-top:clamp(14px,2vw,22px);align-items:start}
+    .mosaic .shot,.mood-grid .shot{aspect-ratio:3/4}
+    .mosaic>:nth-child(3n+2){margin-top:clamp(0px,3.4vw,44px)}
+    .cta-card{aspect-ratio:3/4;border-radius:var(--r);background:var(--pink);padding:clamp(20px,3vw,34px);display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:14px}
+    .cta-card .eyebrow{margin:0;color:var(--ink)}
+    .cta-card h3{font-size:clamp(26px,3vw,36px)}
+    .mood{margin-top:clamp(40px,6vw,76px);background:var(--ink);color:var(--paper);border-radius:clamp(28px,4vw,48px);padding:clamp(26px,5vw,60px);display:grid;grid-template-columns:.8fr 2.2fr;gap:clamp(24px,4vw,56px);align-items:center;box-shadow:0 44px 90px -56px rgba(69,64,58,.75)}
+    .mood .eyebrow{color:var(--pink)}
+    .mood h3{color:var(--butter);font-size:clamp(30px,3.6vw,46px)}
+    .mood h3 em{color:var(--pink)}
+    .mood-head p:last-child{color:#e9e2d8;margin-top:14px}
+    .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.6vw,18px)}
+    .mood-grid .shot{border-radius:22px;box-shadow:none}
+    @media(max-width:860px){
+      .mosaic{grid-template-columns:repeat(2,1fr)}
+      .mosaic>:nth-child(3n+2){margin-top:0}
+      .mosaic>:nth-child(even){margin-top:clamp(0px,6vw,36px)}
+      .mosaic>.shot:nth-child(5){grid-column:1/-1;aspect-ratio:4/3;margin-top:0}
+      .cta-card{grid-column:1/-1;aspect-ratio:auto;margin-top:0!important;min-height:220px}
+      .mood{grid-template-columns:1fr}
+      .shot.shot-lead{aspect-ratio:4/3}
+    }
+    @media(max-width:560px){.mood-grid{grid-template-columns:repeat(3,1fr);gap:8px}.mood-grid .shot{border-radius:14px}}
+    /* lightbox */
+    dialog.lb{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;width:100vw;height:100vh;color:#fff}
+    dialog.lb::backdrop{background:rgba(35,31,27,.92);backdrop-filter:blur(6px)}
+    dialog.lb .stage{position:absolute;inset:0;display:grid;place-items:center;padding:56px 64px}
+    dialog.lb img{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:18px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+    dialog.lb button{position:absolute;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,250,247,.16);color:#fff;font:400 26px/1 var(--sans);cursor:pointer;transition:background .2s}
+    dialog.lb button:hover{background:rgba(255,250,247,.32)}
+    dialog.lb .x{top:14px;right:14px}.lb .pv{left:12px;top:50%;margin-top:-24px}.lb .nx{right:12px;top:50%;margin-top:-24px}
+    dialog.lb .cnt{position:absolute;left:0;right:0;bottom:16px;text-align:center;font:500 14px/1 var(--sans);color:rgba(255,255,255,.8)}
+    @media(max-width:560px){dialog.lb .stage{padding:64px 10px 52px}dialog.lb .pv,dialog.lb .nx{top:auto;bottom:6px;margin:0}dialog.lb .pv{left:10px}dialog.lb .nx{right:10px}}
+
     /* free class day */
     .fbox{position:relative;overflow:hidden;background:var(--ink);color:var(--paper);border-radius:clamp(28px,4vw,48px);padding:clamp(92px,9vw,118px) clamp(22px,5vw,64px) clamp(34px,5vw,60px);box-shadow:0 44px 90px -56px rgba(69,64,58,.75)}
     .fbox .fin{position:relative;z-index:2}
@@ -282,7 +327,7 @@
     .post{display:none}.after .pre{display:none!important}.after .post{display:revert}.after .cal{grid-template-columns:repeat(2,1fr)}@media(max-width:900px){.after .cal{grid-template-columns:1fr}}
     /* reveal */
     .rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}.rv.in{opacity:1;transform:none}
-    @media(prefers-reduced-motion:reduce){.pose,.confetti i{animation:none}.rv,.class.rv,.times .time,.fbox .rules li{opacity:1!important;transform:none!important;transition:none!important}.fbox .badge{opacity:1;transform:rotate(9deg);transition:none}html{scroll-behavior:auto}.btn,.time,.touch a{transition:none}}
+    @media(prefers-reduced-motion:reduce){.pose,.confetti i{animation:none}.rv,.shot.shot-lead img,.class.rv,.times .time,.fbox .rules li{opacity:1!important;transform:none!important;transition:none!important}.fbox .badge{opacity:1;transform:rotate(9deg);transition:none}html{scroll-behavior:auto}.btn,.time,.touch a{transition:none}}
   </style>
   <script>if(Date.now()>new Date('2026-10-31T20:00:00+07:00').getTime())document.documentElement.className='after'</script>
   <script>
@@ -302,6 +347,7 @@
     <button class="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <nav class="main" id="nav" aria-label="Main">
       <a class="pre" href="#free-class">Free Class Day</a>
+      <a href="#studio">The studio</a>
       <a href="#classes">Classes</a>
       <a href="#packages">Packages</a>
       <a href="#team">Teachers</a>
@@ -333,6 +379,29 @@
     </div>
     <div class="art" aria-hidden="true">
       <div class="disc"></div><div class="disc2"></div><div class="pose"></div>
+    </div>
+  </div>
+</section>
+
+<section class="s studio" id="studio" aria-labelledby="studio-h">
+  <div class="wrap">
+    <div class="head rv"><p class="eyebrow">The studio</p><h2 id="studio-h">Step inside <em>Màlee</em></h2><p>Our Bophut studio is bright and calm, with tall windows, mirrors, Reformers and lighting that can change colour.</p></div>
+    <a class="shot shot-lead rv" href="/img/studio/studio-lead-1800.webp" data-lb><img src="/img/studio/studio-lead-1800.webp" srcset="/img/studio/studio-lead-900.webp 900w, /img/studio/studio-lead-1800.webp 1800w" sizes="(max-width:1180px) 100vw, 1140px" width="1800" height="1350" alt="The Màlee studio: a row of Reformers in a bright room with tall windows and warm ceiling lights" loading="lazy"><span class="shot-tag">Màlee Pilates Studio · Fisherman’s Village, Bophut</span></a>
+    <div class="mosaic">
+      <a class="shot rv" style="--i:0" href="/img/studio/reformer-room-1000.webp" data-lb><img src="/img/studio/reformer-room-1000.webp" srcset="/img/studio/reformer-room-560.webp 560w, /img/studio/reformer-room-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="Reformers lined up beside sheer curtains and tall windows at Màlee" loading="lazy"></a>
+      <a class="shot rv" style="--i:1" href="/img/studio/daylight-reformer-1000.webp" data-lb><img src="/img/studio/daylight-reformer-1000.webp" srcset="/img/studio/daylight-reformer-560.webp 560w, /img/studio/daylight-reformer-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="A Màlee instructor demonstrating a leg stretch on a Reformer in daylight" loading="lazy"></a>
+      <a class="shot rv" style="--i:2" href="/img/studio/close-up-1000.webp" data-lb><img src="/img/studio/close-up-1000.webp" srcset="/img/studio/close-up-560.webp 560w, /img/studio/close-up-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="Close-up of an instructor on a Reformer, with mirrors and plants behind" loading="lazy"></a>
+      <a class="shot rv" style="--i:0" href="/img/studio/tower-curtains-1000.webp" data-lb><img src="/img/studio/tower-curtains-1000.webp" srcset="/img/studio/tower-curtains-560.webp 560w, /img/studio/tower-curtains-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="An instructor working on the studio’s tower apparatus in front of tall windows" loading="lazy"></a>
+      <a class="shot rv" style="--i:1" href="/img/studio/tower-flow-1000.webp" data-lb><img src="/img/studio/tower-flow-1000.webp" srcset="/img/studio/tower-flow-560.webp 560w, /img/studio/tower-flow-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="An instructor inverted on the tower apparatus by the window" loading="lazy"></a>
+      <div class="cta-card rv" style="--i:2"><p class="eyebrow">Come and see it</p><h3>Your first class <em>is waiting.</em></h3><a class="btn" href="https://wba.exsportia.com/90305524/class/schedule/select-session" data-cta="Studio: book a class">Book a class</a></div>
+    </div>
+    <div class="mood rv">
+      <div class="mood-head"><p class="eyebrow">Set the mood</p><h3>The room can <em>change colour.</em></h3><p>Soft daylight, or blue, red and violet light across the ceiling.</p></div>
+      <div class="mood-grid">
+        <a class="shot rv" style="--i:0" href="/img/studio/mood-blue-1000.webp" data-lb><img src="/img/studio/mood-blue-1000.webp" srcset="/img/studio/mood-blue-560.webp 560w, /img/studio/mood-blue-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="An instructor on a Reformer under blue ceiling lighting at Màlee" loading="lazy"></a>
+        <a class="shot rv" style="--i:1" href="/img/studio/mood-red-1000.webp" data-lb><img src="/img/studio/mood-red-1000.webp" srcset="/img/studio/mood-red-560.webp 560w, /img/studio/mood-red-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="An instructor in a plank on a Reformer under red ceiling lighting at Màlee" loading="lazy"></a>
+        <a class="shot rv" style="--i:2" href="/img/studio/mood-violet-1000.webp" data-lb><img src="/img/studio/mood-violet-1000.webp" srcset="/img/studio/mood-violet-560.webp 560w, /img/studio/mood-violet-1000.webp 1000w" sizes="(max-width:700px) 50vw, 360px" width="1000" height="1333" alt="An instructor stepping off a Reformer under violet ceiling lighting at Màlee" loading="lazy"></a>
+      </div>
     </div>
   </div>
 </section>
@@ -529,6 +598,7 @@
         <h4>Explore</h4>
         <ul>
           <li class="pre"><a href="#free-class">Free Class Day</a></li>
+          <li><a href="#studio">The studio</a></li>
           <li><a href="#classes">Classes</a></li>
           <li><a href="#packages">Packages</a></li>
           <li><a href="#team">Teachers</a></li>
@@ -577,6 +647,21 @@
     btn.addEventListener('click',function(){var o=nav.classList.toggle('open');btn.setAttribute('aria-expanded',o)});
     nav.addEventListener('click',function(e){if(e.target.tagName==='A'){nav.classList.remove('open');btn.setAttribute('aria-expanded','false')}});
     document.addEventListener('click',function(e){var a=e.target.closest('a[data-cta]');if(a&&window.fbq)fbq('track','Lead',{content_name:a.getAttribute('data-cta')})});
+    var lbLinks=[].slice.call(document.querySelectorAll('a[data-lb]')),lb=null,lbIdx=0;
+    function lbShow(i){lbIdx=(i+lbLinks.length)%lbLinks.length;var a=lbLinks[lbIdx],im=a.querySelector('img');lb.querySelector('img').src=a.getAttribute('href');lb.querySelector('img').alt=im?im.alt:'';lb.querySelector('.cnt').textContent=(lbIdx+1)+' / '+lbLinks.length}
+    if(lbLinks.length&&typeof HTMLDialogElement==='function'){
+      lb=document.createElement('dialog');lb.className='lb';lb.setAttribute('aria-label','Studio photos');
+      lb.innerHTML='<div class="stage"><img alt=""></div><button class="x" aria-label="Close">&times;</button><button class="pv" aria-label="Previous photo">&lsaquo;</button><button class="nx" aria-label="Next photo">&rsaquo;</button><p class="cnt" aria-live="polite"></p>';
+      document.body.appendChild(lb);
+      lbLinks.forEach(function(a,i){a.addEventListener('click',function(e){e.preventDefault();lbShow(i);lb.showModal()})});
+      lb.querySelector('.x').addEventListener('click',function(){lb.close()});
+      lb.querySelector('.pv').addEventListener('click',function(){lbShow(lbIdx-1)});
+      lb.querySelector('.nx').addEventListener('click',function(){lbShow(lbIdx+1)});
+      lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('stage'))lb.close()});
+      lb.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')lbShow(lbIdx-1);if(e.key==='ArrowRight')lbShow(lbIdx+1)});
+      var tx=0;lb.addEventListener('touchstart',function(e){tx=e.changedTouches[0].clientX},{passive:true});
+      lb.addEventListener('touchend',function(e){var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)lbShow(lbIdx+(d<0?1:-1))},{passive:true});
+    }
     var els=document.querySelectorAll('.rv,.stag');
     if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches){els.forEach(function(el){el.classList.add('in')});return}
     var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:.08});
