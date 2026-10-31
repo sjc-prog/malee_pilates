@@ -1,46 +1,47 @@
 {
-  "status": "Prepared locally; not uploaded or launched",
-  "total_budget_thb": 6000,
+  "status": "Three November campaigns saved in Meta as paused drafts; not published or activated. Reviewed 31 October 2026.",
+  "total_budget_thb": 10000,
   "campaign_end_bangkok": "2026-11-28T23:59:00+07:00",
   "proposed_campaign_allocation_thb": {
-    "studio": 2000,
-    "packages": 2000,
-    "celes": 2000
+    "studio": 3333.33,
+    "packages": 3333.33,
+    "celes": 3333.34
   },
-  "targeting": "Koh Samui local radius to verify in Meta; avoid all-Thailand targeting. Keep existing approved demographic segments unless changed explicitly. No Firebase audience connection.",
+  "targeting": "Koh Samui city boundary (0 km added radius). Studio and Celes: all genders, ages 20–60. Packages: women, ages 20–60. All languages. No Firebase audience connection.",
   "ads": [
     {
       "id": "celes-collaboration",
       "headline": "Your practice, by the sea.",
       "eyebrow": "MÀLEE × CELES SAMUI",
-      "detail": "Pilates Wednesdays · Yoga Saturdays\n07:00–07:55 with Kru Nex",
+      "detail": "Pilates Wednesdays · Yoga Saturdays\n07:00–08:00 with Kru Nex",
       "offer": "First beachfront Mat class FREE",
       "photo": "celes/beachfront-official.jpg",
       "destination": "https://maleepilates.com/#celes",
-      "text": "Introducing MÀLEE × Celes Samui. Join Kru Nex for Pilates Sculpt & Tone on Wednesdays and Sunrise Yoga on Saturdays, 07:00–07:55. Your first beachfront Mat class is free, even for existing Reformer clients. Regular price ฿500. Participants receive 50% off breakfast at Celes Samui Hotel. Advance online booking required; booking release to be announced.",
-      "hold": "Do not activate until Celes capacity, sessions and first-free entitlement are configured."
+      "text": "Introducing MÀLEE × Celes Samui. Join Kru Nex for Pilates Sculpt & Tone on Wednesdays and Sunrise Yoga on Saturdays, 07:00–08:00. Your first beachfront Mat class is free, even for existing Reformer clients. Regular price ฿500. Participants receive 50% off breakfast at Celes Samui Hotel. Advance booking required. Contact the studio to arrange the complimentary first visit.",
+      "hold": "Paused draft ready for publishing; complimentary first visit arranged manually through the studio.",
+      "artwork": "artwork/celes-collaboration-0800.png"
     },
     {
       "id": "celes-pilates",
       "headline": "A stronger start to Wednesday.",
       "eyebrow": "BEACHFRONT PILATES · CELES SAMUI",
-      "detail": "Pilates Sculpt & Tone\nWednesday · 07:00–07:55 · Kru Nex",
+      "detail": "Pilates Sculpt & Tone\nWednesday · 07:00–08:00 · Kru Nex",
       "offer": "First beachfront Mat class FREE",
       "photo": "nex-practice.jpg",
       "destination": "https://maleepilates.com/#celes",
-      "text": "A new morning ritual with MÀLEE at Celes Samui Hotel. Pilates Sculpt & Tone with Kru Nex, Wednesdays 07:00–07:55. First beachfront Mat class free; existing Reformer clients are welcome too. Regular price ฿500 per class, plus 50% off hotel breakfast for participants. Advance online booking required; booking release to be announced.",
-      "hold": "Celes booking release pending."
+      "text": "A new morning ritual with MÀLEE at Celes Samui Hotel. Pilates Sculpt & Tone with Kru Nex, Wednesdays 07:00–08:00. First beachfront Mat class free; existing Reformer clients are welcome too. Regular price ฿500 per class, plus 50% off hotel breakfast for participants. Advance booking required. Contact the studio to arrange the complimentary first visit.",
+      "hold": "Unused alternative; regenerate PNG from corrected HTML before any upload."
     },
     {
       "id": "celes-yoga",
       "headline": "Meet your Saturday sunrise.",
       "eyebrow": "MÀLEE × CELES SAMUI",
-      "detail": "Sunrise Yoga with Kru Nex\nSaturday · 07:00–07:55",
+      "detail": "Sunrise Yoga with Kru Nex\nSaturday · 07:00–08:00",
       "offer": "Move by the sea. Stay for breakfast.",
       "photo": "celes/beachfront-official.jpg",
       "destination": "https://maleepilates.com/#celes",
-      "text": "Welcome the weekend with Sunrise Yoga at Celes Samui Hotel, led by Kru Nex. Saturdays 07:00–07:55. Your first beachfront Mat class is free, even if you already attend Reformer at MÀLEE. Regular price ฿500; all participants receive 50% off breakfast. Advance online booking required; booking release to be announced.",
-      "hold": "Celes booking release pending."
+      "text": "Welcome the weekend with Sunrise Yoga at Celes Samui Hotel, led by Kru Nex. Saturdays 07:00–08:00. Your first beachfront Mat class is free, even if you already attend Reformer at MÀLEE. Regular price ฿500; all participants receive 50% off breakfast. Advance booking required. Contact the studio to arrange the complimentary first visit.",
+      "hold": "Unused alternative; regenerate PNG from corrected HTML before any upload."
     },
     {
       "id": "november-studio",
@@ -64,5 +65,11 @@
       "text": "Make movement part of your November at MÀLEE. Opening prices: 5 group class passes ฿4,000 (฿800/class), 10 ฿7,000 (฿700/class), or 20 ฿13,000 (฿650/class). Get 1 complimentary Friend Pass with 10, or 2 with 20; gift terms apply. Choose your package start date when you buy. Opening package prices available before 1 December 2026.",
       "hold": "Check payment provider and Friend Pass fulfilment before paid traffic."
     }
-  ]
+  ],
+  "campaign_start_bangkok": "2026-10-31T14:40:00+07:00",
+  "meta_campaign_ids": {
+    "studio": "52579121850610",
+    "celes": "52579121850210",
+    "packages": "52576291462810"
+  }
 }
