@@ -1,0 +1,68 @@
+{
+  "status": "Prepared locally; not uploaded or launched",
+  "total_budget_thb": 6000,
+  "campaign_end_bangkok": "2026-11-28T23:59:00+07:00",
+  "proposed_campaign_allocation_thb": {
+    "studio": 2000,
+    "packages": 2000,
+    "celes": 2000
+  },
+  "targeting": "Koh Samui local radius to verify in Meta; avoid all-Thailand targeting. Keep existing approved demographic segments unless changed explicitly. No Firebase audience connection.",
+  "ads": [
+    {
+      "id": "celes-collaboration",
+      "headline": "Your practice, by the sea.",
+      "eyebrow": "MÀLEE × CELES SAMUI",
+      "detail": "Pilates Wednesdays · Yoga Saturdays\n07:00–07:55 with Kru Nex",
+      "offer": "First beachfront Mat class FREE",
+      "photo": "celes/beachfront-official.jpg",
+      "destination": "https://maleepilates.com/#celes",
+      "text": "Introducing MÀLEE × Celes Samui. Join Kru Nex for Pilates Sculpt & Tone on Wednesdays and Sunrise Yoga on Saturdays, 07:00–07:55. Your first beachfront Mat class is free, even for existing Reformer clients. Regular price ฿500. Participants receive 50% off breakfast at Celes Samui Hotel. Advance online booking required; booking release to be announced.",
+      "hold": "Do not activate until Celes capacity, sessions and first-free entitlement are configured."
+    },
+    {
+      "id": "celes-pilates",
+      "headline": "A stronger start to Wednesday.",
+      "eyebrow": "BEACHFRONT PILATES · CELES SAMUI",
+      "detail": "Pilates Sculpt & Tone\nWednesday · 07:00–07:55 · Kru Nex",
+      "offer": "First beachfront Mat class FREE",
+      "photo": "nex-practice.jpg",
+      "destination": "https://maleepilates.com/#celes",
+      "text": "A new morning ritual with MÀLEE at Celes Samui Hotel. Pilates Sculpt & Tone with Kru Nex, Wednesdays 07:00–07:55. First beachfront Mat class free; existing Reformer clients are welcome too. Regular price ฿500 per class, plus 50% off hotel breakfast for participants. Advance online booking required; booking release to be announced.",
+      "hold": "Celes booking release pending."
+    },
+    {
+      "id": "celes-yoga",
+      "headline": "Meet your Saturday sunrise.",
+      "eyebrow": "MÀLEE × CELES SAMUI",
+      "detail": "Sunrise Yoga with Kru Nex\nSaturday · 07:00–07:55",
+      "offer": "Move by the sea. Stay for breakfast.",
+      "photo": "celes/beachfront-official.jpg",
+      "destination": "https://maleepilates.com/#celes",
+      "text": "Welcome the weekend with Sunrise Yoga at Celes Samui Hotel, led by Kru Nex. Saturdays 07:00–07:55. Your first beachfront Mat class is free, even if you already attend Reformer at MÀLEE. Regular price ฿500; all participants receive 50% off breakfast. Advance online booking required; booking release to be announced.",
+      "hold": "Celes booking release pending."
+    },
+    {
+      "id": "november-studio",
+      "headline": "MÀLEE in November",
+      "eyebrow": "YOUR LIGHT. YOUR MOOD.",
+      "detail": "Five Reformer class types\n55 minutes · 9 places · Bophut",
+      "offer": "Drop in ฿900 · Book online",
+      "photo": "studio/daylight-reformer-1000.webp",
+      "destination": "https://maleepilates.com/#timetable",
+      "text": "Find your November rhythm at MÀLEE, Fisherman’s Village. Choose Full Body Flow, Beginner, Booty & Core, Sunset Tone or Jumpboard. Our updated class colour guide helps you find the practice for your day. Small groups of 9, 55-minute classes, drop-in ฿900. See the live timetable and book online.",
+      "hold": "Check online payment provider recovery before paid traffic."
+    },
+    {
+      "id": "november-packages",
+      "headline": "Make movement a habit.",
+      "eyebrow": "NOVEMBER OPENING PACKAGES",
+      "detail": "5 passes ฿4,000 · 10 passes ฿7,000\n20 passes ฿13,000",
+      "offer": "+ 1 Friend Pass with 10 · + 2 with 20",
+      "photo": "studio/tower-curtains-1000.webp",
+      "destination": "https://maleepilates.com/#packages",
+      "text": "Make movement part of your November at MÀLEE. Opening prices: 5 group class passes ฿4,000 (฿800/class), 10 ฿7,000 (฿700/class), or 20 ฿13,000 (฿650/class). Get 1 complimentary Friend Pass with 10, or 2 with 20; gift terms apply. Choose your package start date when you buy. Opening package prices available before 1 December 2026.",
+      "hold": "Check payment provider and Friend Pass fulfilment before paid traffic."
+    }
+  ]
+}
