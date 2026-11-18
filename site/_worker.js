@@ -486,10 +486,86 @@ async function completeClaim(env, { email, claim, existing = false }) {
   return { remaining: Number(inventory.remaining), ref: claim.ref_code || undefined };
 }
 
+const PUBLIC_BOOKING_API = "https://us-central1-exsportia-prod.cloudfunctions.net/production/";
+async function publicBookingData(path) {
+  const response = await fetch(new URL(path, PUBLIC_BOOKING_API), { signal: AbortSignal.timeout(8000) });
+  if (!response.ok) throw new Error("Booking catalogue unavailable");
+  return response.json();
+}
+async function liveMemberships(request) {
+  if (request.method !== "GET") return json({ error: "Method not allowed." }, 405);
+  try {
+    const venue = await publicBookingData("venues/simple/90305524/native");
+    if (!venue.appearanceTemplateId) throw new Error("Missing booking catalogue");
+    const sections = await publicBookingData("displaySettings/layout-with-permissions/" + encodeURIComponent(venue.appearanceTemplateId));
+    if (!Array.isArray(sections)) throw new Error("Invalid booking catalogue");
+    const memberships = new Map();
+    function collect(items, visible = true) {
+      for (const item of items || []) {
+        const shown = visible && item.show !== false;
+        const data = item.data;
+        if (shown && item.type === "SUBSCRIPTION" && data?.venueId === "90305524" &&
+            !data.deleted && !data.private && data.goLive && data.published &&
+            data.permissionData?.show && data.permissionData?.validated) {
+          memberships.set(item.entityId, {
+            id: item.entityId, name: data.name, description: data.description || "",
+            image: data.logo?.secure_url || "", duration: data.duration, durationType: data.durationType,
+            startDateType: data.startDateType,
+            prices: (data.prices || []).map(price => ({
+              price: price.price, currency: price.currency, type: price.type,
+            })),
+            activities: (data.activities || []).map(activity => ({
+              groupType: activity.groupType, amountByType: activity.amountByType,
+              frequencyAmount: activity.frequencyAmount, frequencyType: activity.frequencyType,
+              unlimited: activity.unlimited,
+            })),
+          });
+        }
+        collect(item.items, shown);
+      }
+    }
+    collect(sections);
+    return json({ memberships: [...memberships.values()] });
+  } catch {
+    return json({ error: "Current memberships are temporarily unavailable." }, 502);
+  }
+}
+async function bophutSchedule(request, date) {
+  if (request.method !== "GET" || !/^2026-11-(0[1-9]|[12][0-9]|30)$/.test(date || "")) {
+    return json({ error: "Choose a date in November 2026." }, 400);
+  }
+  const day = Date.parse(date + "T00:00:00Z");
+  const endpoint = new URL("classesSlots/sessionsByDateList", PUBLIC_BOOKING_API);
+  endpoint.search = new URLSearchParams({ venueId: "90305524", date: String(day) });
+  try {
+    const response = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) throw new Error("Schedule request failed");
+    const sessions = await response.json();
+    if (!Array.isArray(sessions)) {
+      if (typeof sessions?.closestSessionTimeStamp === "number") return json([]);
+      throw new Error("Invalid schedule");
+    }
+    return json(sessions
+      .filter(session => session.areaId === "87471808" && !session.private && session.permissionData?.show &&
+        session.timestamp >= day && session.timestamp < day + 86400000)
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map(session => ({
+        classId: session.classId, name: session.className, timestamp: session.timestamp,
+        duration: session.duration, price: session.price,
+        teachers: session.instructors.map(instructor => instructor.name),
+        bookable: session.permissionData.validated && (session.availableSlots > 0 || session.waitingListAllowed),
+      })));
+  } catch {
+    return json({ error: "The booking schedule is temporarily unavailable." }, 502);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const password = env.PREVIEW_PASSWORD;
+    if (url.pathname === "/api/memberships") return liveMemberships(request);
+    if (url.pathname === "/api/bophut-schedule") return bophutSchedule(request, url.searchParams.get("date"));
 
     if (url.pathname === "/client-review/submit") {
       if (request.method !== "POST") return json({ error: "Not found." }, 404);
